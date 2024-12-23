@@ -1,6 +1,8 @@
 
 # Tokenizer for Python
 
+# todo : improve parameter matching (find parameters of function definition)
+
 import re
 from enum import Enum
 
