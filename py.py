@@ -80,11 +80,19 @@ class Lexer(object):
             "self",
             "int",
             "float",
+            "complex",
             "str",
             "type",
             "bool",
             "dict",
-            "tuple"
+            "tuple",
+            "list",
+            "range",
+            "set",
+            "frozenset",
+            "bytes",
+            "bytearray",
+            "memoryview"
         ]
         self.FUNC_PARAMS = [
             "lambda"
