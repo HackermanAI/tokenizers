@@ -34,7 +34,7 @@ class Token(object):
 
 class Lexer(object):
     def __init__(self):
-        self.KEYWORD = [
+        self.KEYWORDS = [
             "in",
             "is",
             "async",
@@ -67,7 +67,7 @@ class Lexer(object):
             "not"
         ]
         # todo : add more built ins
-        self.BUILT_IN = [
+        self.BUILT_INS = [
             "assert",
             "del",
             "print",
@@ -76,7 +76,7 @@ class Lexer(object):
             "len"
         ]
         # todo : add more types
-        self.SPECIAL = [
+        self.SPECIALS = [
             "self",
             "int",
             "float",
@@ -86,10 +86,10 @@ class Lexer(object):
             "dict",
             "tuple"
         ]
-        self.PARAMETER = [
+        self.FUNC_PARAMS = [
             "lambda"
         ]
-        self.CONDITIONAL = [
+        self.CONSTANTS = [
             "True",
             "False",
             "None"
@@ -393,22 +393,22 @@ class Lexer(object):
                             current_char_index += 1
 
                         # conditional
-                        if identifier in self.CONDITIONAL:
+                        if identifier in self.CONSTANTS:
                             tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                         # special
-                        elif identifier in self.SPECIAL and not (function_declaration and identifier == "self"):
+                        elif identifier in self.SPECIALS and not (function_declaration and identifier == "self"):
                             if identifier == "self":
                                 tokens.append(Token(TokenType.SPECIALC, start_pos, identifier))
                             else:
                                 tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
                         # built_in
-                        elif identifier in self.BUILT_IN:
+                        elif identifier in self.BUILT_INS:
                             tokens.append(Token(TokenType.BUILT_IN, start_pos, identifier))
                         # parameter
-                        elif identifier in self.PARAMETER:
+                        elif identifier in self.PARAMETERS:
                             tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
                         # keyword
-                        elif identifier in self.KEYWORD:
+                        elif identifier in self.KEYWORDS:
                             tokens.append(Token(TokenType.KEYWORD, start_pos, identifier))
                             # update state for custom function declaration styling
                             if identifier in ["def"]: function_declaration = True
