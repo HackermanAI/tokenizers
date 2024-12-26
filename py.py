@@ -75,7 +75,7 @@ class Lexer(object):
             "super",
             "len"
         ]
-        # todo : add more types
+        # data types
         self.SPECIALS = [
             "self",
             "int",
