@@ -69,6 +69,7 @@ class Lexer(object):
             "dict",         "tuple",        "list",         "set",
             "frozenset",    "bytes",        "bytearray",    "memoryview"
         ]
+        # todo : rename this to special2? (default blue is special1 for class stuff)
         self.FUNC_PARAMS = [
             "lambda"
         ]
