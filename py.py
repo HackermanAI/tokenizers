@@ -98,6 +98,10 @@ class Lexer(object):
 
     def comment_char(self): return "#"
 
+    def function_decl(self): return "def"
+
+    def class_decl(self): return "class"
+
     def tokenize(self, text, highlight_todos=False):
         tokens = []
         current_line = 1
