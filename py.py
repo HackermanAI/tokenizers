@@ -94,7 +94,7 @@ class Lexer(object):
         
         # todo : store line and col (for easy navigation to declarations in editor)
         self.CLASS_DIR = []
-        self.FUNCTION_DIR = []
+        self.FUNCTION_DIR = {}
 
     def comment_char(self): return "#"
 
@@ -111,7 +111,7 @@ class Lexer(object):
 
         # reset dirs
         self.CLASS_DIR = []
-        self.FUNCTION_DIR = []
+        self.FUNCTION_DIR = {}
 
         while current_char_index < len(text):
             current_char = text[current_char_index]
@@ -396,7 +396,7 @@ class Lexer(object):
                         elif identifier in self.KEYWORDS:
                             tokens.append(Token(TokenType.KEYWORD, start_pos, identifier))
                             # update state for custom function declaration styling
-                            if identifier in ["def"]: function_declaration = True
+                            if identifier in { "def" }: function_declaration = True
                         # single underscore is special
                         elif identifier == "_":
                             tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
@@ -408,7 +408,7 @@ class Lexer(object):
                             if function_declaration and function_parameters == 0:
                                 tokens.append(Token(TokenType.NAME, start_pos, identifier))
                                 # append name to FUNCTION_DIR
-                                if identifier not in self.FUNCTION_DIR: self.FUNCTION_DIR.append(identifier)
+                                if identifier not in self.FUNCTION_DIR.keys(): self.FUNCTION_DIR[str(identifier)] = current_line
                             
                             # custom style for function parameters
                             elif function_declaration and function_parameters == 1:
@@ -435,7 +435,7 @@ class Lexer(object):
                                 else:
                                     if identifier in self.CLASS_DIR:
                                         tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
-                                    elif identifier in self.FUNCTION_DIR:
+                                    elif identifier in self.FUNCTION_DIR.keys():
                                         tokens.append(Token(TokenType.NAME, start_pos, identifier))
                                     else:
                                         # using identifier as type to easier find and style identifiers post lexing
