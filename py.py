@@ -113,6 +113,8 @@ class Lexer(object):
         function_parameters = 0
         function_arguments = 0
 
+        skip_next_parameter = False
+
         # reset dirs
         self.CLASS_DIR = []
         self.FUNCTION_DIR = {}
@@ -407,6 +409,7 @@ class Lexer(object):
                         # identifier
                         else:
                             next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+                            print(next_char)
                             
                             # custom style for function and class name
                             if function_declaration and function_parameters == 0:
@@ -415,7 +418,7 @@ class Lexer(object):
                                 if identifier not in self.FUNCTION_DIR.keys(): self.FUNCTION_DIR[str(identifier)] = current_line
                             
                             # custom style for function parameters
-                            elif function_declaration and function_parameters == 1:
+                            elif function_declaration and function_parameters == 1 and not skip_next_parameter:
 
                                 # todo : still an issue with parameter styling on type hints on right hand side (might need to change post lex)
 
@@ -427,6 +430,9 @@ class Lexer(object):
                                 #     tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
                                 # else:
                                 #     tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+
+                                if next_char in { ":" }: skip_next_parameter = True
+                                if next_char in { ",", ")" }: skip_next_parameter = False
                                 
                                 tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
                             
