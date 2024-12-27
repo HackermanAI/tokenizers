@@ -78,12 +78,12 @@ class Lexer(object):
             "None"
         ]
         self.NUMBER_REGEX = {
-            "BINARY"    : r"^0[bB][01]+$",
-            "HEX"       : r"^0[xX][0-9a-fA-F]+$",
-            "OCTAL"     : r"^0[oO][0-7]+$",
-            "FLOAT_SCI" : r"^\d+(\.\d+)?[eE][+-]?\d+$",
-            "COMPLEX"   : r"^(\d+(\.\d+)?|\.\d+)?[+-]?\d+(\.\d+)?[jJ]$",
-            "DECIMAL"   : r"^\d+(\.\d+)?$"
+            "BINARY"        : r"^0[bB][01]+$",
+            "HEX"           : r"^0[xX][0-9a-fA-F]+$",
+            "OCTAL"         : r"^0[oO][0-7]+$",
+            "FLOAT_SCI"     : r"^\d+(\.\d+)?[eE][+-]?\d+$",
+            "COMPLEX"       : r"^(\d+(\.\d+)?|\.\d+)?[+-]?\d+(\.\d+)?[jJ]$",
+            "DECIMAL"       : r"^\d+(\.\d+)?$"
         }
         self.FSTRING_REGEX = {
             "STRING_TEXT"   : r"[^{}\\]+",
