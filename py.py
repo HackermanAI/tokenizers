@@ -92,6 +92,7 @@ class Lexer(object):
             "ESCAPE_SEQ"    : r"\\."
         }
         
+        # todo : store line and col (for easy navigation to declarations in editor)
         self.CLASS_DIR = []
         self.FUNCTION_DIR = []
 
