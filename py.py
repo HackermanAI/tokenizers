@@ -1,8 +1,6 @@
 
 # Tokenizer for Python
 
-# todo : improve parameter matching (find parameters of function definition)
-
 import re
 from enum import Enum
 
@@ -42,7 +40,7 @@ class Lexer(object):
             "import",       "nonlocal",     "pass",         "raise",
             "return",       "try",          "while",        "with",
             "yield",        "def",          "class",        "and",
-            "or",           "not"
+            "or",           "not",
         ]
         # https://docs.python.org/3/library/functions.html
         self.BUILT_INS = [
@@ -60,14 +58,14 @@ class Lexer(object):
             "open",         "ord",          "pow",          "property",
             "range",        "repr",         "reversed",     "round",
             "setattr",      "slice",        "sorted",       "staticmethod",
-            "sum",          "vars",         "zip",          "import"
+            "sum",          "vars",         "zip"
         ]
         # data types
         self.SPECIALS = [
             "self",         "type",         "int",          "float",
-            "complex",      "str",          "type",         "bool",
-            "dict",         "tuple",        "list",         "set",
-            "frozenset",    "bytes",        "bytearray",    "memoryview"
+            "complex",      "str",          "bool",         "dict",
+            "tuple",        "list",         "frozenset",    "bytes",
+            "bytearray",    "memoryview"
         ]
         # todo : rename this to special2? (default blue is special1 for class stuff)
         self.FUNC_PARAMS = [
@@ -91,10 +89,8 @@ class Lexer(object):
             "EXPRESSION"    : r"(?<!{){([^}]*)}(?!})",
             "ESCAPE_SEQ"    : r"\\."
         }
-        
-        # todo : probably easier to just return declaration string (and match def NAME for declaration in editor?)
         self.CLASS_DIR = []
-        self.FUNCTION_DIR = {}
+        self.FUNCTION_DIR = []
 
     def comment_char(self): return "#"
 
@@ -117,7 +113,7 @@ class Lexer(object):
 
         # reset dirs
         self.CLASS_DIR = []
-        self.FUNCTION_DIR = {}
+        self.FUNCTION_DIR = []
 
         while current_char_index < len(text):
             current_char = text[current_char_index]
@@ -236,7 +232,11 @@ class Lexer(object):
                     tokens.append(Token(TokenType._ANON, current_char_index, current_char))
                     current_char_index += 1
                     # update state for custom function declaration styling
-                    if function_declaration and function_parameters == 0: function_declaration = False
+                    if function_declaration and function_parameters == 0:
+                        function_declaration = False
+                        skip_next_parameter = False
+                    # only highlight keys at lowest level as parameters
+                    if function_declaration and function_parameters == 1 and skip_next_parameter and current_char == ",": skip_next_parameter = False
                 case '=':
                     # conditional
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
@@ -281,9 +281,6 @@ class Lexer(object):
                     else:
                         tokens.append(Token(TokenType.CONDITIONAL, current_char_index, current_char))
                         current_char_index += 1
-                case ',':
-                    tokens.append(Token(TokenType._ANON, current_char_index, current_char))
-                    current_char_index += 1
                 # strings
                 case '"' | '\'':
                     start_pos = current_char_index
@@ -395,8 +392,8 @@ class Lexer(object):
                         # built_in
                         elif identifier in self.BUILT_INS:
                             tokens.append(Token(TokenType.BUILT_IN, start_pos, identifier))
-                        # parameter
-                        elif identifier in self.PARAMETERS:
+                        # parameter : todo : rename this to avoid confusion
+                        elif identifier in self.FUNC_PARAMS:
                             tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
                         # keyword
                         elif identifier in self.KEYWORDS:
@@ -408,31 +405,24 @@ class Lexer(object):
                             tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
                         # identifier
                         else:
-                            next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                            print(next_char)
+                            n = 0
+                            next_non_empty_char = text[current_char_index] if current_char_index < len(text) else None
+                            while next_non_empty_char != None and next_non_empty_char.strip() == "" and current_char_index + n < len(text):
+                                n += 1
+                                next_non_empty_char = text[current_char_index + n] if current_char_index + n < len(text) else None
                             
                             # custom style for function and class name
                             if function_declaration and function_parameters == 0:
                                 tokens.append(Token(TokenType.NAME, start_pos, identifier))
                                 # append name to FUNCTION_DIR
-                                if identifier not in self.FUNCTION_DIR.keys(): self.FUNCTION_DIR[str(identifier)] = current_line
+                                if identifier not in self.FUNCTION_DIR: self.FUNCTION_DIR.append(identifier)
                             
                             # custom style for function parameters
                             elif function_declaration and function_parameters == 1 and not skip_next_parameter:
+                                # print(next_non_empty_char)
 
-                                # todo : still an issue with parameter styling on type hints on right hand side (might need to change post lex)
-
-                                # def __init__(self, master: Misc | None = None): pass
-
-                                # only apply parameter styling on key name (left hand side)
-                                # print(":" in [tk.value for tk in tokens[:-1]])
-                                # if len(tokens) > 0 and ":" not in [tk.value for tk in tokens[len(tokens) - 4:-1] if tk.value]:
-                                #     tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
-                                # else:
-                                #     tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
-
-                                if next_char in { ":" }: skip_next_parameter = True
-                                if next_char in { ",", ")" }: skip_next_parameter = False
+                                if next_non_empty_char in { ":" }: skip_next_parameter = True
+                                # if next_non_empty_char in { ",", ")" }: skip_next_parameter = False
                                 
                                 tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
                             
@@ -445,7 +435,7 @@ class Lexer(object):
                                 else:
                                     if identifier in self.CLASS_DIR:
                                         tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
-                                    elif identifier in self.FUNCTION_DIR.keys():
+                                    elif identifier in self.FUNCTION_DIR:
                                         tokens.append(Token(TokenType.NAME, start_pos, identifier))
                                     else:
                                         # using identifier as type to easier find and style identifiers post lexing
@@ -455,4 +445,5 @@ class Lexer(object):
                         tokens.append(Token(TokenType.DEFAULT, current_char_index, current_char))
                         current_char_index += 1
 
+        # todo : probably easier to just return declaration string (and match def NAME for navigation to declaration in editor?)
         return tokens, self.CLASS_DIR, self.FUNCTION_DIR
