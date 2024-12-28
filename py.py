@@ -66,7 +66,7 @@ class Lexer(object):
             "self",         "type",         "int",          "float",
             "complex",      "str",          "bool",         "dict",
             "tuple",        "list",         "frozenset",    "bytes",
-            "bytearray",    "memoryview"
+            "bytearray",    "memoryview",   "Callable"
         ]
         # todo : rename this to special2? (default blue is special1 for class stuff)
         self.FUNC_PARAMS = [
