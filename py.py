@@ -4,6 +4,7 @@
 import re
 from enum import Enum
 
+# these enums are language dependent so no need to match with colors ids in .hackerman config file
 class TokenType(Enum):
     DEFAULT     = 100
     WHITESPACE  = 101
@@ -20,7 +21,7 @@ class TokenType(Enum):
     NAME        = 112
     IDENTIFIER  = 113
     FSTRING     = 114
-    SPECIALC    = 115
+    # SPECIALC    = 115
 
 class Token(object):
     def __init__(self, type, start_pos, value=None):
@@ -385,10 +386,11 @@ class Lexer(object):
                             tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                         # special
                         elif identifier in self.SPECIALS and not (function_declaration and identifier == "self"):
-                            if identifier == "self":
-                                tokens.append(Token(TokenType.SPECIALC, start_pos, identifier))
-                            else:
-                                tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                            # if identifier == "self":
+                            #     tokens.append(Token(TokenType.SPECIALC, start_pos, identifier))
+                            # else:
+                            #     tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                            tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
                         # built_in
                         elif identifier in self.BUILT_INS:
                             tokens.append(Token(TokenType.BUILT_IN, start_pos, identifier))
