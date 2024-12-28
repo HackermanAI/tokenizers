@@ -44,7 +44,13 @@ class Lexer(object):
             "blockcursor",
             "wrap_word",
             "blinking_cursor",
+            "show_scrollbar",
+            "show_minimap",
+            "highlight_todos",
+            "indent_guides",
             "theme",
+            "show_eol",
+            "eol_mode",
             # ollama
             "model",
             # bindings
