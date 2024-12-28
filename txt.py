@@ -35,6 +35,8 @@ class Lexer(object):
 
     def comment_char(self): return None
 
+    def lexer_name(self): return "Plain Text"
+
     def tokenize(self, text, highlight_todos=False):
         tokens = []
         current_line = 1
