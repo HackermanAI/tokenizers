@@ -118,6 +118,8 @@ class Lexer(object):
 
     def comment_char(self): return "#"
 
+    def lexer_name(self): return "Hackerman"
+
     def tokenize(self, text, highlight_todos=False):
         tokens = []
         current_line = 1
