@@ -99,6 +99,8 @@ class Lexer(object):
 
     def class_decl(self): return "class"
 
+    def lexer_name(self): return "Python 3"
+
     def tokenize(self, text, highlight_todos=False):
         tokens = []
         current_line = 1
