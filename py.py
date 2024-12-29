@@ -23,6 +23,7 @@ class TokenType(Enum):
     NAME        = 112
     IDENTIFIER  = 113
     FSTRING     = 114
+    CLASS       = 115
     # SPECIALC    = 115
 
 class Token(object):
@@ -68,7 +69,7 @@ class Lexer(object):
             "self",         "type",         "int",          "float",
             "complex",      "str",          "bool",         "dict",
             "tuple",        "list",         "frozenset",    "bytes",
-            "bytearray",    "memoryview",   "Callable"
+            "bytearray",    "memoryview"
         ]
         # todo : rename this to special2? (default blue is special1 for class stuff)
         self.FUNC_PARAMS = [
@@ -116,6 +117,9 @@ class Lexer(object):
 
         skip_next_parameter = False
 
+        inside_import = False
+        inside_import_block = False
+
         # reset dirs
         self.CLASS_DIR = []
         self.FUNCTION_DIR = []
@@ -128,6 +132,8 @@ class Lexer(object):
                 case '\n':
                     current_line += 1
                     current_char_index += 1
+
+                    if inside_import == True and not inside_import_block == True: inside_import = False
                 case '#':
                     start_pos = current_char_index
                     current_char_index += 1
@@ -222,6 +228,8 @@ class Lexer(object):
                     if len(tokens) > 1 and tokens[-2].type == TokenType.IDENTIFIER: tokens[-2].type = TokenType.NAME
                     # update state for custom function arguments styling
                     if len(tokens) > 1 and tokens[-2].type == TokenType.NAME: function_arguments += 1
+
+                    if inside_import == True: inside_import_block = True
                 case ')':
                     tokens.append(Token(TokenType._ANON, current_char_index, current_char))
                     current_char_index += 1
@@ -229,6 +237,8 @@ class Lexer(object):
                     if function_declaration and function_parameters > 0: function_parameters -= 1 if function_parameters > 0 else 0
                     # update state for custom function arguments styling
                     if function_arguments > 0: function_arguments -= 1 if function_arguments > 0 else 0
+
+                    if inside_import_block == True: inside_import_block = False
                 # anons
                 case '{' | '}' | '[' | ']':
                     tokens.append(Token(TokenType._ANON, current_char_index, current_char))
@@ -385,8 +395,11 @@ class Lexer(object):
                             identifier += str(text[current_char_index])
                             current_char_index += 1
 
+                        # use default inside imports
+                        if inside_import == True:
+                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
                         # conditional
-                        if identifier in self.CONSTANTS:
+                        elif identifier in self.CONSTANTS:
                             tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                         # special
                         elif identifier in self.SPECIALS and not (function_declaration and identifier == "self"):
@@ -406,6 +419,7 @@ class Lexer(object):
                             tokens.append(Token(TokenType.KEYWORD, start_pos, identifier))
                             # update state for custom function declaration styling
                             if identifier in { "def" }: function_declaration = True
+                            if identifier in { "import" }: inside_import = True
                         # single underscore is special
                         elif identifier == "_":
                             tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
@@ -435,12 +449,12 @@ class Lexer(object):
                             # otherwise
                             else:
                                 if len(tokens) > 0 and tokens[-1].type == TokenType.KEYWORD and tokens[-1].value == "class":
-                                    tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                                    tokens.append(Token(TokenType.CLASS, start_pos, identifier))
                                     # append to CLASS_DIR
                                     if identifier not in self.CLASS_DIR: self.CLASS_DIR.append(identifier)
                                 else:
                                     if identifier in self.CLASS_DIR:
-                                        tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                                        tokens.append(Token(TokenType.CLASS, start_pos, identifier))
                                     elif identifier in self.FUNCTION_DIR:
                                         tokens.append(Token(TokenType.NAME, start_pos, identifier))
                                     else:
