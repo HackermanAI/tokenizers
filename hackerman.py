@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Hackerman (TOML-like custom DSL)
+# Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
 import re
 from enum import Enum
