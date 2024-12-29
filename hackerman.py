@@ -73,6 +73,7 @@ class Lexer(object):
             "theme",
             "show_eol",
             "eol_mode",
+            "file_explorer_root",
             # ollama
             "model",
             # bindings
@@ -91,6 +92,7 @@ class Lexer(object):
             "move_to_line_start",
             "zoom_in",
             "zoom_out",
+            "toggle_file_explorer",
             # todos
             "find_in_file",
             "undo",
@@ -166,7 +168,7 @@ class Lexer(object):
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == "-":
                         start_pos = current_char_index
-                        current_char_index += 2 # skip --
+                        current_char_index += 1
                         line = current_char
                         while current_char_index < len(text) and text[current_char_index] != '\n':
                             line += text[current_char_index]
