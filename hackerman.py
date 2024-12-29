@@ -85,6 +85,7 @@ class Lexer(object):
             # syntax colors
             "default",
             "keyword",
+            "class",
             "name",
             "parameter",
             "lambda",
@@ -116,7 +117,7 @@ class Lexer(object):
             "DECIMAL"   : r"^\d+(\.\d+)?$"
         }
 
-    def comment_char(self): return "#"
+    def comment_char(self): return "--"
 
     def lexer_name(self): return "Hackerman"
 
@@ -139,14 +140,16 @@ class Lexer(object):
                     current_char_index += 1
                     # update state
                     RHS = False
-                case '#':
-                    start_pos = current_char_index
-                    current_char_index += 1
-                    line = current_char
-                    while current_char_index < len(text) and text[current_char_index] != '\n':
-                        line += text[current_char_index]
-                        current_char_index += 1
-                    tokens.append(Token(TokenType.COMMENT, start_pos, line))
+                case '-':
+                    next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+                    if next_char == "-":
+                        start_pos = current_char_index
+                        current_char_index += 2 # skip --
+                        line = current_char
+                        while current_char_index < len(text) and text[current_char_index] != '\n':
+                            line += text[current_char_index]
+                            current_char_index += 1
+                        tokens.append(Token(TokenType.COMMENT, start_pos, line))
                 case '=':
                     tokens.append(Token(TokenType.BUILT_IN, current_char_index, current_char))
                     current_char_index += 1
