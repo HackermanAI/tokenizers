@@ -4,6 +4,8 @@
 import re
 from enum import Enum
 
+# todo : make all identifiers on import line default (and inside import block)
+
 # these enums are language dependent so no need to match with colors ids in .hackerman config file
 class TokenType(Enum):
     DEFAULT     = 100
