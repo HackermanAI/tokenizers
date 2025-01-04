@@ -43,6 +43,7 @@ class TokenType(Enum):
     IDENTIFIER  = 113
     FSTRING     = 114
     SPECIALC    = 115
+    ERROR       = 116
 
 class Token(object):
     def __init__(self, type, start_pos, value=None):
@@ -174,8 +175,11 @@ class Lexer(object):
                             line += text[current_char_index]
                             current_char_index += 1
                         tokens.append(Token(TokenType.COMMENT, start_pos, line))
+                    else:
+                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
+                        current_char_index += 1
                 case '=':
-                    tokens.append(Token(TokenType.BUILT_IN, current_char_index, current_char))
+                    tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                     current_char_index += 1
                     # update state
                     RHS = True
@@ -247,7 +251,7 @@ class Lexer(object):
                         if number_type == TokenType.NUMBER:
                             tokens.append(Token(TokenType.NUMBER, start_pos, number))
                         else:
-                            tokens.append(Token(TokenType.BUILT_IN, start_pos, number))
+                            tokens.append(Token(TokenType.ERROR, start_pos, number))
                     # identifiers
                     elif current_char.isidentifier():
                         start_pos = current_char_index
@@ -269,9 +273,9 @@ class Lexer(object):
                             if current_header in { "[builds]", "[user]" }:
                                 tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
                             else:
-                                tokens.append(Token(TokenType.BUILT_IN, start_pos, identifier))
+                                tokens.append(Token(TokenType.ERROR, start_pos, identifier))
                     else:
-                        tokens.append(Token(TokenType.BUILT_IN, current_char_index, current_char))
+                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                         current_char_index += 1
 
         return tokens, [], []
