@@ -75,6 +75,7 @@ class Lexer(object):
             "show_eol",
             "eol_mode",
             "file_explorer_root",
+            "model_to_use",
             # ollama
             "model",
             # bindings
@@ -91,6 +92,7 @@ class Lexer(object):
             "open_config_file",
             "build_and_run",
             "move_to_line_start",
+            "move_to_line_start_with_select",
             "zoom_in",
             "zoom_out",
             "toggle_file_explorer",
