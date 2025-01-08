@@ -44,6 +44,7 @@ class TokenType(Enum):
     FSTRING     = 114
     SPECIALC    = 115
     ERROR       = 116
+    SUCCESS     = 117
 
 class Token(object):
     def __init__(self, type, start_pos, value=None):
@@ -70,14 +71,18 @@ class Lexer(object):
             "show_scrollbar",
             "show_minimap",
             "highlight_todos",
+            "whitespace_visible",
             "indent_guides",
+            "highlight_current_line",
             "theme",
             "show_eol",
             "eol_mode",
             "file_explorer_root",
             "model_to_use",
             # ollama
+            # openai
             "model",
+            "key",
             # bindings
             "save_file",
             "new_file",
@@ -266,7 +271,7 @@ class Lexer(object):
 
                         # conditional
                         if identifier in self.CONDITIONAL:
-                            tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
+                            tokens.append(Token(TokenType.SUCCESS if identifier == "true" else TokenType.ERROR, start_pos, identifier))
                         # keyword
                         elif identifier in self.NAME:
                             tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
