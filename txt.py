@@ -23,7 +23,7 @@
 
 # Tokenizer for Text
 
-import re
+# import re
 from enum import Enum
 
 class TokenType(Enum):
@@ -69,8 +69,10 @@ class Lexer(object):
             current_char = text[current_char_index]
             match current_char:
                 case ' ' | '\t' | '\r':
+                    # tokens.append(Token(TokenType.WHITESPACE, current_char_index, current_char))
                     current_char_index += 1
                 case '\n':
+                    # tokens.append(Token(TokenType.WHITESPACE, current_char_index, current_char))
                     current_line += 1
                     current_char_index += 1
                 case '.':
