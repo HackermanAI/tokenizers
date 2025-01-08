@@ -236,7 +236,7 @@ class Lexer(object):
                         else:
                             current_char_index += 1
                     
-                    tokens.append(Token(TokenType.STRING, start_pos, string))
+                    tokens.append(Token(TokenType.SUCCESS, start_pos, string))
                 case _:
                     # number
                     if current_char.isdigit():
@@ -256,7 +256,7 @@ class Lexer(object):
                                 break
 
                         if number_type == TokenType.NUMBER:
-                            tokens.append(Token(TokenType.NUMBER, start_pos, number))
+                            tokens.append(Token(TokenType.SUCCESS, start_pos, number))
                         else:
                             tokens.append(Token(TokenType.ERROR, start_pos, number))
                     # identifiers
