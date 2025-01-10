@@ -124,6 +124,10 @@ class Lexer(object):
 
     def lexer_name(self): return "Python 3"
 
+    def block_starters(self): return { ":", "(", "[", "{", "\"", "\'" }
+
+    def delimiters(self): return { "(", "[", "{", "\"", "\'" }
+
     def tokenize(self, text, highlight_todos=False):
         tokens = []
         current_line = 1
