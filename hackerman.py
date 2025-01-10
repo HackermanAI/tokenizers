@@ -60,9 +60,16 @@ class Lexer(object):
             # editor
             "font",
             "font_size",
-            "font_size_status",
+            "font_weight",
             "tab_width",
-            "scroll_width",
+            "cursor_width",
+            "window_width",
+            "window_height",
+            "theme",
+            "file_explorer_root",
+            "model_to_use",
+            "eol_mode",
+            # toggles
             "show_line_numbers",
             "transparent",
             "blockcursor",
@@ -74,11 +81,7 @@ class Lexer(object):
             "whitespace_visible",
             "indent_guides",
             "highlight_current_line",
-            "theme",
             "show_eol",
-            "eol_mode",
-            "file_explorer_root",
-            "model_to_use",
             # ollama
             # openai
             "model",
