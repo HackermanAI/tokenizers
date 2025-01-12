@@ -81,6 +81,7 @@ class Lexer(object):
             "whitespace_visible",
             "indent_guides",
             "highlight_current_line",
+            "highlight_current_line_on_jump",
             "show_eol",
             # ollama
             # openai
