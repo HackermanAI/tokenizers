@@ -175,6 +175,7 @@ class Lexer(object):
                     current_char_index += 1
                     # update state
                     RHS = False
+                # comment or error
                 case '-':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == "-":
@@ -188,17 +189,14 @@ class Lexer(object):
                     else:
                         tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                         current_char_index += 1
-                case '=':
-                    tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
-                    current_char_index += 1
-                    # update state
-                    RHS = True
+                # header start
                 case '[':
                     start_pos = current_char_index
                     header = str(current_char)
                     
                     current_char_index += 1
 
+                    # todo : probably no need for nested levels
                     if RHS == False:
                         nested_level = 0
                         while current_char_index < len(text) and text[current_char_index].isprintable():
@@ -220,10 +218,6 @@ class Lexer(object):
                         tokens.append(Token(TokenType.KEYWORD, start_pos, header))
                     else:
                         tokens.append(Token(TokenType.DEFAULT, start_pos, current_char))    
-
-                case ']' | '{' | '}' | ',' | '.':
-                    tokens.append(Token(TokenType.DEFAULT, current_char_index, current_char))
-                    current_char_index += 1
                 # strings
                 case '"' | '\'':
                     start_pos = current_char_index
