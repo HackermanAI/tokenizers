@@ -28,7 +28,7 @@
 import re
 from enum import Enum
 
-# these enums are language dependent so no need to match with colors ids in .hackerman config file
+# these enum numberings are language dependent so no need to match with colors ids in .hackerman config file
 class TokenType(Enum):
     DEFAULT     = 100
     WHITESPACE  = 101
