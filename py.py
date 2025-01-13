@@ -23,6 +23,8 @@
 
 # Tokenizer for Python 3
 
+# todo : attempt to create fast_tokenizer (split, trim, and match per word?)
+
 import re
 from enum import Enum
 
