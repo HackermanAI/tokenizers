@@ -214,10 +214,9 @@ class Lexer(object):
                                 current_char_index += 1
 
                         current_header = header
-
                         tokens.append(Token(TokenType.KEYWORD, start_pos, header))
                     else:
-                        tokens.append(Token(TokenType.DEFAULT, start_pos, current_char))    
+                        tokens.append(Token(TokenType.ERROR, start_pos, current_char))    
                 # strings
                 case '"' | '\'':
                     start_pos = current_char_index
@@ -233,7 +232,7 @@ class Lexer(object):
                         else:
                             current_char_index += 1
                     
-                    tokens.append(Token(TokenType.SUCCESS, start_pos, string))
+                    tokens.append(Token(TokenType.STRING, start_pos, string))
                 case _:
                     # number
                     if current_char.isdigit():
@@ -253,7 +252,7 @@ class Lexer(object):
                                 break
 
                         if number_type == TokenType.NUMBER:
-                            tokens.append(Token(TokenType.SUCCESS, start_pos, number))
+                            tokens.append(Token(TokenType.NUMBER, start_pos, number))
                         else:
                             tokens.append(Token(TokenType.ERROR, start_pos, number))
                     # identifiers
@@ -268,7 +267,7 @@ class Lexer(object):
 
                         # conditional
                         if identifier in self.CONDITIONAL:
-                            tokens.append(Token(TokenType.SUCCESS if identifier == "true" else TokenType.ERROR, start_pos, identifier))
+                            tokens.append(Token(TokenType.CONDITIONAL if identifier == "true" else TokenType.ERROR, start_pos, identifier))
                         # keyword
                         elif identifier in self.NAME:
                             tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
