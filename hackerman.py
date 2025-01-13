@@ -104,6 +104,7 @@ class Lexer(object):
             "zoom_in",
             "zoom_out",
             "toggle_file_explorer",
+            "split_view",
             # todos
             "find_in_file",
             "undo",
@@ -267,7 +268,7 @@ class Lexer(object):
 
                         # conditional
                         if identifier in self.CONDITIONAL:
-                            tokens.append(Token(TokenType.CONDITIONAL if identifier == "true" else TokenType.ERROR, start_pos, identifier))
+                            tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                         # keyword
                         elif identifier in self.NAME:
                             tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
