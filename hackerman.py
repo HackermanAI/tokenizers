@@ -59,12 +59,11 @@ class Lexer(object):
         self.NAME = [
             # editor
             "font",
-            "font_size",
             "font_weight",
+            "font_size",
             "tab_width",
             "cursor_width",
-            "window_width",
-            "window_height",
+            "margin",
             "theme",
             "file_explorer_root",
             "model_to_use",
