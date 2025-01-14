@@ -124,6 +124,8 @@ class Lexer(object):
 
     def class_decl(self): return "class"
 
+    def declarations_pattern(self): return fr"^({ self.class_decl() }|{ self.function_decl() })\b"
+
     def lexer_name(self): return "Python 3"
 
     def block_starters(self): return { ":", "(", "[", "{", "\"", "\'" }
