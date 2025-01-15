@@ -54,14 +54,14 @@ char *tokenize(const char *text) {
         // comment
         if (text[index] == '-') {
             if (text[index + 1] == '-') {
-                result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=COMMENT START=%zu VALUE=-- ", index);
+                result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=COMMENT START=%zu VALUE=--", index);
                 index += 2;
                 while (text[index] != '\0' && text[index] != '\n') {
                     result_index += snprintf(result + result_index, buffer_size - result_index, "%c", text[index]);
                     index++;
                 }
             } else {
-                result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=ERROR START=%zu VALUE=- ", index);
+                result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=ERROR START=%zu VALUE=-", index);
                 index++;
             }
             continue;
@@ -70,7 +70,7 @@ char *tokenize(const char *text) {
         // header
         if (text[index] == '[') {
             size_t start_pos = index;
-            result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=KEYWORD START=%zu VALUE=[", start_pos);
+            result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=KEYWORD START=%zu VALUE=[", start_pos);
             index++;
             while (text[index] != '\0' && text[index] != ']') {
                 result_index += snprintf(result + result_index, buffer_size - result_index, "%c", text[index]);
@@ -87,7 +87,7 @@ char *tokenize(const char *text) {
         if (text[index] == '"' || text[index] == '\'') {
             size_t start_pos = index;
             char quote = text[index];
-            result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=STRING START=%zu VALUE=", start_pos);
+            result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=STRING START=%zu VALUE=", start_pos);
             result_index += snprintf(result + result_index, buffer_size - result_index, "%c", quote);
             index++;
             while (text[index] != '\0' && text[index] != quote) {
@@ -104,7 +104,7 @@ char *tokenize(const char *text) {
         // number
         if (isdigit(text[index])) {
             size_t start_pos = index;
-            result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=NUMBER START=%zu VALUE=", start_pos);
+            result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=NUMBER START=%zu VALUE=", start_pos);
             while (isdigit(text[index])) {
                 result_index += snprintf(result + result_index, buffer_size - result_index, "%c", text[index]);
                 index++;
@@ -125,16 +125,16 @@ char *tokenize(const char *text) {
             buffer[length] = '\0';
 
             if (is_conditional(buffer)) {
-                result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=CONDITIONAL START=%zu VALUE=%s ", start_pos, buffer);
+                result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=CONDITIONAL START=%zu VALUE=%s ", start_pos, buffer);
             } else if (is_name(buffer)) {
-                result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=NAME START=%zu VALUE=%s ", start_pos, buffer);
+                result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=NAME START=%zu VALUE=%s ", start_pos, buffer);
             } else {
-                result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=IDENTIFIER START=%zu VALUE=%s ", start_pos, buffer);
+                result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=IDENTIFIER START=%zu VALUE=%s ", start_pos, buffer);
             }
             continue;
         }
 
-        result_index += snprintf(result + result_index, buffer_size - result_index, "TYPE=DEFAULT START=%zu VALUE=%c ", index, text[index]);
+        result_index += snprintf(result + result_index, buffer_size - result_index, "\nTYPE=DEFAULT START=%zu VALUE=%c ", index, text[index]);
         index++;
     }
 
