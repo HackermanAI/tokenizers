@@ -7,3 +7,5 @@ libtest.dylib
 libtest.dylib.o
 hackerman
 libhackerman.so
+libtest
+libtest.o
