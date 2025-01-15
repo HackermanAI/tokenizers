@@ -45,12 +45,38 @@ TokenType :: enum {
 Token :: struct {
     type_: TokenType,
     start_pos: int,
-    value: [dynamic]u8,
+    value: string,
 }
 
-@export
-tokenize :: proc(text: string) -> [dynamic]Token {
+// @export free_tokens :: proc(tokens: [dynamic]Token) {
+//     mem.free(tokens)
+// }
+
+// DynamicArray :: struct {
+//     data: ^Token, // Pointer to Token array
+//     len: int,     // Number of elements in the array
+//     cap: int,     // Capacity of the array
+// }
+
+tokens_to_string :: proc(tokens: [dynamic]Token) -> string {
+    b := strings.builder_make()
+
+    // result_data: [dynamic]u8
+    for token in tokens {
+        // append(result_data, token.value)
+        // for byte_ in token.value {
+        //     // append(&result_data, byte_)
+        //     strings.write_byte(&b, byte_)
+        // }
+        strings.write_string(&b, token.value)
+        // result_data = append(result_data, ' ')
+    }
+    return strings.to_string(b)
+}
+
+@export tokenize :: proc(text: string) -> [dynamic]Token {
     // tokens: []Token = []Token{} // List of tokens
+    // tokens: [dynamic]Token
     tokens: [dynamic]Token
 
     // builder := strings.Builder
@@ -74,20 +100,25 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // str := strings.to_string(b)
             // fmt.println(str)
 
-            lexeme: [dynamic]u8
-            append(&lexeme, text[index])
+            // lexeme: [dynamic]u8
+            lexeme := strings.builder_make()
+            strings.write_byte(&lexeme, text[index])
+
+            // append(&lexeme, text[index])
 
             if index + 1 < len(text) && text[index + 1] == '-' {
                 start_pos := index
-                append(&lexeme, text[index + 1])
+                // append(&lexeme, text[index + 1])
+                strings.write_byte(&lexeme, text[index + 1])
                 index += 2
                 for index < len(text) && text[index] != '\n' {
-                    append(&lexeme, text[index])
+                    // append(&lexeme, text[index])
+                    strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                append(&tokens, Token{type_ = TokenType.COMMENT, start_pos = start_pos, value = lexeme})
+                append(&tokens, Token{type_ = TokenType.COMMENT, start_pos = start_pos, value = strings.to_string(lexeme)})
             } else {
-                append(&tokens, Token{type_ = TokenType.ERROR, start_pos = index, value = lexeme})
+                append(&tokens, Token{type_ = TokenType.ERROR, start_pos = index, value = strings.to_string(lexeme)})
                 index += 1
             }
             continue
@@ -161,11 +192,13 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         //     continue
         // }
 
-        lexeme: [dynamic]u8
-        append(&lexeme, text[index])
-        append(&tokens, Token{type_ = TokenType.DEFAULT, start_pos = index, value = lexeme})
+        lexeme := strings.builder_make()
+        strings.write_byte(&lexeme, text[index])
+        append(&tokens, Token{type_ = TokenType.DEFAULT, start_pos = index, value = strings.to_string(lexeme)})
         index += 1
     }
+
+    // joined_string := tokens_to_string(tokens)
 
     return tokens
 }
