@@ -1,3 +1,4 @@
+
 // odin build test -build-mode:dll
 package test
 
@@ -29,103 +30,142 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
-// replace strings with other structure
-tokenize :: proc(text: string) -> string {
-    buffer: []u8 = []u8{} // Initialize a dynamic array
-    index: int = 0
+TokenType :: enum {
+    COMMENT,
+    ERROR,
+    KEYWORD,
+    STRING,
+    NUMBER,
+    CONDITIONAL,
+    NAME,
+    IDENTIFIER,
+    DEFAULT,
+}
 
+Token :: struct {
+    type_: TokenType,
+    start_pos: int,
+    value: [dynamic]u8,
+}
+
+@export
+tokenize :: proc(text: string) -> [dynamic]Token {
+    // tokens: []Token = []Token{} // List of tokens
+    tokens: [dynamic]Token
+
+    // builder := strings.Builder
+    // defer builder.builder_destroy()
+    
+    index: int = 0
     for index < len(text) {
-        if text[index] in ' ' || text[index] in '\t' || text[index] in '\n' {
+        if text[index] == ' ' || text[index] == '\t' || text[index] == '\n' {
             index += 1
             continue
         }
 
         if text[index] == '-' {
+            // lexeme_data: []u8 = []u8{}
+            // lexeme_data = append(lexeme_data, text[index])
+
+            // newstr: string = string(text[index])
+
+            // b := strings.builder_make()
+            // strings.write_string(&b, newstr)
+            // str := strings.to_string(b)
+            // fmt.println(str)
+
+            lexeme: [dynamic]u8
+            append(&lexeme, text[index])
+
             if index + 1 < len(text) && text[index + 1] == '-' {
-                buffer = append(buffer, "\nTYPE=COMMENT START="...)
-                buffer = append(buffer, fmt.tprintf("%d VALUE=--", index)...)
+                start_pos := index
+                append(&lexeme, text[index + 1])
                 index += 2
                 for index < len(text) && text[index] != '\n' {
-                    buffer = append(buffer, text[index])
+                    append(&lexeme, text[index])
                     index += 1
                 }
+                append(&tokens, Token{type_ = TokenType.COMMENT, start_pos = start_pos, value = lexeme})
             } else {
-                buffer = append(buffer, fmt.tprintf("\nTYPE=ERROR START=%d VALUE=-", index)...)
+                append(&tokens, Token{type_ = TokenType.ERROR, start_pos = index, value = lexeme})
                 index += 1
             }
             continue
         }
 
-        if text[index] == '[' {
-            start_pos := index
-            fmt.append(result, "\nTYPE=KEYWORD START={%d} VALUE=[", start_pos)
-            index += 1
-            for index < len(text) && text[index] != ']' {
-                fmt.append(result, "%c", text[index])
-                index += 1
-            }
-            if index < len(text) && text[index] == ']' {
-                fmt.append(result, "] ")
-                index += 1
-            }
-            continue
-        }
+        // if text[index] == '[' {
+        //     start_pos := index
+        //     lexeme := "["
+        //     index += 1
+        //     for index < len(text) && text[index] != ']' {
+        //         lexeme += string(text[index])
+        //         index += 1
+        //     }
+        //     if index < len(text) && text[index] == ']' {
+        //         lexeme += "]"
+        //         index += 1
+        //     }
+        //     tokens = append(tokens, Token{type_ = KEYWORD, start_pos = start_pos, value = lexeme})
+        //     continue
+        // }
 
-        if text[index] == '"' || text[index] == '\'' {
-            start_pos := index
-            quote := text[index]
-            fmt.append(result, "\nTYPE=STRING START={%d} VALUE=", start_pos)
-            fmt.append(result, "%c", quote)
-            index += 1
-            for index < len(text) && text[index] != quote {
-                fmt.append(result, "%c", text[index])
-                index += 1
-            }
-            if index < len(text) && text[index] == quote {
-                fmt.append(result, "%c ", quote)
-                index += 1
-            }
-            continue
-        }
+        // if text[index] == '"' || text[index] == '\'' {
+        //     start_pos := index
+        //     quote := text[index]
+        //     lexeme := string(quote)
+        //     index += 1
+        //     for index < len(text) && text[index] != quote {
+        //         lexeme += string(text[index])
+        //         index += 1
+        //     }
+        //     if index < len(text) && text[index] == quote {
+        //         lexeme += string(quote)
+        //         index += 1
+        //     }
+        //     tokens = append(tokens, Token{type_ = STRING, start_pos = start_pos, value = lexeme})
+        //     continue
+        // }
 
-        if text[index] >= '0' && text[index] <= '9' {
-            start_pos := index
-            fmt.append(result, "\nTYPE=NUMBER START={%d} VALUE=", start_pos)
-            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
-                fmt.append(result, "%c", text[index])
-                index += 1
-            }
-            fmt.append(result, " ")
-            continue
-        }
+        // if text[index] >= '0' && text[index] <= '9' {
+        //     start_pos := index
+        //     lexeme := ""
+        //     for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+        //         lexeme += string(text[index])
+        //         index += 1
+        //     }
+        //     tokens = append(tokens, Token{type_ = NUMBER, start_pos = start_pos, value = lexeme})
+        //     continue
+        // }
 
-        if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
-            start_pos := index
-            buffer := strings.make(128)
-            defer mem.free(buffer.data)
+        // if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
+        //     start_pos := index
+        //     buffer := strings.make(128)
+        //     defer mem.free(buffer.data)
 
-            length: usize = 0
+        //     length: usize = 0
+        //     for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
+        //         buffer[length] = text[index]
+        //         length += 1
+        //         index += 1
+        //     }
+        //     buffer[length] = u8(0)
+        //     lexeme := string(buffer[:length])
 
-            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-                buffer[length] = text[index]
-                length = 1
-                index += 1
-            }
-            buffer[length] = u8(0)
+        //     if is_conditional(lexeme) {
+        //         tokens = append(tokens, Token{type_ = CONDITIONAL, start_pos = start_pos, value = lexeme})
+        //     } else if is_name(lexeme) {
+        //         tokens = append(tokens, Token{type_ = NAME, start_pos = start_pos, value = lexeme})
+        //     } else {
+        //         tokens = append(tokens, Token{type_ = IDENTIFIER, start_pos = start_pos, value = lexeme})
+        //     }
+        //     continue
+        // }
 
-            if is_conditional(buffer[:length]) {
-                fmt.append(result, "\nTYPE=CONDITIONAL START={%d} VALUE=%s ", start_pos, buffer[:length])
-            } else if is_name(buffer[:length]) {
-                fmt.append(result, "\nTYPE=NAME START={%d} VALUE=%s ", start_pos, buffer[:length])
-            } else {
-                fmt.append(result, "\nTYPE=IDENTIFIER START={%d} VALUE=%s ", start_pos, buffer[:length])
-            }
-            continue
-        }
-
-        fmt.append(result, "\nTYPE=DEFAULT START={%d} VALUE=%c ", index, text[index])
+        lexeme: [dynamic]u8
+        append(&lexeme, text[index])
+        append(&tokens, Token{type_ = TokenType.DEFAULT, start_pos = index, value = lexeme})
         index += 1
     }
 
-    return result
+    return tokens
 }
