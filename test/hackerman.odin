@@ -1,3 +1,4 @@
+// odin build test -build-mode:dll
 package test
 
 import "core:fmt"
