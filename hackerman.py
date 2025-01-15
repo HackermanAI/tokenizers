@@ -23,8 +23,37 @@
 
 # Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
+import os
 import re
+import time
 from enum import Enum
+
+import ctypes
+
+lib_path = os.path.join(os.path.dirname(__file__), "libhackerman.dylib")
+# print(lib_path)
+
+lib = ctypes.CDLL(lib_path)
+lib.tokenize.argtypes = [ctypes.c_char_p] # C string
+lib.tokenize.restype = ctypes.POINTER(ctypes.c_char) # pointer to C string
+
+lib.free_memory.argtypes = [ctypes.POINTER(ctypes.c_char)] # free pointer to C string
+lib.free_memory.restype = None
+
+# start_time = time.time()
+
+# input_text = """
+# [header]\n
+# -- Comment\n
+# font "string"\n
+# not_in_name 1234\n
+# """.encode('utf-8')
+# result = lib.tokenize(input_text)
+
+# print(time.time() - start_time)
+
+# # Decode the result
+# print("Tokenized Output:", result.decode('utf-8'))
 
 class TokenType(Enum):
     DEFAULT     = 100
@@ -158,6 +187,33 @@ class Lexer(object):
     def lexer_name(self): return "Hackerman"
 
     def tokenize(self, text, highlight_todos=False):
+
+        # c via ffi
+        # --------------------------------------
+        start_time = time.time()
+
+        result = lib.tokenize(text.encode("utf-8"))
+        test = ctypes.string_at(result).decode("utf-8")
+        # lib.free_memory(result)
+
+        # print(test)
+
+        token_regex = r"TYPE=([^ ]+) START=([^ ]+) VALUE=([^ ]+)"
+        c_tokens = []
+
+        for match in re.finditer(token_regex, test):
+            token_type = TokenType[match.group(1)] # convert to TokenType enum
+            start_pos = int(match.group(2)) # convert start position to integer
+            value = match.group(3) # extract value as string
+
+            c_tokens.append(Token(token_type, start_pos, value))
+
+        print("ffi", time.time() - start_time)
+
+        # python
+        # --------------------------------------
+        start_time = time.time()
+        
         tokens = []
         current_line = 1
         current_char = ''
@@ -281,5 +337,7 @@ class Lexer(object):
                     else:
                         tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                         current_char_index += 1
+
+        print("python", time.time() - start_time)
 
         return tokens, [], []
