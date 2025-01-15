@@ -28,6 +28,8 @@
 import re
 from enum import Enum
 
+import time
+
 # these enum numberings are language dependent so no need to match with colors ids in .hackerman config file
 class TokenType(Enum):
     DEFAULT     = 100
@@ -133,6 +135,13 @@ class Lexer(object):
     def delimiters(self): return { "(", "[", "{", "\"", "\'" }
 
     def tokenize(self, text, highlight_todos=False):
+        start_time = time.time()
+
+        time_in_comments = 0
+        time_in_strings = 0
+        time_in_numbers = 0
+        time_in_identifiers = 0
+        
         tokens = []
         current_line = 1
         current_char = ''
@@ -163,17 +172,30 @@ class Lexer(object):
 
                     if inside_import == True and not inside_import_block == True: inside_import = False
                 case '#':
+                    time_init = time.time()
+                    
                     start_pos = current_char_index
+                    end_pos = text.find("\n", current_char_index)
+                    
                     current_char_index += 1
                     line = current_char
-                    while current_char_index < len(text) and text[current_char_index] != '\n':
-                        line += text[current_char_index]
-                        current_char_index += 1
+                    # while current_char_index < len(text) and text[current_char_index] != '\n':
+                    #     line += text[current_char_index]
+                    #     current_char_index += 1
+                    if end_pos == -1:
+                        line = text[current_char_index:]
+                        current_char_index = len(text)
+                    else:
+                        line = text[current_char_index:end_pos]
+                        current_char_index = end_pos + 1
+
                     # todo comment is special
                     if highlight_todos and line.startswith("# todo "):
                         tokens.append(Token(TokenType.SPECIAL, start_pos, line))
                     else:
                         tokens.append(Token(TokenType.COMMENT, start_pos, line))
+
+                    time_in_comments += time.time() - time_init
                 case '.':
                     # triple dot is special
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
@@ -326,73 +348,158 @@ class Lexer(object):
                         current_char_index += 1
                 # strings
                 case '"' | '\'':
-                    start_pos = current_char_index
-                    string = str(current_char)
+                    time_init = time.time()
 
-                    # update state for custom format string styling
-                    format_string = False
-                    if len(tokens) > 0 and tokens[-1].type == TokenType.IDENTIFIER and tokens[-1].value == "f":
-                        tokens[-1].type = TokenType.BUILT_IN
-                        format_string = True
-                    
-                    # multi-line (triple)                
-                    next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                    next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
-                    if next_char == current_char and next_next_char == current_char:
-                        string += str(current_char*2)
+                    start_pos = current_char_index
+                    string = current_char
+                    current_char_index += 1
+
+                    format_string = (
+                        len(tokens) > 0 and 
+                        tokens[-1].type == TokenType.IDENTIFIER and 
+                        tokens[-1].value == "f"
+                    )
+                    if format_string: tokens[-1].type = TokenType.BUILT_IN
+
+                    # multi-line (triple quotes)
+                    if current_char_index + 2 < len(text) and text[current_char_index:current_char_index + 2] == current_char * 2:
+                        string += current_char * 2
                         current_char_index += 3
 
-                        # while current_char_index < len(text) and (text[current_char_index].isprintable() or text[current_char_index] == '\n'):
                         while current_char_index < len(text):
-                            string += str(text[current_char_index])
-                            
-                            next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                            next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
-                            if text[current_char_index] == current_char and next_char == current_char and next_next_char == current_char:
-                                string += str(current_char*2)
+                            if (
+                                current_char_index + 2 < len(text) and
+                                text[current_char_index:current_char_index + 3] == current_char * 3
+                            ):
+                                string += text[start_pos + 1:current_char_index + 3]
                                 current_char_index += 3
                                 break
-                            else:
-                                current_char_index += 1
+                            
+                            current_char_index += 1
+                        else:
+                            # handle case where closing triple quotes are missing
+                            string += text[current_char_index:-1]
+                            # string = text[start_pos:-1]
+                    
+                    # single-line string
                     else:
-                        current_char_index += 1
-
-                        # while current_char_index < len(text) and text[current_char_index].isprintable():
                         while current_char_index < len(text):
-                            string += str(text[current_char_index])
                             if text[current_char_index] == current_char:
+                                string += text[start_pos + 1:current_char_index + 1]
                                 current_char_index += 1
                                 break
-                            else:
-                                current_char_index += 1
-
-                    # use regex to match f-string
+                            current_char_index += 1
+                        else:
+                            # handle case where closing quote is missing
+                            # string += text[start_pos + 1:current_char_index]
+                            string += text[current_char_index:-1]
+                    
+                    # handle format strings
                     if format_string:
-                        fstring_pattern = re.compile(f"({self.FSTRING_REGEX['STRING_TEXT']})|({self.FSTRING_REGEX['EXPRESSION']})|({self.FSTRING_REGEX['ESCAPE_SEQ']})")
+                        fstring_pattern = re.compile(
+                            f"({self.FSTRING_REGEX['STRING_TEXT']})|"
+                            f"({self.FSTRING_REGEX['EXPRESSION']})|"
+                            f"({self.FSTRING_REGEX['ESCAPE_SEQ']})"
+                        )
                         for match in fstring_pattern.finditer(string):
-                            f_start_pos = match.start()
-                            f_end_pos = match.end()
-                            
+                            f_start_pos, f_end_pos = match.start(), match.end()
+
                             # match regular text
                             if match.group(1):
                                 tokens.append(Token(TokenType.STRING, start_pos + f_start_pos, match.group(1)))
-                            
+
                             # match format string expressions
                             elif match.group(2):
                                 f_tokens, _, _ = self.tokenize(match.group(2))
                                 for token in f_tokens:
                                     new_pos = start_pos + f_start_pos + token.start_pos
                                     tokens.append(Token(token.type, new_pos, token.value))
-                            
+
                             # match escaped characters
                             elif match.group(3):
                                 tokens.append(Token(TokenType.SPECIAL, start_pos + f_start_pos, match.group(3)))
                     else:
+                        print(Token(TokenType.STRING, start_pos, string))
                         tokens.append(Token(TokenType.STRING, start_pos, string))
+
+                    # start_pos = current_char_index
+                    # string = current_char
+
+                    # # update state for custom format string styling
+                    # format_string = False
+                    # if len(tokens) > 0 and tokens[-1].type == TokenType.IDENTIFIER and tokens[-1].value == "f":
+                    #     tokens[-1].type = TokenType.BUILT_IN
+                    #     format_string = True
+                    
+                    # # multi-line (triple)                
+                    # next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+                    # next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
+                    # if next_char == current_char and next_next_char == current_char:
+                    #     string += str(current_char*2)
+                    #     current_char_index += 3
+
+                    #     # while current_char_index < len(text) and (text[current_char_index].isprintable() or text[current_char_index] == '\n'):
+                    #     while current_char_index < len(text):
+                    #         string += str(text[current_char_index])
+                            
+                    #         next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+                    #         next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
+                    #         if text[current_char_index] == current_char and next_char == current_char and next_next_char == current_char:
+                    #             string += str(current_char*2)
+                    #             current_char_index += 3
+                    #             break
+                    #         else:
+                    #             current_char_index += 1
+                    # else:
+                    #     current_char_index += 1
+                    #     # while current_char_index < len(text):
+                    #     #     string += str(text[current_char_index])
+                    #     #     if text[current_char_index] == current_char:
+                    #     #         current_char_index += 1
+                    #     #         break
+                    #     #     else:
+                    #     #         current_char_index += 1
+                    #     while current_char_index < len(text):
+                    #         if text[current_char_index] == current_char:
+                    #             string += text[start_pos + 1:current_char_index + 1]
+                    #             current_char_index += 1
+                    #             break
+                    #         current_char_index += 1
+                    #     else:
+                    #         # append the remaining characters if no match is found
+                    #         string += text[start_pos + 1:current_char_index]
+
+                    # # use regex to match f-string
+                    # if format_string:
+                    #     fstring_pattern = re.compile(f"({self.FSTRING_REGEX['STRING_TEXT']})|({self.FSTRING_REGEX['EXPRESSION']})|({self.FSTRING_REGEX['ESCAPE_SEQ']})")
+                    #     for match in fstring_pattern.finditer(string):
+                    #         f_start_pos = match.start()
+                    #         f_end_pos = match.end()
+                            
+                    #         # match regular text
+                    #         if match.group(1):
+                    #             tokens.append(Token(TokenType.STRING, start_pos + f_start_pos, match.group(1)))
+                            
+                    #         # match format string expressions
+                    #         elif match.group(2):
+                    #             f_tokens, _, _ = self.tokenize(match.group(2))
+                    #             for token in f_tokens:
+                    #                 new_pos = start_pos + f_start_pos + token.start_pos
+                    #                 tokens.append(Token(token.type, new_pos, token.value))
+                            
+                    #         # match escaped characters
+                    #         elif match.group(3):
+                    #             tokens.append(Token(TokenType.SPECIAL, start_pos + f_start_pos, match.group(3)))
+                    # else:
+                    #     tokens.append(Token(TokenType.STRING, start_pos, string))
+
+                    time_in_strings += time.time() - time_init
 
                 case _:
                     # number
                     if current_char.isdigit():
+                        time_init = time.time()
+                        
                         start_pos = current_char_index
                         number = str(current_char)
                         current_char_index += 1
@@ -413,8 +520,12 @@ class Lexer(object):
                         else:
                             tokens.append(Token(TokenType.DEFAULT, start_pos, number))
 
+                        time_in_numbers += time.time() - time_init
+
                     # identifiers
                     elif current_char.isidentifier():
+                        time_init = time.time()
+
                         start_pos = current_char_index
                         identifier = str(current_char)
                         current_char_index += 1
@@ -488,10 +599,19 @@ class Lexer(object):
                                     else:
                                         # using identifier as type to easier find and style identifiers post lexing
                                         tokens.append(Token(TokenType.IDENTIFIER, start_pos, identifier))
+
+                        time_in_identifiers += time.time() - time_init
+                    
                     else:
                         # raise Exception("tokenize : unknown character :", current_char)
                         tokens.append(Token(TokenType.DEFAULT, current_char_index, current_char))
                         current_char_index += 1
+
+        print("end of tokenize", time.time() - start_time)
+        print("time_in_comments", time_in_comments)
+        print("time_in_strings", time_in_strings)
+        print("time_in_numbers", time_in_numbers)
+        print("time_in_identifiers", time_in_identifiers)
 
         # todo : probably easier to just return declaration string (and match def NAME for navigation to declaration in editor?)
         return tokens, self.CLASS_DIR, self.FUNCTION_DIR
