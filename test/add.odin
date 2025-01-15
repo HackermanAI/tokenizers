@@ -1,4 +1,5 @@
 // test/add.odin
+// odin build test -build-mode:dll
 package test
 
 @export
