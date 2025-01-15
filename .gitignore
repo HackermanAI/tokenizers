@@ -9,3 +9,4 @@ hackerman
 libhackerman.so
 libtest
 libtest.o
+test.dylib
