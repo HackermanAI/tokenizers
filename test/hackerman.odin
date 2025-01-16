@@ -58,31 +58,17 @@ is_conditional :: proc(value: string) -> bool {
 }
 
 @export free_memory :: proc () {
-    free_all(context.temp_allocator)
-    fmt.println("free_memory", "finished")
+    free_all(context.default_allocator)
+    fmt.println("free_memory done")
 }
 
 @export tokenize :: proc(text: string) -> string {
-    fmt.println("Odin : tokenize called :", text)
-    
-    // result := strings.builder_make(context.temp_allocator)
-    // defer strings.builder_destroy(&result) // this is not correct usage?
-
-    // fmt.println(len(text))
+    // fmt.println("Odin : tokenize called :", text)
 
     alloc := runtime.default_allocator()
-    fmt.println(alloc)
+    // fmt.println(alloc)
     
     result := strings.builder_make(alloc)
-    // lexeme := strings.builder_make(alloc) // helper to store lexemes
-    // strings.builder_grow(&lexeme, 100)
-
-    // strings.builder_init_len(&result, len(text)*64)
-    // strings.builder_init_len(&lexeme, len(text)*64)
-
-    // defer strings.builder_destroy(&lexeme)
-
-    // fmt.println("1")
     
     index: int = 0
     for index < len(text) {
@@ -109,7 +95,6 @@ is_conditional :: proc(value: string) -> bool {
 
                 fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme))
             } else {
-                // strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
                 fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
                 index += 1
             }
@@ -206,69 +191,10 @@ is_conditional :: proc(value: string) -> bool {
 // odin build test -build-mode:dll
 
 @export process_input :: proc(arg: string) -> string {
-    fmt.println("Odin : Received argument : ", arg);
-
-    // alloc := runtime.default_allocator()
-
-    // result := strings.builder_make(context.temp_allocator)
-    // lexeme := strings.builder_make(context.temp_allocator) // helper to store lexemes
+    // fmt.println("Odin : received argument : ", arg);
     
     result := tokenize(arg)
-
-    // result := strings.builder_make(alloc)
-    
-    // strings.write_string(&result, "a")     // 1
-    // strings.write_string(&result, "bc")    // 2
-    
-    // fmt.println(strings.to_string(result)) // -> abc
-
-    fmt.println("Odin : tokenize done :", result)
-    
-    // free_all(context.temp_allocator)
+    // fmt.println("Odin : tokenize done :", result)
 
     return result
 }
-
-// main :: proc() {
-//     fmt.println("main", "called")
-//     fmt.println(runtime.default_allocator().procedure)
-//     // TEXT :: `
-//     //     [header]
-//     //     -- comment
-//     //     font "Fira Code"
-//     //     font_size 23
-//     // `
-//     // KEYWORD 9 [header]
-//     // COMMENT 26 -- comment
-//     // NAME 45 font
-//     // STRING 50 "Fira Code"
-//     // NAME 70 font_size
-//     // NUMBER 80 23
-
-//     // for arg in os.args {
-//     //     fmt.println(arg)
-//     // }
-
-//     // result := strings.builder_make(context.temp_allocator)
-
-//     // // tokenize(os.args[1], &result)
-
-//     // tokenize(TEXT, &result)
-
-//     // // result := tokenize(TEXT)
-//     // // defer delete(result) // todo : is this correct?
-//     // // defer strings.builder_destroy(result)
-    
-//     // fmt.println(strings.to_string(result))
-
-//     // free_all(context.temp_allocator)
-
-//     // fmt.println("Starting test")
-
-//     // result := strings.builder_make()
-//     // defer strings.builder_destroy(&result)
-
-//     // fmt.println("Finished test")
-// }
-
-
