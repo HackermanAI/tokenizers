@@ -31,6 +31,7 @@ import "core:os"
 import "core:fmt"
 import "core:mem"
 import "core:strings"
+import "core:strconv"
 
 NAME: [23]string = [23]string{
     "font", "font_weight", "font_size", "tab_width", "cursor_width",
@@ -62,23 +63,26 @@ is_conditional :: proc(value: string) -> bool {
 }
 
 @export tokenize :: proc(text: string) -> string {
-    fmt.println("tokenize", "called", text)
+    fmt.println("Odin : tokenize called :", text)
     
     // result := strings.builder_make(context.temp_allocator)
     // defer strings.builder_destroy(&result) // this is not correct usage?
 
     // fmt.println(len(text))
+
+    alloc := runtime.default_allocator()
+    fmt.println(alloc)
     
-    result := strings.builder_make()
-    lexeme := strings.builder_make() // helper to store lexemes
+    result := strings.builder_make(alloc)
+    // lexeme := strings.builder_make(alloc) // helper to store lexemes
     // strings.builder_grow(&lexeme, 100)
 
     // strings.builder_init_len(&result, len(text)*64)
-    strings.builder_init_len(&lexeme, len(text)*64)
+    // strings.builder_init_len(&lexeme, len(text)*64)
 
     // defer strings.builder_destroy(&lexeme)
 
-    fmt.println("1")
+    // fmt.println("1")
     
     index: int = 0
     for index < len(text) {
@@ -87,30 +91,14 @@ is_conditional :: proc(value: string) -> bool {
             continue
         }
 
-        fmt.println("2")
-
         // comment
         if text[index] == '-' {
-            fmt.println("3")
-            // lexeme := strings.builder_make()
-            // defer strings.builder_destroy(&lexeme)
-
-            // strings.builder_reset(&lexeme)
-
-            fmt.println("4")
-
-            strings.write_byte(&lexeme, 'a')
-
-            fmt.println("5")
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
-
-            fmt.println("6")
-
+            
             if index + 1 < len(text) && text[index + 1] == '-' {
-
-                fmt.println("6")
-                
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1])
                 index += 2
@@ -118,9 +106,11 @@ is_conditional :: proc(value: string) -> bool {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                strings.write_string(&result, fmt.aprintf("COMMENT %v %s\n", start_pos, strings.to_string(lexeme)))
+
+                fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme))
             } else {
-                strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+                // strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+                fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
                 index += 1
             }
             continue
@@ -216,25 +206,27 @@ is_conditional :: proc(value: string) -> bool {
 // odin build test -build-mode:dll
 
 @export process_input :: proc(arg: string) -> string {
-    fmt.println("Received argument:", arg);
+    fmt.println("Odin : Received argument : ", arg);
+
+    // alloc := runtime.default_allocator()
 
     // result := strings.builder_make(context.temp_allocator)
     // lexeme := strings.builder_make(context.temp_allocator) // helper to store lexemes
     
-    // result := tokenize(arg)
+    result := tokenize(arg)
 
-    result := strings.builder_make()
+    // result := strings.builder_make(alloc)
     
-    strings.write_string(&result, "a")     // 1
-    strings.write_string(&result, "bc")    // 2
+    // strings.write_string(&result, "a")     // 1
+    // strings.write_string(&result, "bc")    // 2
     
-    fmt.println(strings.to_string(result)) // -> abc
+    // fmt.println(strings.to_string(result)) // -> abc
 
-    // fmt.println(&result)
+    fmt.println("Odin : tokenize done :", result)
     
     // free_all(context.temp_allocator)
 
-    return strings.to_string(result)
+    return result
 }
 
 // main :: proc() {
