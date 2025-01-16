@@ -190,7 +190,7 @@ main :: proc() {
     // NUMBER 80 23
 
     result := tokenize(TEXT)
-    // defer delete(result) // todo : is this correct?
+    defer delete(result) // todo : is this correct?
     
     fmt.println(result)
 }
