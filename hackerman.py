@@ -253,6 +253,8 @@ class Lexer(object):
 
         # print(result_string.split("\n"))
 
+        print("odin end", time.time() - start_time)
+
         test_tokens = []
         for token in result_string.split("\n"):
             values = token.split(" ", 2)            
@@ -264,7 +266,7 @@ class Lexer(object):
 
             test_tokens.append(Token(token_type, start_pos, value))
 
-        print("odin end", time.time() - start_time)
+        print("odin regex match end", time.time() - start_time)
 
         # python
         # --------------------------------------
@@ -395,8 +397,8 @@ class Lexer(object):
         print("python", time.time() - start_time)
 
         for n in range(len(test_tokens)):
-            print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
-            print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
+            # print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
+            # print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
             assert (test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value) == (tokens[n].type, tokens[n].start_pos, tokens[n].value)
 
         return tokens, [], []
