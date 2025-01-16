@@ -11,3 +11,4 @@ libtest
 libtest.o
 test.dylib
 test.bin
+hackerman_odin.dylib
