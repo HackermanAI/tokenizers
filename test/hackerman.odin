@@ -102,8 +102,8 @@ is_conditional :: proc(value: string) -> bool {
         // header
         if text[index] == '[' {
             start_pos := index
-            lexeme := strings.builder_make(context.temp_allocator)
-            // defer strings.builder_destroy(&lexeme)
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
             index += 1
@@ -115,7 +115,8 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
-            strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
+            // strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
+            fmt.sbprint(&result, "KEYWORD", index, strings.to_string(lexeme))
             continue
         }
 
