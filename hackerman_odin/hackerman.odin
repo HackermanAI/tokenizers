@@ -91,9 +91,9 @@ is_conditional :: proc(value: string) -> bool {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme))
+                fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme), "\n")
             } else {
-                fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
+                fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
                 index += 1
             }
             continue
@@ -116,8 +116,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
-            // strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
-            fmt.sbprint(&result, "KEYWORD", index, strings.to_string(lexeme))
+            fmt.sbprint(&result, "KEYWORD", index, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -138,8 +137,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            // strings.write_string(result, fmt.aprintf("STRING %v %s\n", start_pos, strings.to_string(lexeme)))
-            fmt.sbprint(&result, "STRING", index, strings.to_string(lexeme))
+            fmt.sbprint(&result, "STRING", index, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -154,8 +152,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            // strings.write_string(result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
-            fmt.sbprint(&result, "NUMBER", index, strings.to_string(lexeme))
+            fmt.sbprint(&result, "NUMBER", index, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -172,14 +169,11 @@ is_conditional :: proc(value: string) -> bool {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                // strings.write_string(result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
-                fmt.sbprint(&result, "CONDITIONAL", index, strings.to_string(lexeme))
+                fmt.sbprint(&result, "CONDITIONAL", index, strings.to_string(lexeme), "\n")
             } else if is_name(strings.to_string(lexeme)) {
-                // strings.write_string(result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
-                fmt.sbprint(&result, "NAME", index, strings.to_string(lexeme))
+                fmt.sbprint(&result, "NAME", index, strings.to_string(lexeme), "\n")
             } else {
-                // strings.write_string(result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
-                fmt.sbprint(&result, "IDENTIFIER", index, strings.to_string(lexeme))
+                fmt.sbprint(&result, "IDENTIFIER", index, strings.to_string(lexeme), "\n")
             }
             continue
         }
@@ -188,8 +182,7 @@ is_conditional :: proc(value: string) -> bool {
         defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        // strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
-        fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
+        fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
         index += 1
     }
 
