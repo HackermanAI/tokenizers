@@ -61,10 +61,12 @@ is_conditional :: proc(value: string) -> bool {
 }
 
 @export tokenize :: proc(text: string, result: ^strings.Builder) {
-    fmt.println("tokenize", "called")
+    fmt.println("tokenize", "called", text)
     
     // result := strings.builder_make(context.temp_allocator)
     // defer strings.builder_destroy(&result) // this is not correct usage?
+
+    fmt.println("1")
     
     index: int = 0
     for index < len(text) {
@@ -73,13 +75,26 @@ is_conditional :: proc(value: string) -> bool {
             continue
         }
 
+        fmt.println("2")
+
         // comment
         if text[index] == '-' {
-            lexeme := strings.builder_make(context.temp_allocator)
+            fmt.println("3")
+            lexeme := strings.builder_make()
             // defer strings.builder_destroy(&lexeme)
+
+            lexeme = strings.write_byte(&lexeme, 'a')
+
+            fmt.println("4")
             
             strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
+
+            fmt.println("5")
+
             if index + 1 < len(text) && text[index + 1] == '-' {
+
+                fmt.println("6")
+                
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1])
                 index += 2
