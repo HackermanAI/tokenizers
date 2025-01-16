@@ -33,13 +33,85 @@ import "core:mem"
 import "core:strings"
 import "core:strconv"
 
-NAME: [23]string = [23]string{
-    "font", "font_weight", "font_size", "tab_width", "cursor_width",
-    "margin", "theme", "file_explorer_root", "model_to_use", "eol_mode",
-    "show_line_numbers", "transparent", "blockcursor", "wrap_word",
-    "blinking_cursor", "show_scrollbar", "show_minimap", "highlight_todos",
-    "whitespace_visible", "indent_guides", "highlight_current_line",
-    "highlight_current_line_on_jump", "show_eol",
+NAME: [70]string = [70]string{
+    // editor
+    "font",
+    "font_weight",
+    "font_size",
+    "tab_width",
+    "cursor_width",
+    "margin",
+    "theme",
+    "file_explorer_root",
+    "model_to_use",
+    "eol_mode",
+    // toggles
+    "show_line_numbers",
+    "transparent",
+    "blockcursor",
+    "wrap_word",
+    "blinking_cursor",
+    "show_scrollbar",
+    "show_minimap",
+    "highlight_todos",
+    "whitespace_visible",
+    "indent_guides",
+    "highlight_current_line",
+    "highlight_current_line_on_jump",
+    "show_eol",
+    // ollama
+    // openai
+    "model",
+    "key",
+    // bindings
+    "save_file",
+    "new_file",
+    "new_window",
+    "open_file",
+    "fold_all",
+    "command_k",
+    "line_indent",
+    "line_unindent",
+    "line_comment",
+    "set_bookmark",
+    "open_config_file",
+    "build_and_run",
+    "move_to_line_start",
+    "move_to_line_start_with_select",
+    "zoom_in",
+    "zoom_out",
+    "toggle_file_explorer",
+    "split_view",
+    // todos
+    "find_in_file",
+    "undo",
+    "redo",
+    // theme
+    "background",
+    "foreground",
+    "selection",
+    "selection_inactive",
+    "text_color",
+    "text_highlight",
+    "cursor",
+    "whitespace",
+    // syntax colors
+    "default",
+    "keyword",
+    "class",
+    "name",
+    "parameter",
+    "lambda",
+    "string",
+    "number",
+    "operator",
+    "comment",
+    "error",
+    "warning",
+    "success",
+    "special",
+    "conditional",
+    "built_in"
 }
 
 NAME_COUNT := len(NAME)
@@ -173,7 +245,7 @@ is_conditional :: proc(value: string) -> bool {
             } else if is_name(strings.to_string(lexeme)) {
                 fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
             } else {
-                fmt.sbprint(&result, "IDENTIFIER", start_pos, strings.to_string(lexeme), "\n")
+                fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
             }
             continue
         }
