@@ -264,9 +264,6 @@ class Lexer(object):
 
             test_tokens.append(Token(token_type, start_pos, value))
 
-        print(test_tokens[0])
-        print(test_tokens[0].type, test_tokens[0].start_pos, test_tokens[0].value)
-
         print("odin end", time.time() - start_time)
 
         # python
@@ -387,19 +384,19 @@ class Lexer(object):
                             tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                         # keyword
                         elif identifier in self.NAME:
-                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+                            tokens.append(Token(TokenType.NAME, start_pos, identifier))
                         # identifier
                         else:
-                            if current_header in { "[builds]", "[user]" }:
-                                tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
-                            else:
-                                tokens.append(Token(TokenType.ERROR, start_pos, identifier))
+                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
                     else:
                         tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                         current_char_index += 1
 
-        print(tokens[0].type, tokens[0].start_pos, tokens[0].value)
-
         print("python", time.time() - start_time)
+
+        for n in range(len(test_tokens)):
+            print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
+            print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
+            assert (test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value) == (tokens[n].type, tokens[n].start_pos, tokens[n].value)
 
         return tokens, [], []
