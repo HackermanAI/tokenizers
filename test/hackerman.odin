@@ -25,6 +25,8 @@
 
 package test
 
+import "base:runtime"
+
 import "core:os"
 import "core:fmt"
 import "core:mem"
@@ -56,15 +58,25 @@ is_conditional :: proc(value: string) -> bool {
 
 @export free_memory :: proc () {
     free_all(context.temp_allocator)
-
     fmt.println("free_memory", "finished")
 }
 
-@export tokenize :: proc(text: string, result: ^strings.Builder) {
+@export tokenize :: proc(text: string) -> string {
     fmt.println("tokenize", "called", text)
     
     // result := strings.builder_make(context.temp_allocator)
     // defer strings.builder_destroy(&result) // this is not correct usage?
+
+    // fmt.println(len(text))
+    
+    result := strings.builder_make()
+    lexeme := strings.builder_make() // helper to store lexemes
+    // strings.builder_grow(&lexeme, 100)
+
+    // strings.builder_init_len(&result, len(text)*64)
+    strings.builder_init_len(&lexeme, len(text)*64)
+
+    // defer strings.builder_destroy(&lexeme)
 
     fmt.println("1")
     
@@ -80,16 +92,20 @@ is_conditional :: proc(value: string) -> bool {
         // comment
         if text[index] == '-' {
             fmt.println("3")
-            lexeme := strings.builder_make()
+            // lexeme := strings.builder_make()
             // defer strings.builder_destroy(&lexeme)
 
-            lexeme = strings.write_byte(&lexeme, 'a')
+            // strings.builder_reset(&lexeme)
 
             fmt.println("4")
-            
-            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
+
+            strings.write_byte(&lexeme, 'a')
 
             fmt.println("5")
+
+            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
+
+            fmt.println("6")
 
             if index + 1 < len(text) && text[index + 1] == '-' {
 
@@ -102,155 +118,165 @@ is_conditional :: proc(value: string) -> bool {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                strings.write_string(result, fmt.aprintf("COMMENT %v %s\n", start_pos, strings.to_string(lexeme)))
+                strings.write_string(&result, fmt.aprintf("COMMENT %v %s\n", start_pos, strings.to_string(lexeme)))
             } else {
-                strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+                strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
                 index += 1
             }
             continue
         }
 
-        // header
-        if text[index] == '[' {
-            start_pos := index
-            lexeme := strings.builder_make(context.temp_allocator)
-            // defer strings.builder_destroy(&lexeme)
+        // // header
+        // if text[index] == '[' {
+        //     start_pos := index
+        //     lexeme := strings.builder_make(context.temp_allocator)
+        //     // defer strings.builder_destroy(&lexeme)
             
-            strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
-            index += 1
-            for index < len(text) && text[index] != ']' {
-                strings.write_byte(&lexeme, text[index])
-                index += 1
-            }
-            if index < len(text) && text[index] == ']' {
-                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
-                index += 1
-            }
-            strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
-            continue
-        }
+        //     strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
+        //     index += 1
+        //     for index < len(text) && text[index] != ']' {
+        //         strings.write_byte(&lexeme, text[index])
+        //         index += 1
+        //     }
+        //     if index < len(text) && text[index] == ']' {
+        //         strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
+        //         index += 1
+        //     }
+        //     strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     continue
+        // }
 
-        // string
-        if text[index] == '"' || text[index] == '\'' {
-            start_pos := index
-            lexeme := strings.builder_make(context.temp_allocator)
-            // defer strings.builder_destroy(&lexeme)
+        // // string
+        // if text[index] == '"' || text[index] == '\'' {
+        //     start_pos := index
+        //     lexeme := strings.builder_make(context.temp_allocator)
+        //     // defer strings.builder_destroy(&lexeme)
             
-            strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
-            index += 1
-            for index < len(text) && text[index] != '"' {
-                strings.write_byte(&lexeme, text[index])
-                index += 1
-            }
-            if index < len(text) && text[index] == '"' {
-                strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
-                index += 1
-            }
-            strings.write_string(result, fmt.aprintf("STRING %v %s\n", start_pos, strings.to_string(lexeme)))
-            continue
-        }
+        //     strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+        //     index += 1
+        //     for index < len(text) && text[index] != '"' {
+        //         strings.write_byte(&lexeme, text[index])
+        //         index += 1
+        //     }
+        //     if index < len(text) && text[index] == '"' {
+        //         strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+        //         index += 1
+        //     }
+        //     strings.write_string(result, fmt.aprintf("STRING %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     continue
+        // }
 
-        // number
-        if text[index] >= '0' && text[index] <= '9' {
-            start_pos := index
-            lexeme := strings.builder_make(context.temp_allocator)
-            // defer strings.builder_destroy(&lexeme)
+        // // number
+        // if text[index] >= '0' && text[index] <= '9' {
+        //     start_pos := index
+        //     lexeme := strings.builder_make(context.temp_allocator)
+        //     // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
-                strings.write_byte(&lexeme, text[index])
-                index += 1
-            }
-            strings.write_string(result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
-            continue
-        }
+        //     for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+        //         strings.write_byte(&lexeme, text[index])
+        //         index += 1
+        //     }
+        //     strings.write_string(result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     continue
+        // }
 
-        // conditional | name | identifier
-        if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
-            start_pos := index
-            lexeme := strings.builder_make(context.temp_allocator)
-            // defer strings.builder_destroy(&lexeme)
+        // // conditional | name | identifier
+        // if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
+        //     start_pos := index
+        //     lexeme := strings.builder_make(context.temp_allocator)
+        //     // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-                strings.write_byte(&lexeme, text[index])
-                index += 1
-            }
+        //     for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
+        //         strings.write_byte(&lexeme, text[index])
+        //         index += 1
+        //     }
 
-            if is_conditional(strings.to_string(lexeme)) {
-                strings.write_string(result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
-            } else if is_name(strings.to_string(lexeme)) {
-                strings.write_string(result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
-            } else {
-                strings.write_string(result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
-            }
-            continue
-        }
+        //     if is_conditional(strings.to_string(lexeme)) {
+        //         strings.write_string(result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     } else if is_name(strings.to_string(lexeme)) {
+        //         strings.write_string(result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     } else {
+        //         strings.write_string(result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
+        //     }
+        //     continue
+        // }
 
-        lexeme := strings.builder_make(context.temp_allocator)
-        // defer strings.builder_destroy(&lexeme)
+        // lexeme := strings.builder_make(context.temp_allocator)
+        // // defer strings.builder_destroy(&lexeme)
         
-        strings.write_byte(&lexeme, text[index])
-        strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
-        index += 1
+        // strings.write_byte(&lexeme, text[index])
+        // strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+        // index += 1
     }
+
+    return strings.to_string(result)
 }
 
 // odin run test
 // odin build test -build-mode:dll
 
-@export process_input :: proc(arg: string) -> u8 {
-    // Handle the passed string
+@export process_input :: proc(arg: string) -> string {
     fmt.println("Received argument:", arg);
 
-    result := strings.builder_make(context.temp_allocator)
-    tokenize(arg, &result)
-
-    fmt.println(strings.to_string(result))
-
-    free_all(context.temp_allocator)
-
-    // Example: Return a status code
-    return 0;
-}
-
-main :: proc() {
-    fmt.println("main", "called")
-    // TEXT :: `
-    //     [header]
-    //     -- comment
-    //     font "Fira Code"
-    //     font_size 23
-    // `
-    // KEYWORD 9 [header]
-    // COMMENT 26 -- comment
-    // NAME 45 font
-    // STRING 50 "Fira Code"
-    // NAME 70 font_size
-    // NUMBER 80 23
-
-    // for arg in os.args {
-    //     fmt.println(arg)
-    // }
-
     // result := strings.builder_make(context.temp_allocator)
-
-    // // tokenize(os.args[1], &result)
-
-    // tokenize(TEXT, &result)
-
-    // // result := tokenize(TEXT)
-    // // defer delete(result) // todo : is this correct?
-    // // defer strings.builder_destroy(result)
+    // lexeme := strings.builder_make(context.temp_allocator) // helper to store lexemes
     
-    // fmt.println(strings.to_string(result))
+    // result := tokenize(arg)
 
+    result := strings.builder_make()
+    
+    strings.write_string(&result, "a")     // 1
+    strings.write_string(&result, "bc")    // 2
+    
+    fmt.println(strings.to_string(result)) // -> abc
+
+    // fmt.println(&result)
+    
     // free_all(context.temp_allocator)
 
-    // fmt.println("Starting test")
-
-    // result := strings.builder_make()
-    // defer strings.builder_destroy(&result)
-
-    // fmt.println("Finished test")
+    return strings.to_string(result)
 }
+
+// main :: proc() {
+//     fmt.println("main", "called")
+//     fmt.println(runtime.default_allocator().procedure)
+//     // TEXT :: `
+//     //     [header]
+//     //     -- comment
+//     //     font "Fira Code"
+//     //     font_size 23
+//     // `
+//     // KEYWORD 9 [header]
+//     // COMMENT 26 -- comment
+//     // NAME 45 font
+//     // STRING 50 "Fira Code"
+//     // NAME 70 font_size
+//     // NUMBER 80 23
+
+//     // for arg in os.args {
+//     //     fmt.println(arg)
+//     // }
+
+//     // result := strings.builder_make(context.temp_allocator)
+
+//     // // tokenize(os.args[1], &result)
+
+//     // tokenize(TEXT, &result)
+
+//     // // result := tokenize(TEXT)
+//     // // defer delete(result) // todo : is this correct?
+//     // // defer strings.builder_destroy(result)
+    
+//     // fmt.println(strings.to_string(result))
+
+//     // free_all(context.temp_allocator)
+
+//     // fmt.println("Starting test")
+
+//     // result := strings.builder_make()
+//     // defer strings.builder_destroy(&result)
+
+//     // fmt.println("Finished test")
+// }
 
 
