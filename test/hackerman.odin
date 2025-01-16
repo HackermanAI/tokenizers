@@ -1,5 +1,28 @@
 
-// odin build test -build-mode:dll
+// MIT License
+
+// Copyright 2025 @asyncze (Michael Sjöberg)
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+// Tokenizer for Hackerman DSCL (TOML-like custom DSL)
+
 package test
 
 import "core:fmt"
@@ -32,6 +55,7 @@ is_conditional :: proc(value: string) -> bool {
 
 @export tokenize :: proc(text: string) -> string {
     result := strings.builder_make()
+    // defer strings.builder_destroy(&result) // this is not correct usage?
     
     index: int = 0
     for index < len(text) {
@@ -43,6 +67,8 @@ is_conditional :: proc(value: string) -> bool {
         // comment
         if text[index] == '-' {
             lexeme := strings.builder_make()
+            defer strings.builder_destroy(&lexeme)
+            
             strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
             if index + 1 < len(text) && text[index + 1] == '-' {
                 start_pos := index
@@ -64,6 +90,8 @@ is_conditional :: proc(value: string) -> bool {
         if text[index] == '[' {
             start_pos := index
             lexeme := strings.builder_make()
+            defer strings.builder_destroy(&lexeme)
+            
             strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
             index += 1
             for index < len(text) && text[index] != ']' {
@@ -82,6 +110,8 @@ is_conditional :: proc(value: string) -> bool {
         if text[index] == '"' || text[index] == '\'' {
             start_pos := index
             lexeme := strings.builder_make()
+            defer strings.builder_destroy(&lexeme)
+            
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
             for index < len(text) && text[index] != '"' {
@@ -96,56 +126,71 @@ is_conditional :: proc(value: string) -> bool {
             continue
         }
 
-        // if text[index] >= '0' && text[index] <= '9' {
-        //     start_pos := index
-        //     lexeme := ""
-        //     for index < len(text) && text[index] >= '0' && text[index] <= '9' {
-        //         lexeme += string(text[index])
-        //         index += 1
-        //     }
-        //     tokens = append(tokens, Token{type_ = NUMBER, start_pos = start_pos, value = lexeme})
-        //     continue
-        // }
+        // number
+        if text[index] >= '0' && text[index] <= '9' {
+            start_pos := index
+            lexeme := strings.builder_make()
+            defer strings.builder_destroy(&lexeme)
+            
+            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
+            strings.write_string(&result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
+            continue
+        }
 
-        // if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
-        //     start_pos := index
-        //     buffer := strings.make(128)
-        //     defer mem.free(buffer.data)
+        // conditional | name | identifier
+        if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
+            start_pos := index
+            lexeme := strings.builder_make()
+            defer strings.builder_destroy(&lexeme)
+            
+            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
 
-        //     length: usize = 0
-        //     for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-        //         buffer[length] = text[index]
-        //         length += 1
-        //         index += 1
-        //     }
-        //     buffer[length] = u8(0)
-        //     lexeme := string(buffer[:length])
-
-        //     if is_conditional(lexeme) {
-        //         tokens = append(tokens, Token{type_ = CONDITIONAL, start_pos = start_pos, value = lexeme})
-        //     } else if is_name(lexeme) {
-        //         tokens = append(tokens, Token{type_ = NAME, start_pos = start_pos, value = lexeme})
-        //     } else {
-        //         tokens = append(tokens, Token{type_ = IDENTIFIER, start_pos = start_pos, value = lexeme})
-        //     }
-        //     continue
-        // }
+            if is_conditional(strings.to_string(lexeme)) {
+                strings.write_string(&result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
+            } else if is_name(strings.to_string(lexeme)) {
+                strings.write_string(&result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
+            } else {
+                strings.write_string(&result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
+            }
+            continue
+        }
 
         lexeme := strings.builder_make()
+        defer strings.builder_destroy(&lexeme)
+        
         strings.write_byte(&lexeme, text[index])
         strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
         index += 1
     }
 
-    // joined_string := tokens_to_string(tokens)
-
     return strings.to_string(result)
 }
 
-// for testing only
+// odin run test
+// odin build test -build-mode:dll
+
 main :: proc() {
-    result := tokenize("[header]\n-- comment\n\"font\"")
-    defer delete(result)
+    TEXT :: `
+        [header]
+        -- comment
+        font "Fira Code"
+        font_size 23
+    `
+    // KEYWORD 9 [header]
+    // COMMENT 26 -- comment
+    // NAME 45 font
+    // STRING 50 "Fira Code"
+    // NAME 70 font_size
+    // NUMBER 80 23
+
+    result := tokenize(TEXT)
+    // defer delete(result) // todo : is this correct?
     
     fmt.println(result)
 }
