@@ -10,3 +10,4 @@ libhackerman.so
 libtest
 libtest.o
 test.dylib
+test.bin
