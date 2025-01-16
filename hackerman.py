@@ -255,150 +255,152 @@ class Lexer(object):
 
         print("odin end", time.time() - start_time)
 
-        test_tokens = []
-        for token in result_string.split("\n"):
-            values = token.split(" ", 2)            
-            if len(values) == 1 and values[0] == "": continue
+        # test_tokens = []
+        # for token in result_string.split("\n"):
+        #     values = token.split(" ", 2)            
+        #     if len(values) == 1 and values[0] == "": continue
             
-            token_type = TokenType[values[0]]
-            start_pos = int(values[1])
-            value = values[2].strip()
+        #     token_type = TokenType[values[0]]
+        #     start_pos = int(values[1])
+        #     value = values[2].strip()
 
-            test_tokens.append(Token(token_type, start_pos, value))
+            # test_tokens.append(Token(token_type, start_pos, value))
+
+        tokens = result_string
 
         print("odin regex match end", time.time() - start_time)
 
         # python
         # --------------------------------------
         
-        start_time = time.time()
+        # start_time = time.time()
         
-        tokens = []
-        current_line = 1
-        current_char = ''
-        current_char_index = 0
+        # tokens = []
+        # current_line = 1
+        # current_char = ''
+        # current_char_index = 0
 
-        RHS = False
-        current_header = None
+        # RHS = False
+        # current_header = None
 
-        while current_char_index < len(text):
-            current_char = text[current_char_index]
-            match current_char:
-                case ' ' | '\t' | '\r':
-                    current_char_index += 1
-                case '\n':
-                    current_line += 1
-                    current_char_index += 1
-                    # update state
-                    RHS = False
-                # comment or error
-                case '-':
-                    next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                    if next_char == "-":
-                        start_pos = current_char_index
-                        current_char_index += 1
-                        line = current_char
-                        while current_char_index < len(text) and text[current_char_index] != '\n':
-                            line += text[current_char_index]
-                            current_char_index += 1
-                        tokens.append(Token(TokenType.COMMENT, start_pos, line))
-                    else:
-                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
-                        current_char_index += 1
-                # header start
-                case '[':
-                    start_pos = current_char_index
-                    header = str(current_char)
+        # while current_char_index < len(text):
+        #     current_char = text[current_char_index]
+        #     match current_char:
+        #         case ' ' | '\t' | '\r':
+        #             current_char_index += 1
+        #         case '\n':
+        #             current_line += 1
+        #             current_char_index += 1
+        #             # update state
+        #             RHS = False
+        #         # comment or error
+        #         case '-':
+        #             next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+        #             if next_char == "-":
+        #                 start_pos = current_char_index
+        #                 current_char_index += 1
+        #                 line = current_char
+        #                 while current_char_index < len(text) and text[current_char_index] != '\n':
+        #                     line += text[current_char_index]
+        #                     current_char_index += 1
+        #                 tokens.append(Token(TokenType.COMMENT, start_pos, line))
+        #             else:
+        #                 tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
+        #                 current_char_index += 1
+        #         # header start
+        #         case '[':
+        #             start_pos = current_char_index
+        #             header = str(current_char)
                     
-                    current_char_index += 1
+        #             current_char_index += 1
 
-                    # todo : probably no need for nested levels
-                    if RHS == False:
-                        nested_level = 0
-                        while current_char_index < len(text) and text[current_char_index].isprintable():
-                            header += str(text[current_char_index])
-                            if text[current_char_index] == '[':
-                                nested_level += 1
-                                current_char_index += 1
-                            elif text[current_char_index] == ']':
-                                current_char_index += 1
-                                if nested_level > 0:
-                                    nested_level -= 1
-                                else:
-                                    break
-                            else:
-                                current_char_index += 1
+        #             # todo : probably no need for nested levels
+        #             if RHS == False:
+        #                 nested_level = 0
+        #                 while current_char_index < len(text) and text[current_char_index].isprintable():
+        #                     header += str(text[current_char_index])
+        #                     if text[current_char_index] == '[':
+        #                         nested_level += 1
+        #                         current_char_index += 1
+        #                     elif text[current_char_index] == ']':
+        #                         current_char_index += 1
+        #                         if nested_level > 0:
+        #                             nested_level -= 1
+        #                         else:
+        #                             break
+        #                     else:
+        #                         current_char_index += 1
 
-                        current_header = header
-                        tokens.append(Token(TokenType.KEYWORD, start_pos, header))
-                    else:
-                        tokens.append(Token(TokenType.ERROR, start_pos, current_char))    
-                # strings
-                case '"' | '\'':
-                    start_pos = current_char_index
-                    string = str(current_char)
+        #                 current_header = header
+        #                 tokens.append(Token(TokenType.KEYWORD, start_pos, header))
+        #             else:
+        #                 tokens.append(Token(TokenType.ERROR, start_pos, current_char))    
+        #         # strings
+        #         case '"' | '\'':
+        #             start_pos = current_char_index
+        #             string = str(current_char)
                     
-                    current_char_index += 1
+        #             current_char_index += 1
 
-                    while current_char_index < len(text) and text[current_char_index].isprintable():
-                        string += str(text[current_char_index])
-                        if text[current_char_index] == current_char:
-                            current_char_index += 1
-                            break
-                        else:
-                            current_char_index += 1
+        #             while current_char_index < len(text) and text[current_char_index].isprintable():
+        #                 string += str(text[current_char_index])
+        #                 if text[current_char_index] == current_char:
+        #                     current_char_index += 1
+        #                     break
+        #                 else:
+        #                     current_char_index += 1
                     
-                    tokens.append(Token(TokenType.STRING, start_pos, string))
-                case _:
-                    # number
-                    if current_char.isdigit():
-                        start_pos = current_char_index
-                        number = str(current_char)
-                        current_char_index += 1
+        #             tokens.append(Token(TokenType.STRING, start_pos, string))
+        #         case _:
+        #             # number
+        #             if current_char.isdigit():
+        #                 start_pos = current_char_index
+        #                 number = str(current_char)
+        #                 current_char_index += 1
                         
-                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
-                            number += str(text[current_char_index])
-                            current_char_index += 1
+        #                 while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
+        #                     number += str(text[current_char_index])
+        #                     current_char_index += 1
 
-                        # match using regex
-                        number_type = TokenType.DEFAULT
-                        for type_, pattern in self.NUMBER_REGEX.items():
-                            if re.match(pattern, number):
-                                number_type = TokenType.NUMBER
-                                break
+        #                 # match using regex
+        #                 number_type = TokenType.DEFAULT
+        #                 for type_, pattern in self.NUMBER_REGEX.items():
+        #                     if re.match(pattern, number):
+        #                         number_type = TokenType.NUMBER
+        #                         break
 
-                        if number_type == TokenType.NUMBER:
-                            tokens.append(Token(TokenType.NUMBER, start_pos, number))
-                        else:
-                            tokens.append(Token(TokenType.ERROR, start_pos, number))
-                    # identifiers
-                    elif current_char.isidentifier():
-                        start_pos = current_char_index
-                        identifier = str(current_char)
-                        current_char_index += 1
+        #                 if number_type == TokenType.NUMBER:
+        #                     tokens.append(Token(TokenType.NUMBER, start_pos, number))
+        #                 else:
+        #                     tokens.append(Token(TokenType.ERROR, start_pos, number))
+        #             # identifiers
+        #             elif current_char.isidentifier():
+        #                 start_pos = current_char_index
+        #                 identifier = str(current_char)
+        #                 current_char_index += 1
                         
-                        while current_char_index < len(text) and text[current_char_index].isidentifier():
-                            identifier += str(text[current_char_index])
-                            current_char_index += 1
+        #                 while current_char_index < len(text) and text[current_char_index].isidentifier():
+        #                     identifier += str(text[current_char_index])
+        #                     current_char_index += 1
 
-                        # conditional
-                        if identifier in self.CONDITIONAL:
-                            tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
-                        # name
-                        elif identifier in self.NAME:
-                            tokens.append(Token(TokenType.NAME, start_pos, identifier))
-                        # default
-                        else:
-                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
-                    else:
-                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
-                        current_char_index += 1
+        #                 # conditional
+        #                 if identifier in self.CONDITIONAL:
+        #                     tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
+        #                 # name
+        #                 elif identifier in self.NAME:
+        #                     tokens.append(Token(TokenType.NAME, start_pos, identifier))
+        #                 # default
+        #                 else:
+        #                     tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+        #             else:
+        #                 tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
+        #                 current_char_index += 1
 
-        print("python", time.time() - start_time)
+        # print("python", time.time() - start_time)
 
-        for n in range(len(test_tokens)):
-            # print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
-            # print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
-            assert (test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value) == (tokens[n].type, tokens[n].start_pos, tokens[n].value)
+        # for n in range(len(test_tokens)):
+        #     # print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
+        #     # print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
+        #     assert (test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value) == (tokens[n].type, tokens[n].start_pos, tokens[n].value)
 
         return tokens, [], []
