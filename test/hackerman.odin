@@ -65,7 +65,7 @@ is_conditional :: proc(value: string) -> bool {
 @export tokenize :: proc(text: string) -> string {
     // fmt.println("Odin : tokenize called :", text)
 
-    alloc := runtime.default_allocator()
+    alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
     // fmt.println(alloc)
     
     result := strings.builder_make(alloc)
@@ -143,47 +143,53 @@ is_conditional :: proc(value: string) -> bool {
             continue
         }
 
-        // // number
-        // if text[index] >= '0' && text[index] <= '9' {
-        //     start_pos := index
-        //     lexeme := strings.builder_make(context.temp_allocator)
-        //     // defer strings.builder_destroy(&lexeme)
+        // number
+        if text[index] >= '0' && text[index] <= '9' {
+            start_pos := index
             
-        //     for index < len(text) && text[index] >= '0' && text[index] <= '9' {
-        //         strings.write_byte(&lexeme, text[index])
-        //         index += 1
-        //     }
-        //     strings.write_string(result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
-        //     continue
-        // }
-
-        // // conditional | name | identifier
-        // if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
-        //     start_pos := index
-        //     lexeme := strings.builder_make(context.temp_allocator)
-        //     // defer strings.builder_destroy(&lexeme)
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            defer strings.builder_destroy(&lexeme)
             
-        //     for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-        //         strings.write_byte(&lexeme, text[index])
-        //         index += 1
-        //     }
+            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
+            // strings.write_string(result, fmt.aprintf("NUMBER %v %s\n", start_pos, strings.to_string(lexeme)))
+            fmt.sbprint(&result, "NUMBER", index, strings.to_string(lexeme))
+            continue
+        }
 
-        //     if is_conditional(strings.to_string(lexeme)) {
-        //         strings.write_string(result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
-        //     } else if is_name(strings.to_string(lexeme)) {
-        //         strings.write_string(result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
-        //     } else {
-        //         strings.write_string(result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
-        //     }
-        //     continue
-        // }
+        // conditional | name | identifier
+        if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
+            start_pos := index
+            
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            defer strings.builder_destroy(&lexeme)
+            
+            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
 
-        // lexeme := strings.builder_make(context.temp_allocator)
-        // // defer strings.builder_destroy(&lexeme)
+            if is_conditional(strings.to_string(lexeme)) {
+                // strings.write_string(result, fmt.aprintf("CONDITIONAL %v %s\n", start_pos, strings.to_string(lexeme)))
+                fmt.sbprint(&result, "CONDITIONAL", index, strings.to_string(lexeme))
+            } else if is_name(strings.to_string(lexeme)) {
+                // strings.write_string(result, fmt.aprintf("NAME %v %s\n", start_pos, strings.to_string(lexeme)))
+                fmt.sbprint(&result, "NAME", index, strings.to_string(lexeme))
+            } else {
+                // strings.write_string(result, fmt.aprintf("IDENTIFIER %v %s\n", start_pos, strings.to_string(lexeme)))
+                fmt.sbprint(&result, "IDENTIFIER", index, strings.to_string(lexeme))
+            }
+            continue
+        }
+
+        lexeme := strings.builder_make(alloc) // helper to store lexemes
+        defer strings.builder_destroy(&lexeme)
         
-        // strings.write_byte(&lexeme, text[index])
-        // strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
-        // index += 1
+        strings.write_byte(&lexeme, text[index])
+        strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+        index += 1
     }
 
     return strings.to_string(result)
