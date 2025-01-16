@@ -91,7 +91,7 @@ is_conditional :: proc(value: string) -> bool {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme), "\n")
+                fmt.sbprint(&result, "COMMENT", start_pos, strings.to_string(lexeme), "\n")
             } else {
                 fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
                 index += 1
@@ -116,7 +116,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
-            fmt.sbprint(&result, "KEYWORD", index, strings.to_string(lexeme), "\n")
+            fmt.sbprint(&result, "KEYWORD", start_pos, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -137,7 +137,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            fmt.sbprint(&result, "STRING", index, strings.to_string(lexeme), "\n")
+            fmt.sbprint(&result, "STRING", start_pos, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -152,7 +152,7 @@ is_conditional :: proc(value: string) -> bool {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            fmt.sbprint(&result, "NUMBER", index, strings.to_string(lexeme), "\n")
+            fmt.sbprint(&result, "NUMBER", start_pos, strings.to_string(lexeme), "\n")
             continue
         }
 
@@ -169,11 +169,11 @@ is_conditional :: proc(value: string) -> bool {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                fmt.sbprint(&result, "CONDITIONAL", index, strings.to_string(lexeme), "\n")
+                fmt.sbprint(&result, "CONDITIONAL", start_pos, strings.to_string(lexeme), "\n")
             } else if is_name(strings.to_string(lexeme)) {
-                fmt.sbprint(&result, "NAME", index, strings.to_string(lexeme), "\n")
+                fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
             } else {
-                fmt.sbprint(&result, "IDENTIFIER", index, strings.to_string(lexeme), "\n")
+                fmt.sbprint(&result, "IDENTIFIER", start_pos, strings.to_string(lexeme), "\n")
             }
             continue
         }
