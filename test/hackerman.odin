@@ -188,7 +188,8 @@ is_conditional :: proc(value: string) -> bool {
         defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+        // strings.write_string(result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
+        fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
         index += 1
     }
 
@@ -202,7 +203,7 @@ is_conditional :: proc(value: string) -> bool {
     // fmt.println("Odin : received argument : ", arg);
     
     result := tokenize(arg)
+    
     // fmt.println("Odin : tokenize done :", result)
-
     return result
 }
