@@ -57,10 +57,10 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
-@export free_memory :: proc () {
-    free_all(context.default_allocator)
-    fmt.println("free_memory done")
-}
+// @export free_memory :: proc () {
+//     free_all(context.temp_allocator)
+//     fmt.println("free_memory done")
+// }
 
 @export tokenize :: proc(text: string) -> string {
     // fmt.println("Odin : tokenize called :", text)
