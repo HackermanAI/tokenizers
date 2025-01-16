@@ -82,8 +82,7 @@ is_conditional :: proc(value: string) -> bool {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             defer strings.builder_destroy(&lexeme)
 
-            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
-            
+            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer            
             if index + 1 < len(text) && text[index + 1] == '-' {
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1])
@@ -92,7 +91,6 @@ is_conditional :: proc(value: string) -> bool {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-
                 fmt.sbprint(&result, "COMMENT", index, strings.to_string(lexeme))
             } else {
                 fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme))
@@ -101,25 +99,25 @@ is_conditional :: proc(value: string) -> bool {
             continue
         }
 
-        // // header
-        // if text[index] == '[' {
-        //     start_pos := index
-        //     lexeme := strings.builder_make(context.temp_allocator)
-        //     // defer strings.builder_destroy(&lexeme)
+        // header
+        if text[index] == '[' {
+            start_pos := index
+            lexeme := strings.builder_make(context.temp_allocator)
+            // defer strings.builder_destroy(&lexeme)
             
-        //     strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
-        //     index += 1
-        //     for index < len(text) && text[index] != ']' {
-        //         strings.write_byte(&lexeme, text[index])
-        //         index += 1
-        //     }
-        //     if index < len(text) && text[index] == ']' {
-        //         strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
-        //         index += 1
-        //     }
-        //     strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
-        //     continue
-        // }
+            strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
+            index += 1
+            for index < len(text) && text[index] != ']' {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
+            if index < len(text) && text[index] == ']' {
+                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
+                index += 1
+            }
+            strings.write_string(result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
+            continue
+        }
 
         // // string
         // if text[index] == '"' || text[index] == '\'' {
