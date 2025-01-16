@@ -382,10 +382,10 @@ class Lexer(object):
                         # conditional
                         if identifier in self.CONDITIONAL:
                             tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
-                        # keyword
+                        # name
                         elif identifier in self.NAME:
                             tokens.append(Token(TokenType.NAME, start_pos, identifier))
-                        # identifier
+                        # default
                         else:
                             tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
                     else:
