@@ -26,34 +26,46 @@
 import os
 import re
 import time
-from enum import Enum
-
 import ctypes
 
-lib_path = os.path.join(os.path.dirname(__file__), "libhackerman.dylib")
-# print(lib_path)
+from enum import Enum
 
-lib = ctypes.CDLL(lib_path)
-lib.tokenize.argtypes = [ctypes.c_char_p] # C string
-lib.tokenize.restype = ctypes.POINTER(ctypes.c_char) # pointer to C string
+# lib_path = os.path.join(os.path.dirname(__file__), "libhackerman.dylib")
+# # print(lib_path)
 
-lib.free_memory.argtypes = [ctypes.POINTER(ctypes.c_char)] # free pointer to C string
-lib.free_memory.restype = None
+# lib = ctypes.CDLL(lib_path)
+# lib.tokenize.argtypes = [ctypes.c_char_p] # C string
+# lib.tokenize.restype = ctypes.POINTER(ctypes.c_char) # pointer to C string
 
-# start_time = time.time()
+# lib.free_memory.argtypes = [ctypes.POINTER(ctypes.c_char)] # free pointer to C string
+# lib.free_memory.restype = None
 
-# input_text = """
-# [header]\n
-# -- Comment\n
-# font "string"\n
-# not_in_name 1234\n
-# """.encode('utf-8')
-# result = lib.tokenize(input_text)
+# odin
+class String(ctypes.Structure):
+    _fields_ = [
+        ("text", ctypes.POINTER(ctypes.c_uint8)),
+        ("len", ctypes.c_ssize_t),
+    ]
 
-# print(time.time() - start_time)
+lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
 
-# # Decode the result
-# print("Tokenized Output:", result.decode('utf-8'))
+# test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
+# test_bytes = test_text.encode("utf-8")
+
+# byte_array = (ctypes.c_uint8 * len(test_bytes))(*test_bytes)
+
+# string_arg = String()
+# string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
+# string_arg.len = len(test_bytes)
+
+# lib.process_input.argtypes = [String]
+# lib.process_input.restype = String
+
+# result = lib.process_input(string_arg)
+
+# result_string = ctypes.string_at(result.text)
+# print(result_string.decode("utf-8"))
+
 
 class TokenType(Enum):
     DEFAULT     = 100
@@ -86,7 +98,9 @@ class Token(object):
 class Lexer(object):
     def __init__(self):
         self.NAME = [
+            
             # editor
+            
             "font",
             "font_weight",
             "font_size",
@@ -97,7 +111,9 @@ class Lexer(object):
             "file_explorer_root",
             "model_to_use",
             "eol_mode",
+            
             # toggles
+            
             "show_line_numbers",
             "transparent",
             "blockcursor",
@@ -111,11 +127,15 @@ class Lexer(object):
             "highlight_current_line",
             "highlight_current_line_on_jump",
             "show_eol",
+            
             # ollama
             # openai
+            
             "model",
             "key",
+            
             # bindings
+            
             "save_file",
             "new_file",
             "new_window",
@@ -134,11 +154,15 @@ class Lexer(object):
             "zoom_out",
             "toggle_file_explorer",
             "split_view",
+            
             # todos
+            
             "find_in_file",
             "undo",
             "redo",
+            
             # theme
+            
             "background",
             "foreground",
             "selection",
@@ -147,7 +171,9 @@ class Lexer(object):
             "text_highlight",
             "cursor",
             "whitespace",
+            
             # syntax colors
+            
             "default",
             "keyword",
             "class",
@@ -187,157 +213,193 @@ class Lexer(object):
     def lexer_name(self): return "Hackerman"
 
     def tokenize(self, text, highlight_todos=False):
+        # c
+        # --------------------------------------
+        # start_time = time.time()
 
-        # ffi
+        # result = lib.tokenize(text.encode("utf-8"))
+        # test = ctypes.string_at(result).decode("utf-8")
+        # # lib.free_memory(result)
+
+        # tokens = []
+        # for token in test.split("\n")[1:]:
+        #     values = token.split(" ", 2)
+        #     token_type = TokenType[values[0].split("=")[1]]
+        #     start_pos = int(values[1].split("=")[1])
+        #     value = values[2].split("=")[1]
+
+        #     tokens.append(Token(token_type, start_pos, value))
+
+        # print("c end", time.time() - start_time)
+
+        # odin
         # --------------------------------------
         start_time = time.time()
 
-        result = lib.tokenize(text.encode("utf-8"))
-        test = ctypes.string_at(result).decode("utf-8")
-        # lib.free_memory(result)
+        # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
+        text_bytes = text.encode("utf-8")
+        byte_array = (ctypes.c_uint8 * len(text_bytes))(*text_bytes)
 
-        # print(test.split("\n")[1:])
-        tokens = []
-        for token in test.split("\n")[1:]:
-            values = token.split(" ", 2)
-            token_type = TokenType[values[0].split("=")[1]]
-            start_pos = int(values[1].split("=")[1])
-            value = values[2].split("=")[1]
+        string_arg = String()
+        string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
+        string_arg.len = len(text_bytes)
 
-            tokens.append(Token(token_type, start_pos, value))
+        lib.process_input.argtypes = [String]
+        lib.process_input.restype = String
 
-        # print(tokens)
+        result = lib.process_input(string_arg)
+        result_string = ctypes.string_at(result.text).decode("utf-8")
+        # print(result_string.decode("utf-8"))
 
-        print("ffi end", time.time() - start_time)
+        # print(result_string.split("\n"))
+
+        test_tokens = []
+        for token in result_string.split("\n"):
+            values = token.split(" ", 2)            
+            if len(values) == 1 and values[0] == "": continue
+            
+            token_type = TokenType[values[0]]
+            start_pos = int(values[1])
+            value = values[2].strip()
+
+            test_tokens.append(Token(token_type, start_pos, value))
+
+        print(test_tokens[0])
+        print(test_tokens[0].type, test_tokens[0].start_pos, test_tokens[0].value)
+
+        print("odin end", time.time() - start_time)
 
         # python
         # --------------------------------------
-        # start_time = time.time()
         
-        # tokens = []
-        # current_line = 1
-        # current_char = ''
-        # current_char_index = 0
+        start_time = time.time()
+        
+        tokens = []
+        current_line = 1
+        current_char = ''
+        current_char_index = 0
 
-        # RHS = False
-        # current_header = None
+        RHS = False
+        current_header = None
 
-        # while current_char_index < len(text):
-        #     current_char = text[current_char_index]
-        #     match current_char:
-        #         case ' ' | '\t' | '\r':
-        #             current_char_index += 1
-        #         case '\n':
-        #             current_line += 1
-        #             current_char_index += 1
-        #             # update state
-        #             RHS = False
-        #         # comment or error
-        #         case '-':
-        #             next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-        #             if next_char == "-":
-        #                 start_pos = current_char_index
-        #                 current_char_index += 1
-        #                 line = current_char
-        #                 while current_char_index < len(text) and text[current_char_index] != '\n':
-        #                     line += text[current_char_index]
-        #                     current_char_index += 1
-        #                 tokens.append(Token(TokenType.COMMENT, start_pos, line))
-        #             else:
-        #                 tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
-        #                 current_char_index += 1
-        #         # header start
-        #         case '[':
-        #             start_pos = current_char_index
-        #             header = str(current_char)
+        while current_char_index < len(text):
+            current_char = text[current_char_index]
+            match current_char:
+                case ' ' | '\t' | '\r':
+                    current_char_index += 1
+                case '\n':
+                    current_line += 1
+                    current_char_index += 1
+                    # update state
+                    RHS = False
+                # comment or error
+                case '-':
+                    next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
+                    if next_char == "-":
+                        start_pos = current_char_index
+                        current_char_index += 1
+                        line = current_char
+                        while current_char_index < len(text) and text[current_char_index] != '\n':
+                            line += text[current_char_index]
+                            current_char_index += 1
+                        tokens.append(Token(TokenType.COMMENT, start_pos, line))
+                    else:
+                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
+                        current_char_index += 1
+                # header start
+                case '[':
+                    start_pos = current_char_index
+                    header = str(current_char)
                     
-        #             current_char_index += 1
+                    current_char_index += 1
 
-        #             # todo : probably no need for nested levels
-        #             if RHS == False:
-        #                 nested_level = 0
-        #                 while current_char_index < len(text) and text[current_char_index].isprintable():
-        #                     header += str(text[current_char_index])
-        #                     if text[current_char_index] == '[':
-        #                         nested_level += 1
-        #                         current_char_index += 1
-        #                     elif text[current_char_index] == ']':
-        #                         current_char_index += 1
-        #                         if nested_level > 0:
-        #                             nested_level -= 1
-        #                         else:
-        #                             break
-        #                     else:
-        #                         current_char_index += 1
+                    # todo : probably no need for nested levels
+                    if RHS == False:
+                        nested_level = 0
+                        while current_char_index < len(text) and text[current_char_index].isprintable():
+                            header += str(text[current_char_index])
+                            if text[current_char_index] == '[':
+                                nested_level += 1
+                                current_char_index += 1
+                            elif text[current_char_index] == ']':
+                                current_char_index += 1
+                                if nested_level > 0:
+                                    nested_level -= 1
+                                else:
+                                    break
+                            else:
+                                current_char_index += 1
 
-        #                 current_header = header
-        #                 tokens.append(Token(TokenType.KEYWORD, start_pos, header))
-        #             else:
-        #                 tokens.append(Token(TokenType.ERROR, start_pos, current_char))    
-        #         # strings
-        #         case '"' | '\'':
-        #             start_pos = current_char_index
-        #             string = str(current_char)
+                        current_header = header
+                        tokens.append(Token(TokenType.KEYWORD, start_pos, header))
+                    else:
+                        tokens.append(Token(TokenType.ERROR, start_pos, current_char))    
+                # strings
+                case '"' | '\'':
+                    start_pos = current_char_index
+                    string = str(current_char)
                     
-        #             current_char_index += 1
+                    current_char_index += 1
 
-        #             while current_char_index < len(text) and text[current_char_index].isprintable():
-        #                 string += str(text[current_char_index])
-        #                 if text[current_char_index] == current_char:
-        #                     current_char_index += 1
-        #                     break
-        #                 else:
-        #                     current_char_index += 1
+                    while current_char_index < len(text) and text[current_char_index].isprintable():
+                        string += str(text[current_char_index])
+                        if text[current_char_index] == current_char:
+                            current_char_index += 1
+                            break
+                        else:
+                            current_char_index += 1
                     
-        #             tokens.append(Token(TokenType.STRING, start_pos, string))
-        #         case _:
-        #             # number
-        #             if current_char.isdigit():
-        #                 start_pos = current_char_index
-        #                 number = str(current_char)
-        #                 current_char_index += 1
+                    tokens.append(Token(TokenType.STRING, start_pos, string))
+                case _:
+                    # number
+                    if current_char.isdigit():
+                        start_pos = current_char_index
+                        number = str(current_char)
+                        current_char_index += 1
                         
-        #                 while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
-        #                     number += str(text[current_char_index])
-        #                     current_char_index += 1
+                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
+                            number += str(text[current_char_index])
+                            current_char_index += 1
 
-        #                 # match using regex
-        #                 number_type = TokenType.DEFAULT
-        #                 for type_, pattern in self.NUMBER_REGEX.items():
-        #                     if re.match(pattern, number):
-        #                         number_type = TokenType.NUMBER
-        #                         break
+                        # match using regex
+                        number_type = TokenType.DEFAULT
+                        for type_, pattern in self.NUMBER_REGEX.items():
+                            if re.match(pattern, number):
+                                number_type = TokenType.NUMBER
+                                break
 
-        #                 if number_type == TokenType.NUMBER:
-        #                     tokens.append(Token(TokenType.NUMBER, start_pos, number))
-        #                 else:
-        #                     tokens.append(Token(TokenType.ERROR, start_pos, number))
-        #             # identifiers
-        #             elif current_char.isidentifier():
-        #                 start_pos = current_char_index
-        #                 identifier = str(current_char)
-        #                 current_char_index += 1
+                        if number_type == TokenType.NUMBER:
+                            tokens.append(Token(TokenType.NUMBER, start_pos, number))
+                        else:
+                            tokens.append(Token(TokenType.ERROR, start_pos, number))
+                    # identifiers
+                    elif current_char.isidentifier():
+                        start_pos = current_char_index
+                        identifier = str(current_char)
+                        current_char_index += 1
                         
-        #                 while current_char_index < len(text) and text[current_char_index].isidentifier():
-        #                     identifier += str(text[current_char_index])
-        #                     current_char_index += 1
+                        while current_char_index < len(text) and text[current_char_index].isidentifier():
+                            identifier += str(text[current_char_index])
+                            current_char_index += 1
 
-        #                 # conditional
-        #                 if identifier in self.CONDITIONAL:
-        #                     tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
-        #                 # keyword
-        #                 elif identifier in self.NAME:
-        #                     tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
-        #                 # identifier
-        #                 else:
-        #                     if current_header in { "[builds]", "[user]" }:
-        #                         tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
-        #                     else:
-        #                         tokens.append(Token(TokenType.ERROR, start_pos, identifier))
-        #             else:
-        #                 tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
-        #                 current_char_index += 1
+                        # conditional
+                        if identifier in self.CONDITIONAL:
+                            tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
+                        # keyword
+                        elif identifier in self.NAME:
+                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+                        # identifier
+                        else:
+                            if current_header in { "[builds]", "[user]" }:
+                                tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+                            else:
+                                tokens.append(Token(TokenType.ERROR, start_pos, identifier))
+                    else:
+                        tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
+                        current_char_index += 1
 
-        # print("python", time.time() - start_time)
+        print(tokens[0].type, tokens[0].start_pos, tokens[0].value)
+
+        print("python", time.time() - start_time)
 
         return tokens, [], []
