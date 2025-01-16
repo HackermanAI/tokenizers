@@ -23,7 +23,7 @@
 
 // Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
-package test
+package hackerman_odin
 
 import "base:runtime"
 
@@ -196,8 +196,8 @@ is_conditional :: proc(value: string) -> bool {
     return strings.to_string(result)
 }
 
-// odin run test
-// odin build test -build-mode:dll
+// odin run hackerman_odin
+// odin build hackerman_odin -build-mode:dll
 
 @export process_input :: proc(arg: string) -> string {
     // fmt.println("Odin : received argument : ", arg);
