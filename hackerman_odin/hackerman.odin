@@ -201,7 +201,7 @@ is_conditional :: proc(value: string) -> bool {
             
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
-            for index < len(text) && text[index] != '"' {
+            for index < len(text) && text[index] != '"' && text[index] != '\n' {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
