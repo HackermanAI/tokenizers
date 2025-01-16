@@ -30,57 +30,8 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
-TokenType :: enum {
-    COMMENT,
-    ERROR,
-    KEYWORD,
-    STRING,
-    NUMBER,
-    CONDITIONAL,
-    NAME,
-    IDENTIFIER,
-    DEFAULT,
-}
-
-Token :: struct {
-    type_: TokenType,
-    start_pos: int,
-    value: string,
-}
-
-// @export free_tokens :: proc(tokens: [dynamic]Token) {
-//     mem.free(tokens)
-// }
-
-// DynamicArray :: struct {
-//     data: ^Token, // Pointer to Token array
-//     len: int,     // Number of elements in the array
-//     cap: int,     // Capacity of the array
-// }
-
-tokens_to_string :: proc(tokens: [dynamic]Token) -> string {
-    b := strings.builder_make()
-
-    // result_data: [dynamic]u8
-    for token in tokens {
-        // append(result_data, token.value)
-        // for byte_ in token.value {
-        //     // append(&result_data, byte_)
-        //     strings.write_byte(&b, byte_)
-        // }
-        strings.write_string(&b, token.value)
-        // result_data = append(result_data, ' ')
-    }
-    return strings.to_string(b)
-}
-
-@export tokenize :: proc(text: string) -> [dynamic]Token {
-    // tokens: []Token = []Token{} // List of tokens
-    // tokens: [dynamic]Token
-    tokens: [dynamic]Token
-
-    // builder := strings.Builder
-    // defer builder.builder_destroy()
+@export tokenize :: proc(text: string) -> string {
+    result := strings.builder_make()
     
     index: int = 0
     for index < len(text) {
@@ -89,73 +40,61 @@ tokens_to_string :: proc(tokens: [dynamic]Token) -> string {
             continue
         }
 
+        // comment
         if text[index] == '-' {
-            // lexeme_data: []u8 = []u8{}
-            // lexeme_data = append(lexeme_data, text[index])
-
-            // newstr: string = string(text[index])
-
-            // b := strings.builder_make()
-            // strings.write_string(&b, newstr)
-            // str := strings.to_string(b)
-            // fmt.println(str)
-
-            // lexeme: [dynamic]u8
             lexeme := strings.builder_make()
-            strings.write_byte(&lexeme, text[index])
-
-            // append(&lexeme, text[index])
-
+            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
             if index + 1 < len(text) && text[index + 1] == '-' {
                 start_pos := index
-                // append(&lexeme, text[index + 1])
                 strings.write_byte(&lexeme, text[index + 1])
                 index += 2
                 for index < len(text) && text[index] != '\n' {
-                    // append(&lexeme, text[index])
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                append(&tokens, Token{type_ = TokenType.COMMENT, start_pos = start_pos, value = strings.to_string(lexeme)})
+                strings.write_string(&result, fmt.aprintf("COMMENT %v %s\n", start_pos, strings.to_string(lexeme)))
             } else {
-                append(&tokens, Token{type_ = TokenType.ERROR, start_pos = index, value = strings.to_string(lexeme)})
+                strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
                 index += 1
             }
             continue
         }
 
-        // if text[index] == '[' {
-        //     start_pos := index
-        //     lexeme := "["
-        //     index += 1
-        //     for index < len(text) && text[index] != ']' {
-        //         lexeme += string(text[index])
-        //         index += 1
-        //     }
-        //     if index < len(text) && text[index] == ']' {
-        //         lexeme += "]"
-        //         index += 1
-        //     }
-        //     tokens = append(tokens, Token{type_ = KEYWORD, start_pos = start_pos, value = lexeme})
-        //     continue
-        // }
+        // header
+        if text[index] == '[' {
+            start_pos := index
+            lexeme := strings.builder_make()
+            strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
+            index += 1
+            for index < len(text) && text[index] != ']' {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
+            if index < len(text) && text[index] == ']' {
+                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
+                index += 1
+            }
+            strings.write_string(&result, fmt.aprintf("KEYWORD %v %s\n", start_pos, strings.to_string(lexeme)))
+            continue
+        }
 
-        // if text[index] == '"' || text[index] == '\'' {
-        //     start_pos := index
-        //     quote := text[index]
-        //     lexeme := string(quote)
-        //     index += 1
-        //     for index < len(text) && text[index] != quote {
-        //         lexeme += string(text[index])
-        //         index += 1
-        //     }
-        //     if index < len(text) && text[index] == quote {
-        //         lexeme += string(quote)
-        //         index += 1
-        //     }
-        //     tokens = append(tokens, Token{type_ = STRING, start_pos = start_pos, value = lexeme})
-        //     continue
-        // }
+        // string
+        if text[index] == '"' || text[index] == '\'' {
+            start_pos := index
+            lexeme := strings.builder_make()
+            strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+            index += 1
+            for index < len(text) && text[index] != '"' {
+                strings.write_byte(&lexeme, text[index])
+                index += 1
+            }
+            if index < len(text) && text[index] == '"' {
+                strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+                index += 1
+            }
+            strings.write_string(&result, fmt.aprintf("STRING %v %s\n", start_pos, strings.to_string(lexeme)))
+            continue
+        }
 
         // if text[index] >= '0' && text[index] <= '9' {
         //     start_pos := index
@@ -194,11 +133,21 @@ tokens_to_string :: proc(tokens: [dynamic]Token) -> string {
 
         lexeme := strings.builder_make()
         strings.write_byte(&lexeme, text[index])
-        append(&tokens, Token{type_ = TokenType.DEFAULT, start_pos = index, value = strings.to_string(lexeme)})
+        strings.write_string(&result, fmt.aprintf("ERROR %v %s\n", index, strings.to_string(lexeme)))
         index += 1
     }
 
     // joined_string := tokens_to_string(tokens)
 
-    return tokens
+    return strings.to_string(result)
 }
+
+// for testing only
+main :: proc() {
+    result := tokenize("[header]\n-- comment\n\"font\"")
+    defer delete(result)
+    
+    fmt.println(result)
+}
+
+
