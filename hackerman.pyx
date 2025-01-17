@@ -3,6 +3,7 @@
 
 # pip install cython
 # cythonize -i hackerman.pyx
+# cythonize -i tokenizers/hackerman.pyx
 # NOTE : alias cc=gcc fixed compile issue on Macbook Pro (Intel)
 
 # MIT License
@@ -29,9 +30,6 @@
 
 # Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
-# import os
-import time
-
 from enum import Enum
 from cython.cimports.libc.stdint import int32_t
 
@@ -55,12 +53,8 @@ class TokenType(Enum):
     ERROR       = 116
     SUCCESS     = 117
 
-cdef class Token(object):
-    cdef int type
-    cdef int start_pos
-    cdef str value
-
-    def __init__(self, int type, int start_pos, value=None):
+class Token(object):
+    def __init__(self, type, start_pos, value=None):
         self.type = type
         self.start_pos = start_pos
         self.value = value
@@ -165,7 +159,6 @@ cdef class Lexer(object):
     def lexer_name(self) -> str: return "Hackerman"
 
     def tokenize(self, str text, highlight_todos: bool = False):
-        cdef float start_time = time.time()
         cdef list tokens = []
         cdef str current_char = ''
         cdef int current_char_index = 0
@@ -257,14 +250,12 @@ cdef class Lexer(object):
                         tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
                     # name
                     elif identifier in self.NAME:
-                        tokens.append(Token(TokenType.NAME, start_pos, identifier))
+                        tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
                     # default
                     else:
-                        tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+                        tokens.append(Token(TokenType.ERROR, start_pos, identifier))
                 else:
                     tokens.append(Token(TokenType.ERROR, current_char_index, current_char))
                     current_char_index += 1
-
-        print("python", time.time() - start_time)
 
         return tokens, [], []
