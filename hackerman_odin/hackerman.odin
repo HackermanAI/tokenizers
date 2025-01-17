@@ -110,8 +110,6 @@ NAME: [70]string = [70]string{
     "built_in"
 }
 
-NAME_COUNT := len(NAME)
-
 is_name :: proc(value: string) -> bool {
     for name in NAME {
         if name == value {
