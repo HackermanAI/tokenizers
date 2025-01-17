@@ -123,6 +123,7 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
+// todo : double check if this is needed
 // @export free_memory :: proc () {
 //     free_all(context.temp_allocator)
 //     fmt.println("free_memory done")
