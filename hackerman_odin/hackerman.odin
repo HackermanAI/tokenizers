@@ -26,12 +26,8 @@
 package hackerman_odin
 
 import "base:runtime"
-
-import "core:os"
-import "core:fmt"
-import "core:mem"
 import "core:strings"
-import "core:strconv"
+import "core:fmt"
 
 NAME: [70]string = [70]string{
     // editor
@@ -282,11 +278,7 @@ Token :: struct {
 // odin build hackerman_odin -build-mode:dll
 
 @export process_input :: proc(arg: string) -> string {
-    // fmt.println("Odin : received argument : ", arg);
-    
     result := tokenize(arg)
-    
-    // fmt.println("Odin : tokenize done :", result)
     return result
 }
 
