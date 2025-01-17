@@ -129,21 +129,32 @@ is_conditional :: proc(value: string) -> bool {
 //     fmt.println("free_memory done")
 // }
 
-TokenType :: enum {
-    DEFAULT,
-    COMMENT,
-    ERROR,
-    STRING,
-    NUMBER,
-    KEYWORD,
-    NAME,
-    CONDITIONAL,
-}
+// TokenType :: enum {
+//     DEFAULT,
+//     COMMENT,
+//     ERROR,
+//     STRING,
+//     NUMBER,
+//     KEYWORD,
+//     NAME,
+//     CONDITIONAL,
+// }
 
 Token :: struct {
-    type: TokenType,
+    type: string,
     start_pos: int,
     value: string,
+}
+
+@export test_tokenize :: proc() -> [dynamic]Token {
+    alloc := runtime.default_allocator()
+    // context.allocator = alloc
+
+    tokens: [dynamic]Token
+    tokens = runtime.make([dynamic]Token, 0, alloc);
+    append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "test" })
+
+    return tokens
 }
 
 @export tokenize :: proc(text: string) -> string {
@@ -278,14 +289,17 @@ Token :: struct {
 }
 
 main :: proc() {
-    TEST_TEXT :: `
-    [header]
-    -- comment
-    font "Fira Code"
-    font_size 14
-    `
+    // TEST_TEXT :: `
+    // [header]
+    // -- comment
+    // font "Fira Code"
+    // font_size 14
+    // `
 
-    result := tokenize(TEST_TEXT)
-    fmt.println(result)
+    // result := tokenize(TEST_TEXT)
+    // fmt.println(result)
+
+    test_result := test_tokenize()
+    fmt.println("Odin :", test_result)
 }
 
