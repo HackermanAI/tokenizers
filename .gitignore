@@ -12,3 +12,4 @@ libtest.o
 test.dylib
 test.bin
 hackerman_odin.dylib
+build/lib.macosx-10.13-universal2-cpython-312/hackerman.cpython-312-darwin.so
