@@ -147,11 +147,7 @@ Token :: struct {
 }
 
 @export tokenize :: proc(text: string) -> string {
-    // fmt.println("Odin : tokenize called :", text)
-
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
-    // fmt.println(alloc)
-    
     result := strings.builder_make(alloc)
     
     index: int = 0
