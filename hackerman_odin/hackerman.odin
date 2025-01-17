@@ -134,6 +134,23 @@ is_conditional :: proc(value: string) -> bool {
 //     fmt.println("free_memory done")
 // }
 
+TokenType :: enum {
+    DEFAULT,
+    COMMENT,
+    ERROR,
+    STRING,
+    NUMBER,
+    KEYWORD,
+    NAME,
+    CONDITIONAL,
+}
+
+Token :: struct {
+    type: TokenType,
+    start_pos: int,
+    value: string,
+}
+
 @export tokenize :: proc(text: string) -> string {
     // fmt.println("Odin : tokenize called :", text)
 
@@ -272,3 +289,16 @@ is_conditional :: proc(value: string) -> bool {
     // fmt.println("Odin : tokenize done :", result)
     return result
 }
+
+main :: proc() {
+    TEST_TEXT :: `
+    [header]
+    -- comment
+    font "Fira Code"
+    font_size 14
+    `
+
+    result := tokenize(TEST_TEXT)
+    fmt.println(result)
+}
+
