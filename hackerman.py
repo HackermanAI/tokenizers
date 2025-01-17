@@ -24,9 +24,8 @@
 # Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
 import os
-# import re
 import time
-# import ctypes
+import ctypes
 
 from enum import Enum
 
@@ -47,7 +46,35 @@ from enum import Enum
 #         ("len", ctypes.c_ssize_t),
 #     ]
 
-# lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
+class String(ctypes.Structure):
+    _fields_ = [
+        ("text", ctypes.POINTER(ctypes.c_uint8)),
+        ("len", ctypes.c_ssize_t),
+    ]
+
+    def to_python(self):
+        if self.text:
+            return ctypes.string_at(self.text).decode("utf-8")
+        return ""
+
+class Token(ctypes.Structure):
+    _fields_ = [
+        ("type", String),
+        ("start_pos", ctypes.c_int),
+        ("value", String),
+    ]
+
+class DynamicToken(ctypes.Structure):
+    _fields_ = [
+        ("data", ctypes.POINTER(Token)),
+        ("len", ctypes.c_ssize_t),
+        ("cap", ctypes.c_ssize_t), # this is important c_ssize_t and not c_int
+    ]
+
+lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
+
+# lib.test_tokenize.argtypes = [String]
+# lib.test_tokenize.restype = DynamicToken
 
 # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
 # test_bytes = test_text.encode("utf-8")
@@ -65,6 +92,18 @@ from enum import Enum
 
 # result_string = ctypes.string_at(result.text)
 # print(result_string.decode("utf-8"))
+
+# lib.test_tokenize.argtypes = []
+# lib.test_tokenize.restype = DynamicToken
+
+# tokens = []
+# result = lib.test_tokenize()
+# # print(result.data, result.len)
+# for n in range(result.len):
+#     # print(result.data[n].type.to_python())
+#     tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
+
+# print(tokens)
 
 class TokenType(Enum):
     DEFAULT     = 100
@@ -86,13 +125,13 @@ class TokenType(Enum):
     ERROR       = 116
     SUCCESS     = 117
 
-class Token(object):
-    def __init__(self, type, start_pos, value=None):
-        self.type = type
-        self.start_pos = start_pos
-        self.value = value
+# class Token(object):
+#     def __init__(self, type, start_pos, value=None):
+#         self.type = type
+#         self.start_pos = start_pos
+#         self.value = value
 
-    def __repr__(self): return str(self.value)
+#     def __repr__(self): return str(self.value)
 
 class Lexer(object):
     def __init__(self):
@@ -227,21 +266,24 @@ class Lexer(object):
         # --------------------------------------
         # start_time = time.time()
 
-        # # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
-        # text_bytes = text.encode("utf-8")
-        # byte_array = (ctypes.c_uint8 * len(text_bytes))(*text_bytes)
+        lib.process_input.argtypes = [String]
+        lib.process_input.restype = DynamicToken
 
-        # string_arg = String()
-        # string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
-        # string_arg.len = len(text_bytes)
+        text_as_bytes = text.encode("utf-8")
 
-        # lib.process_input.argtypes = [String]
-        # lib.process_input.restype = String
+        byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
 
-        # result = lib.process_input(string_arg)
-        # result_string = ctypes.string_at(result.text).decode("utf-8")
+        string_arg = String()
+        string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
+        string_arg.len = len(text_as_bytes)
 
-        # tokens = result_string
+        tokens = []
+        result = lib.process_input(string_arg)
+        # print("result len", result.len)
+        for n in range(result.len):
+            # print(result.data[n].type.to_python())
+            print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
+            tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
 
         # print("odin end", time.time() - start_time)
 
