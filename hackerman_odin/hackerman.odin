@@ -146,7 +146,7 @@ Token :: struct {
     value: string,
 }
 
-@export test_tokenize :: proc() -> [dynamic]Token {
+@export test_tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator()
     // context.allocator = alloc
 
@@ -159,9 +159,12 @@ Token :: struct {
     return tokens
 }
 
-@export tokenize :: proc(text: string) -> string {
+@export tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
-    result := strings.builder_make(alloc)
+    // result := strings.builder_make(alloc)
+
+    tokens: [dynamic]Token
+    tokens = runtime.make([dynamic]Token, 0, alloc);
     
     index: int = 0
     for index < len(text) {
@@ -173,7 +176,7 @@ Token :: struct {
         // comment
         if text[index] == '-' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer            
             if index + 1 < len(text) && text[index + 1] == '-' {
@@ -184,9 +187,11 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                fmt.sbprint(&result, "COMMENT", start_pos, strings.to_string(lexeme), "\n")
+                // fmt.sbprint(&result, "COMMENT", start_pos, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "COMMENT", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
+                // fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
             continue
@@ -197,7 +202,7 @@ Token :: struct {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
             index += 1
@@ -209,7 +214,9 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
-            fmt.sbprint(&result, "KEYWORD", start_pos, strings.to_string(lexeme), "\n")
+            // strings.write_byte(&lexeme, '\n')
+            // fmt.sbprint(&result, "KEYWORD", start_pos, strings.to_string(lexeme), "\n")
+            append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -218,7 +225,7 @@ Token :: struct {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
@@ -230,7 +237,8 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            fmt.sbprint(&result, "STRING", start_pos, strings.to_string(lexeme), "\n")
+            // fmt.sbprint(&result, "STRING", start_pos, strings.to_string(lexeme), "\n")
+            append(&tokens, Token{ type = "STRING", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -239,13 +247,14 @@ Token :: struct {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && text[index] >= '0' && text[index] <= '9' {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            fmt.sbprint(&result, "NUMBER", start_pos, strings.to_string(lexeme), "\n")
+            // fmt.sbprint(&result, "NUMBER", start_pos, strings.to_string(lexeme), "\n")
+            append(&tokens, Token{ type = "NUMBER", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -254,7 +263,7 @@ Token :: struct {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
                 strings.write_byte(&lexeme, text[index])
@@ -262,46 +271,53 @@ Token :: struct {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                fmt.sbprint(&result, "CONDITIONAL", start_pos, strings.to_string(lexeme), "\n")
+                // fmt.sbprint(&result, "CONDITIONAL", start_pos, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "CONDITIONAL", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else if is_name(strings.to_string(lexeme)) {
-                fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
+                // fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
+                // fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             }
             continue
         }
 
         lexeme := strings.builder_make(alloc) // helper to store lexemes
-        defer strings.builder_destroy(&lexeme)
+        // defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
+        // fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
+        append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
 
-    return strings.to_string(result)
+    return tokens
 }
 
 // odin run hackerman_odin
 // odin build hackerman_odin -build-mode:dll
 
-@export process_input :: proc(arg: string) -> string {
+@export process_input :: proc(arg: string) -> [dynamic]Token {    
     result := tokenize(arg)
+
+    fmt.println(result)
+
     return result
 }
 
-main :: proc() {
-    // TEST_TEXT :: `
-    // [header]
-    // -- comment
-    // font "Fira Code"
-    // font_size 14
-    // `
+// main :: proc() {
+//     // TEST_TEXT :: `
+//     // [header]
+//     // -- comment
+//     // font "Fira Code"
+//     // font_size 14
+//     // `
 
-    // result := tokenize(TEST_TEXT)
-    // fmt.println(result)
+//     // result := tokenize(TEST_TEXT)
+//     // fmt.println(result)
 
-    test_result := test_tokenize()
-    fmt.println("Odin :", test_result)
-}
+//     test_result := test_tokenize()
+//     fmt.println("Odin :", test_result)
+// }
 
