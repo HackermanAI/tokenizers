@@ -152,7 +152,9 @@ Token :: struct {
 
     tokens: [dynamic]Token
     tokens = runtime.make([dynamic]Token, 0, alloc);
-    append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "test" })
+    
+    append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "default" })
+    append(&tokens, Token{ type = "NAME", start_pos = 0, value = "name" })
 
     return tokens
 }
