@@ -26,7 +26,7 @@
 import os
 # import re
 import time
-import ctypes
+# import ctypes
 
 from enum import Enum
 
@@ -41,13 +41,13 @@ from enum import Enum
 # lib.free_memory.restype = None
 
 # odin
-class String(ctypes.Structure):
-    _fields_ = [
-        ("text", ctypes.POINTER(ctypes.c_uint8)),
-        ("len", ctypes.c_ssize_t),
-    ]
+# class String(ctypes.Structure):
+#     _fields_ = [
+#         ("text", ctypes.POINTER(ctypes.c_uint8)),
+#         ("len", ctypes.c_ssize_t),
+#     ]
 
-lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
+# lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
 
 # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
 # test_bytes = test_text.encode("utf-8")
@@ -198,14 +198,6 @@ class Lexer(object):
             "true",
             "false"
         ]
-        # self.NUMBER_REGEX = {
-        #     "BINARY"    : r"^0[bB][01]+$",
-        #     "HEX"       : r"^0[xX][0-9a-fA-F]+$",
-        #     "OCTAL"     : r"^0[oO][0-7]+$",
-        #     "FLOAT_SCI" : r"^\d+(\.\d+)?[eE][+-]?\d+$",
-        #     "COMPLEX"   : r"^(\d+(\.\d+)?|\.\d+)?[+-]?\d+(\.\d+)?[jJ]$",
-        #     "DECIMAL"   : r"^\d+(\.\d+)?$"
-        # }
 
     def comment_char(self): return "--"
 
@@ -233,39 +225,25 @@ class Lexer(object):
 
         # odin
         # --------------------------------------
-        start_time = time.time()
+        # start_time = time.time()
 
-        # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
-        text_bytes = text.encode("utf-8")
-        byte_array = (ctypes.c_uint8 * len(text_bytes))(*text_bytes)
+        # # test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
+        # text_bytes = text.encode("utf-8")
+        # byte_array = (ctypes.c_uint8 * len(text_bytes))(*text_bytes)
 
-        string_arg = String()
-        string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
-        string_arg.len = len(text_bytes)
+        # string_arg = String()
+        # string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
+        # string_arg.len = len(text_bytes)
 
-        lib.process_input.argtypes = [String]
-        lib.process_input.restype = String
+        # lib.process_input.argtypes = [String]
+        # lib.process_input.restype = String
 
-        result = lib.process_input(string_arg)
-        result_string = ctypes.string_at(result.text).decode("utf-8")
-        # print(result_string.decode("utf-8"))
+        # result = lib.process_input(string_arg)
+        # result_string = ctypes.string_at(result.text).decode("utf-8")
 
-        # print(result_string.split("\n"))
+        # tokens = result_string
 
-        # test_tokens = []
-        # for token in result_string.split("\n"):
-        #     values = token.split(" ", 2)            
-        #     if len(values) == 1 and values[0] == "": continue
-            
-        #     token_type = TokenType[values[0]]
-        #     start_pos = int(values[1])
-        #     value = values[2].strip()
-
-            # test_tokens.append(Token(token_type, start_pos, value))
-
-        tokens = result_string
-
-        print("odin end", time.time() - start_time)
+        # print("odin end", time.time() - start_time)
 
         # python
         # --------------------------------------
@@ -273,24 +251,17 @@ class Lexer(object):
         start_time = time.time()
         
         tokens = []
-        # current_line = 1
         current_char = ''
         current_char_index = 0
-
-        # RHS = False
-        # current_header = None
-
+        
         while current_char_index < len(text):
             current_char = text[current_char_index]
             match current_char:
                 case ' ' | '\t' | '\r':
                     current_char_index += 1
                 case '\n':
-                    # current_line += 1
                     current_char_index += 1
-                    # update state
-                    # RHS = False
-                
+    
                 # comment
                 case '-':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
@@ -312,10 +283,7 @@ class Lexer(object):
                     header = str(current_char)
                     
                     current_char_index += 1
-
-                    # # todo : probably no need for nested levels
-                    # if RHS == False:
-                    # nested_level = 0
+                    
                     while current_char_index < len(text) and text[current_char_index].isprintable():
                         header += str(text[current_char_index])
                         if text[current_char_index] == ']':
@@ -324,8 +292,8 @@ class Lexer(object):
                         
                         current_char_index += 1
 
-                    # current_header = header
                     tokens.append(Token(TokenType.KEYWORD, start_pos, header))
+                
                 # strings
                 case '"' | '\'':
                     start_pos = current_char_index
@@ -343,6 +311,7 @@ class Lexer(object):
                     
                     tokens.append(Token(TokenType.STRING, start_pos, string))
                 case _:
+                    
                     # number
                     if current_char.isdigit():
                         start_pos = current_char_index
@@ -352,13 +321,6 @@ class Lexer(object):
                         while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
                             number += str(text[current_char_index])
                             current_char_index += 1
-
-                        # match using regex
-                        # number_type = TokenType.DEFAULT
-                        # for type_, pattern in self.NUMBER_REGEX.items():
-                        #     if re.match(pattern, number):
-                        #         number_type = TokenType.NUMBER
-                        #         break
 
                         tokens.append(Token(TokenType.NUMBER, start_pos, number))
                     
@@ -387,9 +349,4 @@ class Lexer(object):
 
         print("python", time.time() - start_time)
 
-        # for n in range(len(test_tokens)):
-        #     # print(test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value)
-        #     # print(tokens[n].type, tokens[n].start_pos, tokens[n].value)
-        #     assert (test_tokens[n].type, test_tokens[n].start_pos, test_tokens[n].value) == (tokens[n].type, tokens[n].start_pos, tokens[n].value)
-
-        return result_string, [], []
+        return tokens, [], []
