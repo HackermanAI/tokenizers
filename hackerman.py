@@ -282,7 +282,7 @@ class Lexer(object):
         # print("result len", result.len)
         for n in range(result.len):
             # print(result.data[n].type.to_python())
-            print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
+            # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
             tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
 
         # print("odin end", time.time() - start_time)
