@@ -23,14 +23,11 @@
 
 # Tokenizer for Python 3
 
-# todo : attempt to create fast_tokenizer (split, trim, and match per word?)
-
 import re
 from enum import Enum
 
 import time
 
-# these enum numberings are language dependent so no need to match with colors ids in .hackerman config file
 class TokenType(Enum):
     DEFAULT     = 100
     WHITESPACE  = 101
@@ -48,7 +45,6 @@ class TokenType(Enum):
     IDENTIFIER  = 113
     FSTRING     = 114
     CLASS       = 115
-    # SPECIALC    = 115
 
 class Token(object):
     def __init__(self, type, start_pos, value=None):
@@ -177,7 +173,7 @@ class Lexer(object):
                     start_pos = current_char_index
                     end_pos = text.find("\n", current_char_index)
                     
-                    current_char_index += 1
+                    # current_char_index += 1
                     line = current_char
                     # while current_char_index < len(text) and text[current_char_index] != '\n':
                     #     line += text[current_char_index]
