@@ -300,8 +300,7 @@ Token :: struct {
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {    
     result := tokenize(arg)
-
-    fmt.println(result)
+    // fmt.println(result)
 
     return result
 }
