@@ -67,9 +67,24 @@ KEYWORDS: [35]string = [35]string{
     "where",
 }
 
-is_name :: proc(value: string) -> bool {
+BUILT_INS: [3]string = [3]string{
+    "fmt",
+    "len",
+    "println",
+}
+
+is_keyword :: proc(value: string) -> bool {
     for keyword in KEYWORDS {
         if keyword == value {
+            return true
+        }
+    }
+    return false
+}
+
+is_built_in :: proc(value: string) -> bool {
+    for built_in in BUILT_INS {
+        if built_in == value {
             return true
         }
     }
@@ -139,21 +154,75 @@ Token :: struct {
             continue
         }
 
-        // header
-        if text[index] == '[' {
+        // :: or :
+        if text[index] == ':' {
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            // defer strings.builder_destroy(&lexeme)
+
+            strings.write_byte(&lexeme, text[index]) // add ':' to lexeme buffer
+
+            // constant?
+            if index + 1 < len(text) && text[index + 1] == ':' {
+                start_pos := index
+                strings.write_byte(&lexeme, text[index + 1]) // add ':' to lexeme buffer
+                index += 2
+                append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
+            // range
+            } else {
+                append(&tokens, Token{ type = "OPERATOR", start_pos = index, value = strings.to_string(lexeme) })
+                index += 1
+            }
+            continue
+        }
+
+        // .. or .
+        if text[index] == '.'  {
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            // defer strings.builder_destroy(&lexeme)
+            
+            strings.write_byte(&lexeme, text[index]) // add '.' to lexeme buffer
+            
+            // range
+            if index + 1 < len(text) && text[index + 1] == '.' {
+                start_pos := index
+                strings.write_byte(&lexeme, text[index + 1]) // add '.' to lexeme buffer
+                index += 2
+                append(&tokens, Token{ type = "OPERATOR", start_pos = start_pos, value = strings.to_string(lexeme) })
+            // anon
+            } else {
+                append(&tokens, Token{ type = "DEFAULT", start_pos = index, value = strings.to_string(lexeme) })
+                index += 1
+            }
+            continue
+        }
+
+        // operator
+        if text[index] == '=' || text[index] == '!' || text[index] == '^' || text[index] == '?' || text[index] == '+' || text[index] == '-' ||
+           text[index] == '*' || text[index] == '/' || text[index] == '%' || text[index] == '&' || text[index] == '|' || text[index] == '~' ||
+           text[index] == '|' || text[index] == '<' || text[index] == '>' {
+            
+            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            // defer strings.builder_destroy(&lexeme)
+            
+            strings.write_byte(&lexeme, text[index])
+            append(&tokens, Token{ type = "OPERATOR", start_pos = index, value = strings.to_string(lexeme) })
+            index += 1
+            continue
+        }
+
+        // directive
+        if text[index] == '#'  {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            strings.write_byte(&lexeme, text[index]) // add '[' to lexeme buffer
+            strings.write_byte(&lexeme, text[index]) // add '#' to lexeme buffer
             index += 1
-            for index < len(text) && text[index] != ']' {
+            
+            // directive
+            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
                 strings.write_byte(&lexeme, text[index])
-                index += 1
-            }
-            if index < len(text) && text[index] == ']' {
-                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
             append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
@@ -161,7 +230,8 @@ Token :: struct {
         }
 
         // string
-        if text[index] == '"' || text[index] == '\'' {
+        // todo : add '' and ``
+        if text[index] == '"' {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
@@ -169,14 +239,14 @@ Token :: struct {
             
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
-            for index < len(text) && text[index] != '"' && text[index] != '\n' {
+            for index < len(text) && text[index] != '"' {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            if index < len(text) && text[index] == '"' {
-                strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
-                index += 1
-            }
+            
+            strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+            index += 1
+            
             append(&tokens, Token{ type = "STRING", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
@@ -210,8 +280,10 @@ Token :: struct {
 
             if is_conditional(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = "CONDITIONAL", start_pos = start_pos, value = strings.to_string(lexeme) })
-            } else if is_name(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
+            } else if is_keyword(strings.to_string(lexeme)) {
+                append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
+            } else if is_built_in(strings.to_string(lexeme)) {
+                append(&tokens, Token{ type = "BUILT_IN", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
                 append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             }
@@ -222,7 +294,7 @@ Token :: struct {
         // defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
+        append(&tokens, Token{ type = "DEFAULT", start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
 
@@ -239,10 +311,12 @@ Token :: struct {
     return result
 }
 
-main :: proc() {
-    TEXT :: `/* Multi-line comment */`
+// main :: proc() {
+//     TEXT :: `
+//     @(cold)
+//     `
 
-    result := tokenize(TEXT)
-    fmt.println(result)
-}
+//     result := tokenize(TEXT)
+//     fmt.println(result)
+// }
 
