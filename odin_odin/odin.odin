@@ -99,23 +99,41 @@ Token :: struct {
             continue
         }
 
-        // comment
-        if text[index] == '-' {
+        // comment | operator
+        if text[index] == '/' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
-            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer            
-            if index + 1 < len(text) && text[index + 1] == '-' {
+            strings.write_byte(&lexeme, text[index]) // add '/' to lexeme buffer
+            
+            // single-line comment
+            if index + 1 < len(text) && text[index + 1] == '/' {
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1])
+                strings.write_byte(&lexeme, text[index + 1]) // add '/' to lexeme buffer
                 index += 2
                 for index < len(text) && text[index] != '\n' {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
                 append(&tokens, Token{ type = "COMMENT", start_pos = start_pos, value = strings.to_string(lexeme) })
+            
+            // multi-line comment
+            } else if index + 1 < len(text) && text[index + 1] == '*' {
+                start_pos := index
+                strings.write_byte(&lexeme, text[index + 1]) // add '*' to lexeme buffer
+                index += 2
+                for index + 1 < len(text) && text[index] != '*' && text[index + 1] != '/' {
+                    strings.write_byte(&lexeme, text[index])
+                    index += 1
+                }
+                strings.write_byte(&lexeme, text[index]) // add '*' to lexeme buffer
+                strings.write_byte(&lexeme, text[index + 1])  // add '/' to lexeme buffer
+                index += 2
+                append(&tokens, Token{ type = "COMMENT", start_pos = start_pos, value = strings.to_string(lexeme) })
+            
+            // operator
             } else {
-                append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = "OPERATOR", start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
             continue
@@ -221,18 +239,10 @@ Token :: struct {
     return result
 }
 
-// main :: proc() {
-//     // TEST_TEXT :: `
-//     // [header]
-//     // -- comment
-//     // font "Fira Code"
-//     // font_size 14
-//     // `
+main :: proc() {
+    TEXT :: `/* Multi-line comment */`
 
-//     // result := tokenize(TEST_TEXT)
-//     // fmt.println(result)
-
-//     test_result := test_tokenize()
-//     fmt.println("Odin :", test_result)
-// }
+    result := tokenize(TEXT)
+    fmt.println(result)
+}
 
