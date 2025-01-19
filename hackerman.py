@@ -100,33 +100,24 @@ lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"
 
 # print(tokens)
 
-class TokenType(Enum):
-    DEFAULT     = 100
-    WHITESPACE  = 101
-    COMMENT     = 102
-    OPERATOR    = 103
-    KEYWORD     = 104
-    BUILT_IN    = 105
-    SPECIAL     = 106
-    PARAMETER   = 107
-    CONDITIONAL = 108
-    _ANON       = 109
-    NUMBER      = 110
-    STRING      = 111
-    NAME        = 112
-    IDENTIFIER  = 113
-    FSTRING     = 114
-    SPECIALC    = 115
-    ERROR       = 116
-    SUCCESS     = 117
-
-# class Token(object):
-#     def __init__(self, type, start_pos, value=None):
-#         self.type = type
-#         self.start_pos = start_pos
-#         self.value = value
-
-#     def __repr__(self): return str(self.value)
+class TokenType(str, Enum):
+    WHITESPACE  = "whitespace"
+    DEFAULT     = "default"
+    KEYWORD     = "keyword"
+    CLASS       = "class"
+    NAME        = "name"
+    PARAMETER   = "parameter"
+    LAMBDA      = "lambda"
+    STRING      = "string"
+    NUMBER      = "number"
+    OPERATOR    = "operator"
+    COMMENT     = "comment"
+    SPECIAL     = "special"
+    CONDITIONAL = "conditional"
+    BUILT_IN    = "built_in"
+    ERROR       = "error"
+    WARNING     = "warning"
+    SUCCESS     = "success"
 
 class Lexer(object):
     def __init__(self):
@@ -273,7 +264,7 @@ class Lexer(object):
         string_arg.len = len(text_as_bytes)
 
         result = lib.process_input(string_arg)
-        print("result len", result.len)
+        # print("result len", result.len)
         
         tokens = []
         for n in range(result.len):
