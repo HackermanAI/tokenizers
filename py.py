@@ -148,7 +148,7 @@ class Lexer(object):
                     while current_char_index < len(text) and text[current_char_index] != '\n':
                         line += text[current_char_index]
                         current_char_index += 1
-                    tokens.append((TOKEN_MAP[11], current_char_index, "..."))
+                    tokens.append((TOKEN_MAP[10], start_pos, line))
                 case '.':
                     # triple dot is special
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
@@ -228,7 +228,7 @@ class Lexer(object):
                     # update state for custom function declaration styling
                     if function_declaration: function_parameters += 1
                     # update state for custom function name styling
-                    if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: tokens[-2] = (TOKEN_MAP[4], tokens[-2][1], tokens[-2][2])
+                    # if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: tokens[-2] = (TOKEN_MAP[4], tokens[-2][1], tokens[-2][2])
                     # update state for custom function arguments styling
                     if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: function_arguments += 1
 
