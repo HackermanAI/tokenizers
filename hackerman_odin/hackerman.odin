@@ -150,25 +150,11 @@ is_conditional :: proc(value: string) -> bool {
 //     fmt.println("free_memory done")
 // }
 
-// todo : attempt to send tuple instead
 Token :: struct {
     type: int,
     start_pos: int,
     value: string,
 }
-
-// @export test_tokenize :: proc(text: string) -> [dynamic]Token {
-//     alloc := runtime.default_allocator()
-//     // context.allocator = alloc
-
-//     tokens: [dynamic]Token
-//     tokens = runtime.make([dynamic]Token, 0, alloc);
-    
-//     append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "default" })
-//     append(&tokens, Token{ type = "NAME", start_pos = 0, value = "name" })
-
-//     return tokens
-// }
 
 @export tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
@@ -318,4 +304,3 @@ Token :: struct {
 //     test_result := test_tokenize()
 //     fmt.println("Odin :", test_result)
 // }
-
