@@ -26,6 +26,10 @@
 import os
 import ctypes
 
+from main import TOKEN_MAP # token map is same for all lexers
+
+lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
+
 # odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
@@ -53,10 +57,6 @@ class DynamicToken(ctypes.Structure):
         ("len", ctypes.c_ssize_t),
         ("cap", ctypes.c_ssize_t), # this is important c_ssize_t and not c_int
     ]
-
-lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
-
-from main import TOKEN_MAP
 
 class Lexer(object):
     def __init__(self): pass
