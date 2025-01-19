@@ -23,11 +23,43 @@
 
 # Tokenizer for TOML
 
+# 0  WHITESPACE
+# 1  DEFAULT
+# 2  KEYWORD
+# 3  CLASS
+# 4  NAME
+# 5  PARAMETER
+# 6  LAMBDA
+# 7  STRING
+# 8  NUMBER
+# 9  OPERATOR
+# 10 COMMENT
+# 11 SPECIAL
+# 12 CONDITIONAL
+# 13 BUILT_IN
+# 14 ERROR
+# 15 WARNING
+# 16 SUCCESS
+
 from main import TOKEN_MAP # token map is same for all lexers
 
 from pygments import lex
 from pygments.lexers import TOMLLexer
 from pygments.token import Token
+
+TOKEN_MAP_PYGMENTS = {
+    Token.Text.Whitespace: 0,
+    Token.Punctuation: 1,
+    Token.Keyword: 2,
+    Token.Name: 4,
+    Token.Literal.String.Double: 7,
+    Token.Literal.Number.Integer: 8,
+    Token.Literal.Number.Float: 8,
+    Token.Operator: 9,
+    Token.Literal.Date: 9,
+    Token.Comment.Single: 10,
+    Token.Keyword.Constant: 12,
+}
 
 class Lexer(object):
     def __init__(self): pass
@@ -37,10 +69,17 @@ class Lexer(object):
     def lexer_name(self): return "TOML"
     
     def tokenize(self, text):
-        lexer = TOMLLexer()
-        tokens = list(lex(text, lexer))
+        tokens = []
 
-        for token_type, token_value in tokens:
-            print(token_type, token_value)
+        # todo : use pygments for quick lexer (might not be performant on larger files)
+        lexer = TOMLLexer()
+        
+        result = list(lexer.get_tokens_unprocessed(text))
+        for token in result:
+            token_type = str(TOKEN_MAP[TOKEN_MAP_PYGMENTS[token[1]]] if token[1] in TOKEN_MAP_PYGMENTS else TOKEN_MAP[1])
+            start_pos = int(token[0])
+            value = str(token[2])
+
+            tokens.append((token_type, start_pos, value))
 
         return tokens
