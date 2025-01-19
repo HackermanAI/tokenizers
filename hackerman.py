@@ -66,6 +66,9 @@ class Lexer(object):
     def lexer_name(self): return "Hackerman DSCL"
 
     def tokenize(self, text):
+        tokens = []
+        
+        # define arg and res types
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
 
@@ -77,10 +80,10 @@ class Lexer(object):
         text_string_arg.text = ctypes.cast(text_byte_array, ctypes.POINTER(ctypes.c_uint8))
         text_string_arg.len = len(text_as_bytes)
 
+        # call process_input (Odin procedure)
         result = lib.process_input(text_string_arg)
-        # print("result len", result.len)
         
-        tokens = []
+        # process result
         for n in range(result.len):
             value_as_string = result.data[n].value.to_python()
             
