@@ -166,18 +166,14 @@ Token :: struct {
         }
 
         // comment | operator
-        if text[index] == '/' {
-            fmt.println("matched /")
-            
+        if text[index] == '/' {            
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add '/' to lexeme buffer
             
             // single-line comment
-            if index + 1 < len(text) && text[index + 1] == '/' {
-                fmt.println("matched //")
-                
+            if index + 1 < len(text) && text[index + 1] == '/' {                
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add '/' to lexeme buffer
                 index += 2
@@ -191,8 +187,6 @@ Token :: struct {
             
             // multi-line comment
             if index + 1 < len(text) && text[index + 1] == '*' {
-                fmt.println("matched /*")
-                
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add '*' to lexeme buffer
                 index += 2
@@ -207,12 +201,10 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index + 1])  // add '/' to lexeme buffer
                     index += 2
 
-                    fmt.println(strings.to_string(lexeme))
                     append(&tokens, Token{ type = 10, start_pos = start_pos, value = strings.to_string(lexeme) })
                 
                 // otherwise return default
                 } else {
-                    fmt.println(strings.to_string(lexeme))
                     append(&tokens, Token{ type = 1, start_pos = start_pos, value = strings.to_string(lexeme) })
                 }
 
