@@ -273,11 +273,17 @@ class Lexer(object):
         
         tokens = []
         for n in range(result.len):
-            # print(result.data[n].type)
-            # print(TOKEN_MAP[result.data[n].type].value)
-            # print(TOKEN_MAP[result.data[n].type], result.data[n].value.to_python())
-            # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
-            tokens.append((TOKEN_MAP[result.data[n].type].value, result.data[n].start_pos, result.data[n].value.to_python()))
+            value_as_string = result.data[n].value.to_python()
+            
+            # find todo and note in comments
+            if result.data[n].type == 10 and " todo :" in value_as_string:
+                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[11].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
+            elif result.data[n].type == 10 and " note :" in value_as_string:
+                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[15].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
+            else:
+                tokens.append((TOKEN_MAP[result.data[n].type].value, result.data[n].start_pos, value_as_string))
 
         # python
         # --------------------------------------
