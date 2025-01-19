@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Text
+# (non?)-Tokenizer for Plain Text
 
 # import re
 from enum import Enum
