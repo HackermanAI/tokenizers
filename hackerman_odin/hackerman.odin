@@ -132,6 +132,7 @@ is_conditional :: proc(value: string) -> bool {
 //     fmt.println("free_memory done")
 // }
 
+// todo : attempt to send tuple instead
 Token :: struct {
     type: string,
     start_pos: int,
