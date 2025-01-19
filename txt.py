@@ -21,12 +21,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# (non?)-Tokenizer for Plain Text
+# Tokenizer for Plain Text
 
 from enum import Enum
+
 class TokenType(str, Enum):
     DEFAULT     = "DEFAULT"
-    WHITESPACE  = "WHITESPACE"
     PUNCTUATION = "KEYWORD"
 
 class Lexer(object):
@@ -38,7 +38,7 @@ class Lexer(object):
 
     def tokenize(self, text, highlight_todos=False):
         tokens = []
-        current_line = 1
+        # current_line = 1
         current_char = ''
         current_char_index = 0
 
@@ -48,7 +48,7 @@ class Lexer(object):
                 case ' ' | '\t' | '\r':
                     current_char_index += 1
                 case '\n':
-                    current_line += 1
+                    # current_line += 1
                     current_char_index += 1
                 case '.':
                     tokens.append((str(TokenType.PUNCTUATION), int(current_char_index), str(current_char)))
