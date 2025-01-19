@@ -1,7 +1,7 @@
 
 # MIT License
 
-# Copyright 2024 @asyncze (Michael Sjöberg)
+# Copyright 2025 @asyncze (Michael Sjöberg)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,41 +23,18 @@
 
 # (non?)-Tokenizer for Plain Text
 
-# import re
 from enum import Enum
-
-class TokenType(Enum):
-    DEFAULT     = 100
-    WHITESPACE  = 101
-    COMMENT     = 102
-    OPERATOR    = 103
-    KEYWORD     = 104
-    BUILT_IN    = 105
-    SPECIAL     = 106
-    PARAMETER   = 107
-    CONDITIONAL = 108
-    _ANON       = 109
-    NUMBER      = 110
-    STRING      = 111
-    NAME        = 112
-    IDENTIFIER  = 113
-    FSTRING     = 114
-    SPECIALC    = 115
-
-class Token(object):
-    def __init__(self, type, start_pos, value=None):
-        self.type = type
-        self.start_pos = start_pos
-        self.value = value
-
-    def __repr__(self): return str(self.value)
+class TokenType(str, Enum):
+    DEFAULT     = "DEFAULT"
+    WHITESPACE  = "WHITESPACE"
+    PUNCTUATION = "KEYWORD"
 
 class Lexer(object):
     def __init__(self): pass
 
     def comment_char(self): return None
 
-    def lexer_name(self): return "Plain Text"
+    def lexer_name(self): return "(almost) Plain Text"
 
     def tokenize(self, text, highlight_todos=False):
         tokens = []
@@ -69,17 +46,16 @@ class Lexer(object):
             current_char = text[current_char_index]
             match current_char:
                 case ' ' | '\t' | '\r':
-                    # tokens.append(Token(TokenType.WHITESPACE, current_char_index, current_char))
                     current_char_index += 1
                 case '\n':
-                    # tokens.append(Token(TokenType.WHITESPACE, current_char_index, current_char))
                     current_line += 1
                     current_char_index += 1
                 case '.':
-                    tokens.append(Token(TokenType.KEYWORD, current_char_index, current_char))
+                    tokens.append((str(TokenType.PUNCTUATION), int(current_char_index), str(current_char)))
                     current_char_index += 1
                 case _:
-                    tokens.append(Token(TokenType.DEFAULT, current_char_index, current_char))
+                    # tokens.append((token_types.DEFAULT, current_char_index, current_char))
+                    tokens.append((str(TokenType.DEFAULT), int(current_char_index), str(current_char)))
                     current_char_index += 1
 
-        return tokens, [], []
+        return tokens, _, _
