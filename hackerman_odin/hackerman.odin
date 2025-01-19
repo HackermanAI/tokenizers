@@ -29,7 +29,7 @@ import "base:runtime"
 import "core:strings"
 import "core:fmt"
 
-NAME: [70]string = [70]string{
+NAME: [73]string = [73]string{
     // editor
     "font",
     "font_weight",
@@ -37,6 +37,9 @@ NAME: [70]string = [70]string{
     "tab_width",
     "cursor_width",
     "margin",
+    "scrollbar_width",
+    "scrollbar_opacity",
+    "line_number_opacity",
     "theme",
     "file_explorer_root",
     "model_to_use",
@@ -47,7 +50,7 @@ NAME: [70]string = [70]string{
     "blockcursor",
     "wrap_word",
     "blinking_cursor",
-    "show_scrollbar",
+    "auto_hide_scrollbar",
     "show_minimap",
     "highlight_todos",
     "whitespace_visible",
