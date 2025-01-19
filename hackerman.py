@@ -119,6 +119,8 @@ class TokenType(str, Enum):
     WARNING     = "warning"
     SUCCESS     = "success"
 
+TOKEN_MAP = { i: token for i, token in enumerate(TokenType) }
+
 class Lexer(object):
     def __init__(self):
         self.NAME = [
