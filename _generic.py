@@ -74,22 +74,14 @@ TOKEN_MAP_PYGMENTS = {
 }
 
 class Lexer(object):
-    def __init__(self, filename):
+    def __init__(self, filename): self.lexer = get_lexer_for_filename(filename)
 
-        self.lexer = get_lexer_for_filename(filename)
-
-        print("    ---> created generic lexer", self.lexer)
-
-    def comment_char(self): return ""
+    def comment_char(self): return "" # todo : create map for comment injection in common un-supported programming languages
 
     def lexer_name(self): return str(self.lexer.name)
     
     def tokenize(self, text):
         tokens = []
-
-        # todo : use pygments for quick lexer (might not be performant on larger files)
-        # lexer = get_lexer_for_filename(self.filename)
-        
         result = list(self.lexer.get_tokens_unprocessed(text))
         for token in result:
             token_type = str(TOKEN_MAP[TOKEN_MAP_PYGMENTS[token[1]]] if token[1] in TOKEN_MAP_PYGMENTS else TOKEN_MAP[1])
