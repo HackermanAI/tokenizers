@@ -232,12 +232,13 @@ Token :: struct {
 
             strings.write_byte(&lexeme, text[index]) // add ':' to lexeme buffer
 
-            // constant?
+            // constant
             if index + 1 < len(text) && text[index + 1] == ':' {
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add ':' to lexeme buffer
                 index += 2
                 append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // range
             } else {
                 append(&tokens, Token{ type = 9, start_pos = index, value = strings.to_string(lexeme) })
@@ -259,7 +260,8 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index + 1]) // add '.' to lexeme buffer
                 index += 2
                 append(&tokens, Token{ type = 9, start_pos = start_pos, value = strings.to_string(lexeme) })
-            // anon
+            
+            // default
             } else {
                 append(&tokens, Token{ type = 1, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
