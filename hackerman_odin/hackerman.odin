@@ -235,7 +235,7 @@ Token :: struct {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+            for index < len(text) && ((text[index] >= '0' && text[index] <= '9') || text[index] == '.') {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
