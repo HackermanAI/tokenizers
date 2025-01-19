@@ -231,7 +231,7 @@ class Lexer(object):
 
     def lexer_name(self): return "Hackerman"
 
-    def tokenize(self, text, special=""):
+    def tokenize(self, text):
         # c
         # --------------------------------------
         # start_time = time.time()
