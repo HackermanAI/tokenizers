@@ -24,23 +24,11 @@
 # Tokenizer wrapper for Hackerman DSCL (TOML-like custom DSL)
 
 import os
-import time
 import ctypes
 
-from enum import Enum
+# odin internal structs
 
-# lib_path = os.path.join(os.path.dirname(__file__), "libhackerman.dylib")
-# # print(lib_path)
-
-# lib = ctypes.CDLL(lib_path)
-# lib.tokenize.argtypes = [ctypes.c_char_p] # C string
-# lib.tokenize.restype = ctypes.POINTER(ctypes.c_char) # pointer to C string
-
-# lib.free_memory.argtypes = [ctypes.POINTER(ctypes.c_char)] # free pointer to C string
-# lib.free_memory.restype = None
-
-# odin
-
+# odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
         ("text", ctypes.POINTER(ctypes.c_uint8)),
@@ -48,10 +36,10 @@ class String(ctypes.Structure):
     ]
 
     def to_python(self):
-        if self.text:
-            return ctypes.string_at(self.text).decode("utf-8")
+        if self.text: return ctypes.string_at(self.text).decode("utf-8")
         return ""
 
+# odin custom struct for Token
 class Token(ctypes.Structure):
     _fields_ = [
         # ("type", String),
@@ -60,6 +48,7 @@ class Token(ctypes.Structure):
         ("value", String),
     ]
 
+# odin internal struct for [dynamic]Token
 class DynamicToken(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(Token)),
@@ -69,166 +58,10 @@ class DynamicToken(ctypes.Structure):
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
 
-# lib.test_tokenize.argtypes = [String]
-# lib.test_tokenize.restype = DynamicToken
-
-# test_text = "[header]\n-- comment\nfont \"Fira Code\"\nnot_name 1000"
-# test_bytes = test_text.encode("utf-8")
-
-# byte_array = (ctypes.c_uint8 * len(test_bytes))(*test_bytes)
-
-# string_arg = String()
-# string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
-# string_arg.len = len(test_bytes)
-
-# lib.process_input.argtypes = [String]
-# lib.process_input.restype = String
-
-# result = lib.process_input(string_arg)
-
-# result_string = ctypes.string_at(result.text)
-# print(result_string.decode("utf-8"))
-
-# lib.test_tokenize.argtypes = []
-# lib.test_tokenize.restype = DynamicToken
-
-# tokens = []
-# result = lib.test_tokenize()
-# # print(result.data, result.len)
-# for n in range(result.len):
-#     # print(result.data[n].type.to_python())
-#     tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
-
-# print(tokens)
-
-# class TokenType(str, Enum):
-#     WHITESPACE  = "whitespace"
-#     DEFAULT     = "default"
-#     KEYWORD     = "keyword"
-#     CLASS       = "class"
-#     NAME        = "name"
-#     PARAMETER   = "parameter"
-#     LAMBDA      = "lambda"
-#     STRING      = "string"
-#     NUMBER      = "number"
-#     OPERATOR    = "operator"
-#     COMMENT     = "comment"
-#     SPECIAL     = "special"
-#     CONDITIONAL = "conditional"
-#     BUILT_IN    = "built_in"
-#     ERROR       = "error"
-#     WARNING     = "warning"
-#     SUCCESS     = "success"
-
-# TOKEN_MAP = { i: token for i, token in enumerate(TokenType) }
-# print(TOKEN_MAP)
-
 from main import TOKEN_MAP
 
 class Lexer(object):
-    def __init__(self):
-        self.NAME = [
-            
-            # editor
-            
-            "font",
-            "font_weight",
-            "font_size",
-            "tab_width",
-            "cursor_width",
-            "margin",
-            "theme",
-            "file_explorer_root",
-            "model_to_use",
-            "eol_mode",
-            
-            # toggles
-            
-            "show_line_numbers",
-            "transparent",
-            "blockcursor",
-            "wrap_word",
-            "blinking_cursor",
-            "show_scrollbar",
-            "show_minimap",
-            "highlight_todos",
-            "whitespace_visible",
-            "indent_guides",
-            "highlight_current_line",
-            "highlight_current_line_on_jump",
-            "show_eol",
-            
-            # ollama
-            # openai
-            
-            "model",
-            "key",
-            
-            # bindings
-            
-            "save_file",
-            "new_file",
-            "new_window",
-            "open_file",
-            "fold_all",
-            "command_k",
-            "line_indent",
-            "line_unindent",
-            "line_comment",
-            "set_bookmark",
-            "open_config_file",
-            "build_and_run",
-            "move_to_line_start",
-            "move_to_line_start_with_select",
-            "zoom_in",
-            "zoom_out",
-            "toggle_file_explorer",
-            "split_view",
-            
-            # todos
-            
-            "find_in_file",
-            "undo",
-            "redo",
-            
-            # theme
-            
-            "background",
-            "foreground",
-            "selection",
-            "selection_inactive",
-            "text_color",
-            "text_highlight",
-            "cursor",
-            "whitespace",
-            
-            # syntax colors
-            
-            "default",
-            "keyword",
-            "class",
-            "name",
-            "parameter",
-            "lambda",
-            "string",
-            "number",
-            "operator",
-            "comment",
-            "error",
-            "warning",
-            "success",
-            "special",
-            "conditional",
-            "built_in"
-        ]
-        self.HEADERS = [
-            "editor",
-            "ollama"
-        ]
-        self.CONDITIONAL = [
-            "true",
-            "false"
-        ]
+    def __init__(self): pass
 
     def comment_char(self): return "--"
 
