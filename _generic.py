@@ -45,6 +45,8 @@ from pygments import lex
 from pygments.lexers import get_lexer_for_filename
 from pygments.token import Token
 
+# https://pygments.org/docs/tokens/#module-pygments.token
+
 TOKEN_MAP_PYGMENTS = {
     Token.Text.Whitespace: 0,
     Token.Text: 1,
