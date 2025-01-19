@@ -38,7 +38,12 @@ class String(ctypes.Structure):
     ]
 
     def to_python(self):
-        if self.text: return ctypes.string_at(self.text).decode("utf-8")
+        if self.text:
+            try:
+                return ctypes.string_at(self.text).decode("utf-8")
+            except:
+                print("    ---> ", self.text, self.len)
+        
         return ""
 
 # odin custom struct for Token
@@ -89,8 +94,12 @@ class Lexer(object):
         # call process_input (Odin procedure)
         result = lib.process_input(text_string_arg)
 
+        # todo : fix issue with multi-line comments
+
         # process result
         for n in range(result.len):
+            # print(TOKEN_MAP[result.data[n].type])
+            # print(TOKEN_MAP[result.data[n].type])
             value_as_string = result.data[n].value.to_python()
             
             # find todo and note in comments
