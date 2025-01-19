@@ -231,7 +231,7 @@ class Lexer(object):
 
     def lexer_name(self): return "Hackerman"
 
-    def tokenize(self, text, highlight_todos=False):
+    def tokenize(self, text, special=""):
         # c
         # --------------------------------------
         # start_time = time.time()
@@ -257,7 +257,7 @@ class Lexer(object):
 
         # todo : make dynamic tokenzie return int instad of string for type
 
-        lib.process_input.argtypes = [String]
+        lib.process_input.argtypes = [String, String]
         lib.process_input.restype = DynamicToken
 
         text_as_bytes = text.encode("utf-8")
