@@ -55,7 +55,7 @@ class Lexer(object):
 
     def lexer_name(self): return "Plain Text"
     
-    def tokenize(self, text, special=""):
+    def tokenize(self, text):
         tokens = []
         current_char = ''
         current_char_index = 0
