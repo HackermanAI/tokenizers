@@ -26,8 +26,6 @@
 import os
 import ctypes
 
-# odin internal structs
-
 # odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
