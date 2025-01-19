@@ -202,21 +202,22 @@ Token :: struct {
                 }
                 // fmt.println(strings.to_string(text[index]))
                 // fmt.println(strings.to_string(text[index + 1]))
-                
-                if index < len(text) {
+
+                // check if multi-line comment is closed
+                if index < len(text) && index + 1 < len(text) && text[index] == '*' && text[index + 1] == '/' {
                     strings.write_byte(&lexeme, text[index]) // add '*' to lexeme buffer
-                    index += 1
-                }
-                if index < len(text) {
                     strings.write_byte(&lexeme, text[index + 1])  // add '/' to lexeme buffer
-                    index += 1
+                    index += 2
+
+                    fmt.println(strings.to_string(lexeme))
+                    append(&tokens, Token{ type = 10, start_pos = start_pos, value = strings.to_string(lexeme) })
+                
+                // otherwise return default
+                } else {
+                    fmt.println(strings.to_string(lexeme))
+                    append(&tokens, Token{ type = 1, start_pos = start_pos, value = strings.to_string(lexeme) })
                 }
 
-                // strings.write_byte(&lexeme, text[index]) // add '*' to lexeme buffer
-                // strings.write_byte(&lexeme, text[index + 1])  // add '/' to lexeme buffer
-                // index += 2
-                
-                append(&tokens, Token{ type = 10, start_pos = start_pos, value = strings.to_string(lexeme) })
                 continue
             }
             
