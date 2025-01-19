@@ -1,7 +1,7 @@
 
 # MIT License
 
-# Copyright 2024 @asyncze (Michael Sjöberg)
+# Copyright 2024, 2025 @asyncze (Michael Sjöberg)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Hackerman DSCL (TOML-like custom DSL)
+# Tokenizer wrapper for Hackerman DSCL (TOML-like custom DSL)
 
 import os
 import time
@@ -40,11 +40,6 @@ from enum import Enum
 # lib.free_memory.restype = None
 
 # odin
-# class String(ctypes.Structure):
-#     _fields_ = [
-#         ("text", ctypes.POINTER(ctypes.c_uint8)),
-#         ("len", ctypes.c_ssize_t),
-#     ]
 
 class String(ctypes.Structure):
     _fields_ = [
@@ -285,21 +280,8 @@ class Lexer(object):
             # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
             tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
 
-        # print("odin end", time.time() - start_time)
-
-        # import hackerman
-
-        # start_time = time.time()
-
-        # lexer = hackerman.Lexer()
-        # test_tokens, _, _ = lexer.tokenize(text)
-        # print(test_tokens)
-
-        # print("cython", time.time() - start_time)
-
         # python
         # --------------------------------------
-        
         # start_time = time.time()
         
         # tokens = []
@@ -401,4 +383,4 @@ class Lexer(object):
 
         # print("python", time.time() - start_time)
 
-        return tokens, [], []
+        return tokens
