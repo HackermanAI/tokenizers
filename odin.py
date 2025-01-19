@@ -38,20 +38,7 @@ class String(ctypes.Structure):
     ]
 
     def to_python(self):
-        if self.text:
-            try:
-                return ctypes.string_at(self.text, self.len).decode("utf-8")
-                # byte_data = ctypes.string_at(self.text)
-                # print(byte_data.endswith(b'\x00'))
-                # if byte_data.endswith(b'\x00'):
-                #     return byte_data.decode("utf-8")
-                # else:
-                #     byte_data += b'\x00'
-                #     return byte_data.decode("utf-8")
-            except:
-                print("    ---> ", self.text, self.len)
-                trace()
-        
+        if self.text: return ctypes.string_at(self.text, self.len).decode("utf-8")
         return ""
 
 # odin custom struct for Token
