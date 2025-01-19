@@ -272,9 +272,10 @@ class Lexer(object):
         string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
         string_arg.len = len(text_as_bytes)
 
-        tokens = []
         result = lib.process_input(string_arg)
-        # print("result len", result.len)
+        print("result len", result.len)
+        
+        tokens = []
         for n in range(result.len):
             # print(result.data[n].type.to_python())
             # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
