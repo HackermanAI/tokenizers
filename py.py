@@ -23,36 +23,27 @@
 
 # Tokenizer for Python 3
 
+# 0  WHITESPACE
+# 1  DEFAULT
+# 2  KEYWORD
+# 3  CLASS
+# 4  NAME
+# 5  PARAMETER
+# 6  LAMBDA
+# 7  STRING
+# 8  NUMBER
+# 9  OPERATOR
+# 10 COMMENT
+# 11 SPECIAL
+# 12 CONDITIONAL
+# 13 BUILT_IN
+# 14 ERROR
+# 15 WARNING
+# 16 SUCCESS
+
 import re
-from enum import Enum
 
-import time
-
-class TokenType(Enum):
-    DEFAULT     = 100
-    WHITESPACE  = 101
-    COMMENT     = 102
-    OPERATOR    = 103
-    KEYWORD     = 104
-    BUILT_IN    = 105
-    SPECIAL     = 106
-    PARAMETER   = 107
-    CONDITIONAL = 108
-    _ANON       = 109
-    NUMBER      = 110
-    STRING      = 111
-    NAME        = 112
-    IDENTIFIER  = 113
-    FSTRING     = 114
-    CLASS       = 115
-
-class Token(object):
-    def __init__(self, type, start_pos, value=None):
-        self.type = type
-        self.start_pos = start_pos
-        self.value = value
-
-    def __repr__(self): return str(self.value)
+from main import TOKEN_MAP # token map is same for all lexers
 
 class Lexer(object):
     def __init__(self):
@@ -113,16 +104,10 @@ class Lexer(object):
             "EXPRESSION"    : r"(?<!{){([^}]*)}(?!})",
             "ESCAPE_SEQ"    : r"\\."
         }
-        self.CLASS_DIR = []
-        self.FUNCTION_DIR = []
 
     def comment_char(self): return "#"
 
-    def function_decl(self): return "def"
-
-    def class_decl(self): return "class"
-
-    def declarations_pattern(self): return fr"^({ self.class_decl() }|{ self.function_decl() })\b"
+    def declarations_pattern(self): return r"^(class|def)\b"
 
     def lexer_name(self): return "Python 3"
 
@@ -130,16 +115,8 @@ class Lexer(object):
 
     def delimiters(self): return { "(", "[", "{", "\"", "\'" }
 
-    def tokenize(self, text, highlight_todos=False):
-        start_time = time.time()
-
-        time_in_comments = 0
-        time_in_strings = 0
-        time_in_numbers = 0
-        time_in_identifiers = 0
-        
+    def tokenize(self, text):        
         tokens = []
-        current_line = 1
         current_char = ''
         current_char_index = 0
 
@@ -153,7 +130,6 @@ class Lexer(object):
         inside_import = False
         inside_import_block = False
 
-        # reset dirs
         self.CLASS_DIR = []
         self.FUNCTION_DIR = []
 
@@ -163,121 +139,102 @@ class Lexer(object):
                 case ' ' | '\t' | '\r':
                     current_char_index += 1
                 case '\n':
-                    current_line += 1
                     current_char_index += 1
-
                     if inside_import == True and not inside_import_block == True: inside_import = False
                 case '#':
-                    time_init = time.time()
-                    
                     start_pos = current_char_index
-                    end_pos = text.find("\n", current_char_index)
-                    
-                    # current_char_index += 1
+                    current_char_index += 1
                     line = current_char
-                    # while current_char_index < len(text) and text[current_char_index] != '\n':
-                    #     line += text[current_char_index]
-                    #     current_char_index += 1
-                    if end_pos == -1:
-                        line = text[current_char_index:]
-                        current_char_index = len(text)
-                    else:
-                        line = text[current_char_index:end_pos]
-                        current_char_index = end_pos + 1
-
-                    # todo comment is special
-                    if highlight_todos and line.startswith("# todo "):
-                        tokens.append(Token(TokenType.SPECIAL, start_pos, line))
-                    else:
-                        tokens.append(Token(TokenType.COMMENT, start_pos, line))
-
-                    time_in_comments += time.time() - time_init
+                    while current_char_index < len(text) and text[current_char_index] != '\n':
+                        line += text[current_char_index]
+                        current_char_index += 1
+                    tokens.append((TOKEN_MAP[11], current_char_index, "..."))
                 case '.':
                     # triple dot is special
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
                     if next_char == '.' and next_next_char == '.':
-                        tokens.append(Token(TokenType.SPECIAL, current_char_index, "..."))
+                        tokens.append((TOKEN_MAP[11], current_char_index, "..."))
                         current_char_index += 3
                     # single dot is keyword
                     else:
-                        tokens.append(Token(TokenType.KEYWORD, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[2], current_char_index, current_char))
                         current_char_index += 1
                 case '^' | '&' | '|' | '~':
-                    tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                    tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                     current_char_index += 1
                 case '+':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, "+="))
+                        tokens.append((TOKEN_MAP[9], current_char_index, "+="))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '-':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, "-="))
+                        tokens.append((TOKEN_MAP[9], current_char_index, "-="))
                         current_char_index += 2
                     elif next_char == '>':
-                        tokens.append(Token(TokenType.DEFAULT, current_char_index, "->"))
+                        tokens.append((TOKEN_MAP[1], current_char_index, "->"))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '*':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '*':
                         next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
                         if next_next_char == '=':
-                            tokens.append(Token(TokenType.OPERATOR, current_char_index, "**="))
+                            tokens.append((TOKEN_MAP[9], current_char_index, "**="))
                             current_char_index += 3
                         else:
-                            tokens.append(Token(TokenType.OPERATOR, current_char_index, "**"))
+                            tokens.append((TOKEN_MAP[9], current_char_index, "**"))
                             current_char_index += 2
                     elif next_char == '=':
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, "*="))
+                        tokens.append((TOKEN_MAP[9], current_char_index, "*="))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '/':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '/':
                         next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
                         if next_next_char == '=':
-                            tokens.append(Token(TokenType.OPERATOR, current_char_index, "//="))
+                            tokens.append((TOKEN_MAP[9], current_char_index, "//="))
                             current_char_index += 3
                         else:
-                            tokens.append(Token(TokenType.OPERATOR, current_char_index, "//"))
+                            tokens.append((TOKEN_MAP[9], current_char_index, "//"))
                             current_char_index += 2
                     elif next_char == '=':
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, "/="))
+                        tokens.append((TOKEN_MAP[9], current_char_index, "/="))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '%':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, "%="))
+                        tokens.append((TOKEN_MAP[9], current_char_index, "%="))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '(':                
-                    tokens.append(Token(TokenType._ANON, current_char_index, current_char))
+                    tokens.append((TOKEN_MAP[1], current_char_index, current_char))
                     current_char_index += 1
                     # update state for custom function declaration styling
                     if function_declaration: function_parameters += 1
                     # update state for custom function name styling
-                    if len(tokens) > 1 and tokens[-2].type == TokenType.IDENTIFIER: tokens[-2].type = TokenType.NAME
+                    if len(tokens) > 1 and tokens[-2].type == TOKEN_MAP[4]: tokens[-2].type = TOKEN_MAP[4]
                     # update state for custom function arguments styling
-                    if len(tokens) > 1 and tokens[-2].type == TokenType.NAME: function_arguments += 1
+                    if len(tokens) > 1 and tokens[-2].type == TOKEN_MAP[4]: function_arguments += 1
 
                     if inside_import == True: inside_import_block = True
                 case ')':
-                    tokens.append(Token(TokenType._ANON, current_char_index, current_char))
+                    tokens.append((TOKEN_MAP[1], current_char_index, current_char))
                     current_char_index += 1
                     # update state for custom function declaration styling
                     if function_declaration and function_parameters > 0: function_parameters -= 1 if function_parameters > 0 else 0
@@ -287,10 +244,10 @@ class Lexer(object):
                     if inside_import_block == True: inside_import_block = False
                 # anons
                 case '{' | '}' | '[' | ']':
-                    tokens.append(Token(TokenType._ANON, current_char_index, current_char))
+                    tokens.append((TOKEN_MAP[1], current_char_index, current_char))
                     current_char_index += 1
                 case ',' | ';' | ':' | '@' | '\\' | '´' | '`':
-                    tokens.append(Token(TokenType._ANON, current_char_index, current_char))
+                    tokens.append((TOKEN_MAP[1], current_char_index, current_char))
                     current_char_index += 1
                     # update state for custom function declaration styling
                     if function_declaration and function_parameters == 0:
@@ -302,60 +259,58 @@ class Lexer(object):
                     # conditional
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, "=="))
+                        tokens.append((TOKEN_MAP[12], current_char_index, "=="))
                         current_char_index += 2
                     # operator
                     else:
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                         # todo : set custom styling for identifiers before = as parameters
-                        if function_arguments == 1: tokens[-2].type = TokenType.PARAMETER
+                        if function_arguments == 1: tokens[-2].type = TOKEN_MAP[5]
                 case '!':
                     # conditional
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, "!="))
+                        tokens.append((TOKEN_MAP[12], current_char_index, "!="))
                         current_char_index += 2
                     else:
                         # raise Exception("tokenize : unknown character :", current_char + next_char)
-                        tokens.append(Token(TokenType.OPERATOR, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                 case '<':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, "<="))
+                        tokens.append((TOKEN_MAP[12], current_char_index, "<="))
                         current_char_index += 2
                     elif next_char == '<':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, "<<"))
+                        tokens.append((TOKEN_MAP[12], current_char_index, "<<"))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[12], current_char_index, current_char))
                         current_char_index += 1
                 case '>':
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
                     if next_char == '=':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, ">="))
+                        tokens.append((TOKEN_MAP[12], current_char_index, ">="))
                         current_char_index += 2
                     elif next_char == '>':
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, ">>"))
+                        tokens.append((TOKEN_MAP[12], current_char_index, ">>"))
                         current_char_index += 2
                     else:
-                        tokens.append(Token(TokenType.CONDITIONAL, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[12], current_char_index, current_char))
                         current_char_index += 1
                 # strings
                 case '"' | '\'':
-                    time_init = time.time()
-
                     start_pos = current_char_index
                     string = current_char
                     current_char_index += 1
 
                     format_string = (
                         len(tokens) > 0 and 
-                        tokens[-1].type == TokenType.IDENTIFIER and 
+                        tokens[-1].type == TOKEN_MAP[4] and 
                         tokens[-1].value == "f"
                     )
-                    if format_string: tokens[-1].type = TokenType.BUILT_IN
+                    if format_string: tokens[-1].type = TOKEN_MAP[13]
 
                     # multi-line (triple quotes)
                     if current_char_index + 2 < len(text) and text[current_char_index:current_char_index + 2] == current_char * 2:
@@ -402,7 +357,7 @@ class Lexer(object):
 
                             # match regular text
                             if match.group(1):
-                                tokens.append(Token(TokenType.STRING, start_pos + f_start_pos, match.group(1)))
+                                tokens.append((TOKEN_MAP[7], start_pos + f_start_pos, match.group(1)))
 
                             # match format string expressions
                             elif match.group(2):
@@ -413,89 +368,14 @@ class Lexer(object):
 
                             # match escaped characters
                             elif match.group(3):
-                                tokens.append(Token(TokenType.SPECIAL, start_pos + f_start_pos, match.group(3)))
+                                tokens.append((TOKEN_MAP[5], start_pos + f_start_pos, match.group(3)))
                     else:
-                        print(Token(TokenType.STRING, start_pos, string))
-                        tokens.append(Token(TokenType.STRING, start_pos, string))
-
-                    # start_pos = current_char_index
-                    # string = current_char
-
-                    # # update state for custom format string styling
-                    # format_string = False
-                    # if len(tokens) > 0 and tokens[-1].type == TokenType.IDENTIFIER and tokens[-1].value == "f":
-                    #     tokens[-1].type = TokenType.BUILT_IN
-                    #     format_string = True
-                    
-                    # # multi-line (triple)                
-                    # next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                    # next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
-                    # if next_char == current_char and next_next_char == current_char:
-                    #     string += str(current_char*2)
-                    #     current_char_index += 3
-
-                    #     # while current_char_index < len(text) and (text[current_char_index].isprintable() or text[current_char_index] == '\n'):
-                    #     while current_char_index < len(text):
-                    #         string += str(text[current_char_index])
-                            
-                    #         next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
-                    #         next_next_char = text[current_char_index + 2] if current_char_index + 2 < len(text) else None
-                    #         if text[current_char_index] == current_char and next_char == current_char and next_next_char == current_char:
-                    #             string += str(current_char*2)
-                    #             current_char_index += 3
-                    #             break
-                    #         else:
-                    #             current_char_index += 1
-                    # else:
-                    #     current_char_index += 1
-                    #     # while current_char_index < len(text):
-                    #     #     string += str(text[current_char_index])
-                    #     #     if text[current_char_index] == current_char:
-                    #     #         current_char_index += 1
-                    #     #         break
-                    #     #     else:
-                    #     #         current_char_index += 1
-                    #     while current_char_index < len(text):
-                    #         if text[current_char_index] == current_char:
-                    #             string += text[start_pos + 1:current_char_index + 1]
-                    #             current_char_index += 1
-                    #             break
-                    #         current_char_index += 1
-                    #     else:
-                    #         # append the remaining characters if no match is found
-                    #         string += text[start_pos + 1:current_char_index]
-
-                    # # use regex to match f-string
-                    # if format_string:
-                    #     fstring_pattern = re.compile(f"({self.FSTRING_REGEX['STRING_TEXT']})|({self.FSTRING_REGEX['EXPRESSION']})|({self.FSTRING_REGEX['ESCAPE_SEQ']})")
-                    #     for match in fstring_pattern.finditer(string):
-                    #         f_start_pos = match.start()
-                    #         f_end_pos = match.end()
-                            
-                    #         # match regular text
-                    #         if match.group(1):
-                    #             tokens.append(Token(TokenType.STRING, start_pos + f_start_pos, match.group(1)))
-                            
-                    #         # match format string expressions
-                    #         elif match.group(2):
-                    #             f_tokens, _, _ = self.tokenize(match.group(2))
-                    #             for token in f_tokens:
-                    #                 new_pos = start_pos + f_start_pos + token.start_pos
-                    #                 tokens.append(Token(token.type, new_pos, token.value))
-                            
-                    #         # match escaped characters
-                    #         elif match.group(3):
-                    #             tokens.append(Token(TokenType.SPECIAL, start_pos + f_start_pos, match.group(3)))
-                    # else:
-                    #     tokens.append(Token(TokenType.STRING, start_pos, string))
-
-                    time_in_strings += time.time() - time_init
+                        # print((TOKEN_MAP[7], start_pos, string))
+                        tokens.append((TOKEN_MAP[7], start_pos, string))
 
                 case _:
                     # number
-                    if current_char.isdigit():
-                        time_init = time.time()
-                        
+                    if current_char.isdigit():                        
                         start_pos = current_char_index
                         number = str(current_char)
                         current_char_index += 1
@@ -505,23 +385,19 @@ class Lexer(object):
                             current_char_index += 1
 
                         # match using regex
-                        number_type = TokenType.DEFAULT
+                        number_type = TOKEN_MAP[1]
                         for type_, pattern in self.NUMBER_REGEX.items():
                             if re.match(pattern, number):
-                                number_type = TokenType.NUMBER
+                                number_type = TOKEN_MAP[8]
                                 break
 
-                        if number_type == TokenType.NUMBER:
-                            tokens.append(Token(TokenType.NUMBER, start_pos, number))
+                        if number_type == TOKEN_MAP[8]:
+                            tokens.append((TOKEN_MAP[8], start_pos, number))
                         else:
-                            tokens.append(Token(TokenType.DEFAULT, start_pos, number))
-
-                        time_in_numbers += time.time() - time_init
+                            tokens.append((TOKEN_MAP[1], start_pos, number))
 
                     # identifiers
                     elif current_char.isidentifier():
-                        time_init = time.time()
-
                         start_pos = current_char_index
                         identifier = str(current_char)
                         current_char_index += 1
@@ -532,32 +408,28 @@ class Lexer(object):
 
                         # use default inside imports
                         if inside_import == True:
-                            tokens.append(Token(TokenType.DEFAULT, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[1], start_pos, identifier))
                         # conditional
                         elif identifier in self.CONSTANTS:
-                            tokens.append(Token(TokenType.CONDITIONAL, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[12], start_pos, identifier))
                         # special
                         elif identifier in self.SPECIALS and not (function_declaration and identifier == "self"):
-                            # if identifier == "self":
-                            #     tokens.append(Token(TokenType.SPECIALC, start_pos, identifier))
-                            # else:
-                            #     tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
-                            tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[11], start_pos, identifier))
                         # built_in
                         elif identifier in self.BUILT_INS:
-                            tokens.append(Token(TokenType.BUILT_IN, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[13], start_pos, identifier))
                         # parameter : todo : rename this to avoid confusion
                         elif identifier in self.FUNC_PARAMS:
-                            tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[5], start_pos, identifier))
                         # keyword
                         elif identifier in self.KEYWORDS:
-                            tokens.append(Token(TokenType.KEYWORD, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[2], start_pos, identifier))
                             # update state for custom function declaration styling
                             if identifier in { "def" }: function_declaration = True
                             if identifier in { "import" }: inside_import = True
                         # single underscore is special
                         elif identifier == "_":
-                            tokens.append(Token(TokenType.SPECIAL, start_pos, identifier))
+                            tokens.append((TOKEN_MAP[11], start_pos, identifier))
                         # identifier
                         else:
                             n = 0
@@ -568,7 +440,7 @@ class Lexer(object):
                             
                             # custom style for function and class name
                             if function_declaration and function_parameters == 0:
-                                tokens.append(Token(TokenType.NAME, start_pos, identifier))
+                                tokens.append((TOKEN_MAP[4], start_pos, identifier))
                                 # append name to FUNCTION_DIR
                                 if identifier not in self.FUNCTION_DIR: self.FUNCTION_DIR.append(identifier)
                             
@@ -579,35 +451,26 @@ class Lexer(object):
                                 if next_non_empty_char in { ":" }: skip_next_parameter = True
                                 # if next_non_empty_char in { ",", ")" }: skip_next_parameter = False
                                 
-                                tokens.append(Token(TokenType.PARAMETER, start_pos, identifier))
+                                tokens.append((TOKEN_MAP[5], start_pos, identifier))
                             
                             # otherwise
                             else:
-                                if len(tokens) > 0 and tokens[-1].type == TokenType.KEYWORD and tokens[-1].value == "class":
-                                    tokens.append(Token(TokenType.CLASS, start_pos, identifier))
+                                if len(tokens) > 0 and tokens[-1].type == TOKEN_MAP[2] and tokens[-1].value == "class":
+                                    tokens.append((TOKEN_MAP[3], start_pos, identifier))
                                     # append to CLASS_DIR
                                     if identifier not in self.CLASS_DIR: self.CLASS_DIR.append(identifier)
                                 else:
                                     if identifier in self.CLASS_DIR:
-                                        tokens.append(Token(TokenType.CLASS, start_pos, identifier))
+                                        tokens.append((TOKEN_MAP[3], start_pos, identifier))
                                     elif identifier in self.FUNCTION_DIR:
-                                        tokens.append(Token(TokenType.NAME, start_pos, identifier))
+                                        tokens.append((TOKEN_MAP[4], start_pos, identifier))
                                     else:
                                         # using identifier as type to easier find and style identifiers post lexing
-                                        tokens.append(Token(TokenType.IDENTIFIER, start_pos, identifier))
-
-                        time_in_identifiers += time.time() - time_init
+                                        tokens.append((TOKEN_MAP[4], start_pos, identifier))
                     
                     else:
                         # raise Exception("tokenize : unknown character :", current_char)
-                        tokens.append(Token(TokenType.DEFAULT, current_char_index, current_char))
+                        tokens.append((TOKEN_MAP[1], current_char_index, current_char))
                         current_char_index += 1
 
-        print("end of tokenize", time.time() - start_time)
-        print("time_in_comments", time_in_comments)
-        print("time_in_strings", time_in_strings)
-        print("time_in_numbers", time_in_numbers)
-        print("time_in_identifiers", time_in_identifiers)
-
-        # todo : probably easier to just return declaration string (and match def NAME for navigation to declaration in editor?)
-        return tokens, self.CLASS_DIR, self.FUNCTION_DIR
+        return tokens
