@@ -54,7 +54,8 @@ class String(ctypes.Structure):
 
 class Token(ctypes.Structure):
     _fields_ = [
-        ("type", String),
+        # ("type", String),
+        ("type", ctypes.c_ssize_t), # todo : this fixed segmentation fault (maybe need to replace start_pos?)
         ("start_pos", ctypes.c_int),
         ("value", String),
     ]
@@ -254,6 +255,8 @@ class Lexer(object):
         # --------------------------------------
         # start_time = time.time()
 
+        # todo : make dynamic tokenzie return int instad of string for type
+
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
 
@@ -266,13 +269,15 @@ class Lexer(object):
         string_arg.len = len(text_as_bytes)
 
         result = lib.process_input(string_arg)
-        # print("result len", result.len)
+        print("result len", result.len)
         
         tokens = []
         for n in range(result.len):
-            # print(result.data[n].type.to_python())
+            # print(result.data[n].type)
+            # print(TOKEN_MAP[result.data[n].type].value)
+            # print(TOKEN_MAP[result.data[n].type], result.data[n].value.to_python())
             # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
-            tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
+            tokens.append((TOKEN_MAP[result.data[n].type].value, result.data[n].start_pos, result.data[n].value.to_python()))
 
         # python
         # --------------------------------------
