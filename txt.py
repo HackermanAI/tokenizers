@@ -1,7 +1,7 @@
 
 # MIT License
 
-# Copyright 2025 @asyncze (Michael Sjöberg)
+# Copyright 2024, 2025 @asyncze (Michael Sjöberg)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,28 @@
 
 from enum import Enum
 
+# class TokenType(str, Enum):
+#     WHITESPACE  = "whitespace"
+#     DEFAULT     = "default"
+#     KEYWORD     = "keyword"
+#     CLASS       = "class"
+#     NAME        = "name"
+#     PARAMETER   = "parameter"
+#     LAMBDA      = "lambda"
+#     STRING      = "string"
+#     NUMBER      = "number"
+#     OPERATOR    = "operator"
+#     COMMENT     = "comment"
+#     SPECIAL     = "special"
+#     CONDITIONAL = "conditional"
+#     BUILT_IN    = "built_in"
+#     ERROR       = "error"
+#     WARNING     = "warning"
+#     SUCCESS     = "success"
+
 class TokenType(str, Enum):
-    DEFAULT     = "DEFAULT"
-    PUNCTUATION = "KEYWORD"
+    DEFAULT     = "default"
+    PUNCTUATION = "keyword"
 
 class Lexer(object):
     def __init__(self): pass
@@ -35,26 +54,21 @@ class Lexer(object):
     def comment_char(self): return None
 
     def lexer_name(self): return "(almost) Plain Text"
-
+    
     def tokenize(self, text, highlight_todos=False):
         tokens = []
-        # current_line = 1
         current_char = ''
         current_char_index = 0
 
         while current_char_index < len(text):
             current_char = text[current_char_index]
             match current_char:
-                case ' ' | '\t' | '\r':
-                    current_char_index += 1
-                case '\n':
-                    # current_line += 1
+                case ' ' | '\t' | '\r' | '\n':
                     current_char_index += 1
                 case '.':
                     tokens.append((str(TokenType.PUNCTUATION), int(current_char_index), str(current_char)))
                     current_char_index += 1
                 case _:
-                    # tokens.append((token_types.DEFAULT, current_char_index, current_char))
                     tokens.append((str(TokenType.DEFAULT), int(current_char_index), str(current_char)))
                     current_char_index += 1
 
