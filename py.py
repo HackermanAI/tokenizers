@@ -228,9 +228,9 @@ class Lexer(object):
                     # update state for custom function declaration styling
                     if function_declaration: function_parameters += 1
                     # update state for custom function name styling
-                    if len(tokens) > 1 and tokens[-2].type == TOKEN_MAP[4]: tokens[-2].type = TOKEN_MAP[4]
+                    if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: tokens[-2] = (TOKEN_MAP[4], tokens[-2][1], tokens[-2][2])
                     # update state for custom function arguments styling
-                    if len(tokens) > 1 and tokens[-2].type == TOKEN_MAP[4]: function_arguments += 1
+                    if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: function_arguments += 1
 
                     if inside_import == True: inside_import_block = True
                 case ')':
@@ -307,8 +307,8 @@ class Lexer(object):
 
                     format_string = (
                         len(tokens) > 0 and 
-                        tokens[-1].type == TOKEN_MAP[4] and 
-                        tokens[-1].value == "f"
+                        tokens[-1][0] == TOKEN_MAP[4] and 
+                        tokens[-1][1] == "f"
                     )
                     if format_string: tokens[-1].type = TOKEN_MAP[13]
 
@@ -455,7 +455,7 @@ class Lexer(object):
                             
                             # otherwise
                             else:
-                                if len(tokens) > 0 and tokens[-1].type == TOKEN_MAP[2] and tokens[-1].value == "class":
+                                if len(tokens) > 0 and tokens[-1][0] == TOKEN_MAP[2] and tokens[-1][2] == "class":
                                     tokens.append((TOKEN_MAP[3], start_pos, identifier))
                                     # append to CLASS_DIR
                                     if identifier not in self.CLASS_DIR: self.CLASS_DIR.append(identifier)
