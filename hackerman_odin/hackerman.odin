@@ -23,6 +23,24 @@
 
 // Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
+// 0  WHITESPACE
+// 1  DEFAULT
+// 2  KEYWORD
+// 3  CLASS
+// 4  NAME
+// 5  PARAMETER
+// 6  LAMBDA
+// 7  STRING
+// 8  NUMBER
+// 9  OPERATOR
+// 10 COMMENT
+// 11 SPECIAL
+// 12 CONDITIONAL
+// 13 BUILT_IN
+// 14 ERROR
+// 15 WARNING
+// 16 SUCCESS
+
 package hackerman_odin
 
 import "base:runtime"
@@ -134,7 +152,7 @@ is_conditional :: proc(value: string) -> bool {
 
 // todo : attempt to send tuple instead
 Token :: struct {
-    type: string,
+    type: int,
     start_pos: int,
     value: string,
 }
@@ -179,9 +197,9 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                append(&tokens, Token{ type = "COMMENT", start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = 10, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = 14, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
             continue
@@ -203,7 +221,7 @@ Token :: struct {
             strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
             index += 1
             
-            append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -224,7 +242,7 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            append(&tokens, Token{ type = "STRING", start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = 7, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -239,7 +257,7 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            append(&tokens, Token{ type = "NUMBER", start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = 8, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -256,11 +274,11 @@ Token :: struct {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = "CONDITIONAL", start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = 12, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else if is_name(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = 1, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                append(&tokens, Token{ type = "ERROR", start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = 14, start_pos = start_pos, value = strings.to_string(lexeme) })
             }
             continue
         }
@@ -269,7 +287,7 @@ Token :: struct {
         // defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
+        append(&tokens, Token{ type = 14, start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
 
