@@ -23,6 +23,24 @@
 
 # Tokenizer for Plain Text
 
+# 0  WHITESPACE
+# 1  DEFAULT
+# 2  KEYWORD
+# 3  CLASS
+# 4  NAME
+# 5  PARAMETER
+# 6  LAMBDA
+# 7  STRING
+# 8  NUMBER
+# 9  OPERATOR
+# 10 COMMENT
+# 11 SPECIAL
+# 12 CONDITIONAL
+# 13 BUILT_IN
+# 14 ERROR
+# 15 WARNING
+# 16 SUCCESS
+
 from main import TOKEN_MAP # token map is same for all lexers
 
 class Lexer(object):
@@ -43,12 +61,10 @@ class Lexer(object):
                 case ' ' | '\t' | '\r' | '\n':
                     current_char_index += 1
                 case '.':
-                    # keyword
-                    tokens.append((str(TOKEN_MAP[2]), int(current_char_index), str(current_char)))
+                    tokens.append((str(TOKEN_MAP[2]), int(current_char_index), str(current_char))) # keyword
                     current_char_index += 1
                 case _:
-                    # default
-                    tokens.append((str(TOKEN_MAP[1]), int(current_char_index), str(current_char)))
+                    tokens.append((str(TOKEN_MAP[1]), int(current_char_index), str(current_char))) # default
                     current_char_index += 1
 
         return tokens
