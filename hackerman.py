@@ -260,16 +260,24 @@ class Lexer(object):
         lib.process_input.argtypes = [String, String]
         lib.process_input.restype = DynamicToken
 
+        # text input
         text_as_bytes = text.encode("utf-8")
+        text_byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
+        
+        text_string_arg = String()
+        text_string_arg.text = ctypes.cast(text_byte_array, ctypes.POINTER(ctypes.c_uint8))
+        text_string_arg.len = len(text_as_bytes)
 
-        byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
+        # special input
+        special_as_bytes = special.encode("utf-8")
+        special_byte_array = (ctypes.c_uint8 * len(special_as_bytes))(*special_as_bytes)
+        
+        special_string_arg = String()
+        special_string_arg.text = ctypes.cast(special_byte_array, ctypes.POINTER(ctypes.c_uint8))
+        special_string_arg.len = len(special_as_bytes)
 
-        string_arg = String()
-        string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
-        string_arg.len = len(text_as_bytes)
-
-        result = lib.process_input(string_arg)
-        print("result len", result.len)
+        result = lib.process_input(text_string_arg, special_string_arg)
+        # print("result len", result.len)
         
         tokens = []
         for n in range(result.len):
