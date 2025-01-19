@@ -78,7 +78,7 @@ class Lexer(object):
 
     def comment_char(self): return "" # todo : create map for comment injection in common un-supported programming languages
 
-    def lexer_name(self): return str(self.lexer.name)
+    def lexer_name(self): return f"<{ self.lexer.name }>"
     
     def tokenize(self, text):
         tokens = []
