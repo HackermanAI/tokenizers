@@ -58,4 +58,4 @@ class Lexer(object):
                     tokens.append((str(TokenType.DEFAULT), int(current_char_index), str(current_char)))
                     current_char_index += 1
 
-        return tokens, _, _
+        return tokens
