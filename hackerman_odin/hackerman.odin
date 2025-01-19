@@ -165,6 +165,8 @@ Token :: struct {
 
     tokens: [dynamic]Token
     tokens = runtime.make([dynamic]Token, 0, alloc);
+
+    current_header: string = "" // helper for tracking headers
     
     index: int = 0
     for index < len(text) {
@@ -214,6 +216,7 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
                 index += 1
             }
+            current_header := strings.to_string(lexeme) // update current header
             // strings.write_byte(&lexeme, '\n')
             // fmt.sbprint(&result, "KEYWORD", start_pos, strings.to_string(lexeme), "\n")
             append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
@@ -277,8 +280,12 @@ Token :: struct {
                 // fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                // fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
-                append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
+                if current_header == "[builds]" || current_header == "[user]" {
+                    append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })    
+                } else {
+                    // fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
+                append(&tokens, Token{ type = "ERROR", start_pos = start_pos, value = strings.to_string(lexeme) })
+                }
             }
             continue
         }
