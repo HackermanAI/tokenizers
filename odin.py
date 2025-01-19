@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer wrapper for odin_odin.dylib
+# Tokenizer wrapper for Odin
 
 import os
 import time
@@ -40,7 +40,7 @@ class String(ctypes.Structure):
 
 class Token(ctypes.Structure):
     _fields_ = [
-        ("type", String),
+        ("type", ctypes.c_ssize_t),
         ("start_pos", ctypes.c_int),
         ("value", String),
     ]
@@ -73,17 +73,25 @@ class Lexer(object):
 
         text_as_bytes = text.encode("utf-8")
 
-        byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
+        text_byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
 
-        string_arg = String()
-        string_arg.text = ctypes.cast(byte_array, ctypes.POINTER(ctypes.c_uint8))
-        string_arg.len = len(text_as_bytes)
+        text_string_arg = String()
+        text_string_arg.text = ctypes.cast(text_byte_array, ctypes.POINTER(ctypes.c_uint8))
+        text_string_arg.len = len(text_as_bytes)
 
         tokens = []
-        result = lib.process_input(string_arg)
+        result = lib.process_input(text_string_arg)
         for n in range(result.len):
-            # print(result.data[n].type.to_python())
-            # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
-            tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
+            value_as_string = result.data[n].value.to_python()
+            
+            # find todo and note in comments
+            if result.data[n].type == 10 and " todo :" in value_as_string:
+                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[11].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
+            elif result.data[n].type == 10 and " note :" in value_as_string:
+                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[15].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
+            else:
+                tokens.append((TOKEN_MAP[result.data[n].type].value, result.data[n].start_pos, value_as_string))
 
         return tokens
