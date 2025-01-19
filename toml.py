@@ -44,7 +44,7 @@
 from main import TOKEN_MAP # token map is same for all lexers
 
 from pygments import lex
-from pygments.lexers import TOMLLexer, get_lexer_for_filename
+from pygments.lexers import TOMLLexer
 from pygments.token import Token
 
 TOKEN_MAP_PYGMENTS = {
@@ -53,16 +53,25 @@ TOKEN_MAP_PYGMENTS = {
     Token.Punctuation: 1,
     Token.Generic: 1,
     Token.Other: 1,
-    Token.Keyword: 2,
-    Token.Name: 4,
+    Token.Keyword.Constant: 2,
+    Token.Keyword.Declaration: 2,
+    Token.Keyword.Namespace: 2,
+    Token.Keyword.Reserved: 2,
+    Token.Name.Class: 3,
+    Token.Name.Function: 4,
+    Token.Name.Property: 5,
     Token.Literal: 7,
+    Token.Literal.String.Single: 7,
     Token.Literal.String.Double: 7,
     Token.Literal.Number.Integer: 8,
     Token.Literal.Number.Float: 8,
     Token.Operator: 9,
     Token.Literal.Date: 9,
     Token.Comment.Single: 10,
+    Token.Comment.Multiline: 10,
+    Token.Keyword.Type: 11,
     Token.Keyword.Constant: 12,
+    Token.Name.Builtin: 13,
     Token.Error: 14,
 }
 
