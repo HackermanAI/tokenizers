@@ -126,21 +126,10 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
-// todo : double check if this is needed
+// todo : need to call this from external?
 // @export free_memory :: proc () {
 //     free_all(context.temp_allocator)
 //     fmt.println("free_memory done")
-// }
-
-// TokenType :: enum {
-//     DEFAULT,
-//     COMMENT,
-//     ERROR,
-//     STRING,
-//     NUMBER,
-//     KEYWORD,
-//     NAME,
-//     CONDITIONAL,
 // }
 
 Token :: struct {
@@ -149,27 +138,24 @@ Token :: struct {
     value: string,
 }
 
-@export test_tokenize :: proc(text: string) -> [dynamic]Token {
-    alloc := runtime.default_allocator()
-    // context.allocator = alloc
+// @export test_tokenize :: proc(text: string) -> [dynamic]Token {
+//     alloc := runtime.default_allocator()
+//     // context.allocator = alloc
 
-    tokens: [dynamic]Token
-    tokens = runtime.make([dynamic]Token, 0, alloc);
+//     tokens: [dynamic]Token
+//     tokens = runtime.make([dynamic]Token, 0, alloc);
     
-    append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "default" })
-    append(&tokens, Token{ type = "NAME", start_pos = 0, value = "name" })
+//     append(&tokens, Token{ type = "DEFAULT", start_pos = 0, value = "default" })
+//     append(&tokens, Token{ type = "NAME", start_pos = 0, value = "name" })
 
-    return tokens
-}
+//     return tokens
+// }
 
 @export tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
-    // result := strings.builder_make(alloc)
 
     tokens: [dynamic]Token
     tokens = runtime.make([dynamic]Token, 0, alloc);
-
-    current_header: string = "" // helper for tracking headers
     
     index: int = 0
     for index < len(text) {
@@ -192,10 +178,8 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                // fmt.sbprint(&result, "COMMENT", start_pos, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "COMMENT", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                // fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
@@ -215,13 +199,9 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            if index < len(text) && text[index] == ']' {
-                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
-                index += 1
-            }
-            current_header := strings.to_string(lexeme) // update current header
-            // strings.write_byte(&lexeme, '\n')
-            // fmt.sbprint(&result, "KEYWORD", start_pos, strings.to_string(lexeme), "\n")
+            strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
+            index += 1
+            
             append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
@@ -243,7 +223,6 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            // fmt.sbprint(&result, "STRING", start_pos, strings.to_string(lexeme), "\n")
             append(&tokens, Token{ type = "STRING", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
@@ -259,7 +238,6 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            // fmt.sbprint(&result, "NUMBER", start_pos, strings.to_string(lexeme), "\n")
             append(&tokens, Token{ type = "NUMBER", start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
@@ -277,18 +255,11 @@ Token :: struct {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                // fmt.sbprint(&result, "CONDITIONAL", start_pos, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "CONDITIONAL", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else if is_name(strings.to_string(lexeme)) {
-                // fmt.sbprint(&result, "NAME", start_pos, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                if current_header == "[builds]" || current_header == "[user]" {
-                    append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })    
-                } else {
-                    // fmt.sbprint(&result, "DEFAULT", start_pos, strings.to_string(lexeme), "\n")
                 append(&tokens, Token{ type = "ERROR", start_pos = start_pos, value = strings.to_string(lexeme) })
-                }
             }
             continue
         }
@@ -297,7 +268,6 @@ Token :: struct {
         // defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        // fmt.sbprint(&result, "ERROR", index, strings.to_string(lexeme), "\n")
         append(&tokens, Token{ type = "ERROR", start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
