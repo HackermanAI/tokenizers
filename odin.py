@@ -26,7 +26,7 @@
 import os
 import ctypes
 
-from main import TOKEN_MAP, trace # token map is same for all lexers
+from main import TOKEN_MAP # token map is same for all lexers
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
 
