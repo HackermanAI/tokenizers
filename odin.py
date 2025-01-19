@@ -61,6 +61,12 @@ class Lexer(object):
 
     def lexer_name(self): return "Odin"
 
+    def declarations(self): return { ":: proc", ":: struct" } # lines with these strings can be used for lookup
+
+    def block_starters(self): return { "(", "[", "{", "\"", "\'" }
+
+    def delimiters(self): return { "(", "[", "{", "\"", "\'" }
+
     def tokenize(self, text, highlight_todos=False):
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
@@ -75,10 +81,9 @@ class Lexer(object):
 
         tokens = []
         result = lib.process_input(string_arg)
-        print("result len", result.len)
         for n in range(result.len):
             print(result.data[n].type.to_python())
             # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
             tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
 
-        return tokens, [], []
+        return tokens
