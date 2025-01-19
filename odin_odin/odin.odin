@@ -73,6 +73,30 @@ BUILT_INS: [3]string = [3]string{
     "println",
 }
 
+TYPES: [21]string = [21]string{
+    "i8",
+    "i16",
+    "i32",
+    "i64",
+    "i128",
+    "int",
+    "u8",
+    "u16",
+    "u32",
+    "u64",
+    "u128",
+    "uint",
+    "f32",
+    "f64",
+    "complex64",
+    "complex128",
+    "quaternion128",
+    "quaternion256",
+    "string",
+    "rune",
+    "bool",
+}
+
 is_keyword :: proc(value: string) -> bool {
     for keyword in KEYWORDS {
         if keyword == value {
@@ -85,6 +109,15 @@ is_keyword :: proc(value: string) -> bool {
 is_built_in :: proc(value: string) -> bool {
     for built_in in BUILT_INS {
         if built_in == value {
+            return true
+        }
+    }
+    return false
+}
+
+is_type :: proc(value: string) -> bool {
+    for type in TYPES {
+        if type == value {
             return true
         }
     }
@@ -258,7 +291,7 @@ Token :: struct {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && text[index] >= '0' && text[index] <= '9' {
+            for index < len(text) && ((text[index] >= '0' && text[index] <= '9') || text[index] == '.') {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
@@ -284,6 +317,8 @@ Token :: struct {
                 append(&tokens, Token{ type = "KEYWORD", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else if is_built_in(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = "BUILT_IN", start_pos = start_pos, value = strings.to_string(lexeme) })
+            } else if is_type(strings.to_string(lexeme)) {
+                append(&tokens, Token{ type = "SPECIAL", start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
                 append(&tokens, Token{ type = "DEFAULT", start_pos = start_pos, value = strings.to_string(lexeme) })
             }
