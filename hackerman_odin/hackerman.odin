@@ -188,10 +188,10 @@ Token :: struct {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
-            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer            
+            strings.write_byte(&lexeme, text[index]) // add '-' to lexeme buffer
             if index + 1 < len(text) && text[index + 1] == '-' {
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1])
+                strings.write_byte(&lexeme, text[index + 1]) // add '-' to lexeme buffer
                 index += 2
                 for index < len(text) && text[index] != '\n' {
                     strings.write_byte(&lexeme, text[index])
