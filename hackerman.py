@@ -69,10 +69,7 @@ class Lexer(object):
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
 
-        # text input
-
-        # todo : attempt to pass python str (if possible to remove this overhead)
-
+        # convert text input to Odin String structure
         text_as_bytes = text.encode("utf-8")
         text_byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
         
