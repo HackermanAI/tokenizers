@@ -23,30 +23,7 @@
 
 # Tokenizer for Plain Text
 
-from enum import Enum
-
-# class TokenType(str, Enum):
-#     WHITESPACE  = "whitespace"
-#     DEFAULT     = "default"
-#     KEYWORD     = "keyword"
-#     CLASS       = "class"
-#     NAME        = "name"
-#     PARAMETER   = "parameter"
-#     LAMBDA      = "lambda"
-#     STRING      = "string"
-#     NUMBER      = "number"
-#     OPERATOR    = "operator"
-#     COMMENT     = "comment"
-#     SPECIAL     = "special"
-#     CONDITIONAL = "conditional"
-#     BUILT_IN    = "built_in"
-#     ERROR       = "error"
-#     WARNING     = "warning"
-#     SUCCESS     = "success"
-
-class TokenType(str, Enum):
-    DEFAULT     = "default"
-    PUNCTUATION = "keyword"
+from main import TOKEN_MAP # token map is same for all lexers
 
 class Lexer(object):
     def __init__(self): pass
@@ -66,10 +43,12 @@ class Lexer(object):
                 case ' ' | '\t' | '\r' | '\n':
                     current_char_index += 1
                 case '.':
-                    tokens.append((str(TokenType.PUNCTUATION), int(current_char_index), str(current_char)))
+                    # keyword
+                    tokens.append((str(TOKEN_MAP[2]), int(current_char_index), str(current_char)))
                     current_char_index += 1
                 case _:
-                    tokens.append((str(TokenType.DEFAULT), int(current_char_index), str(current_char)))
+                    # default
+                    tokens.append((str(TOKEN_MAP[1]), int(current_char_index), str(current_char)))
                     current_char_index += 1
 
         return tokens
