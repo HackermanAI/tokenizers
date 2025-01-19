@@ -24,9 +24,13 @@
 # Tokenizer wrapper for Odin
 
 import os
-import time
 import ctypes
 
+from main import TOKEN_MAP # token map is same for all lexers
+
+lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
+
+# odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
         ("text", ctypes.POINTER(ctypes.c_uint8)),
@@ -34,25 +38,25 @@ class String(ctypes.Structure):
     ]
 
     def to_python(self):
-        if self.text:
-            return ctypes.string_at(self.text).decode("utf-8")
+        if self.text: return ctypes.string_at(self.text).decode("utf-8")
         return ""
 
+# odin custom struct for Token
 class Token(ctypes.Structure):
     _fields_ = [
-        ("type", ctypes.c_ssize_t),
+        # ("type", String),
+        ("type", ctypes.c_ssize_t), # todo : this fixed segmentation fault (maybe need to replace start_pos?)
         ("start_pos", ctypes.c_int),
         ("value", String),
     ]
 
+# odin internal struct for [dynamic]Token
 class DynamicToken(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(Token)),
         ("len", ctypes.c_ssize_t),
         ("cap", ctypes.c_ssize_t), # this is important c_ssize_t and not c_int
     ]
-
-lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
 
 class Lexer(object):
     def __init__(self): pass
@@ -61,37 +65,42 @@ class Lexer(object):
 
     def lexer_name(self): return "Odin"
 
-    def declarations(self): return { ":: proc", ":: struct" } # lines with these strings can be used for lookup
+    def declarations(self): return { ":: proc", ":: struct" }
 
     def block_starters(self): return { "(", "[", "{", "\"", "\'" }
 
     def delimiters(self): return { "(", "[", "{", "\"", "\'" }
 
-    def tokenize(self, text, highlight_todos=False):
+    def tokenize(self, text):
+        tokens = []
+        
+        # define arg and res types
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
 
+        # convert text input to Odin String structure
         text_as_bytes = text.encode("utf-8")
-
         text_byte_array = (ctypes.c_uint8 * len(text_as_bytes))(*text_as_bytes)
 
         text_string_arg = String()
         text_string_arg.text = ctypes.cast(text_byte_array, ctypes.POINTER(ctypes.c_uint8))
         text_string_arg.len = len(text_as_bytes)
 
-        tokens = []
+        # call process_input (Odin procedure)
         result = lib.process_input(text_string_arg)
+
+        # process result
         for n in range(result.len):
             value_as_string = result.data[n].value.to_python()
             
             # find todo and note in comments
             if result.data[n].type == 10 and " todo :" in value_as_string:
-                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((TOKEN_MAP[11].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
+                tokens.append((TOKEN_MAP[10], result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[11], result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
             elif result.data[n].type == 10 and " note :" in value_as_string:
-                tokens.append((TOKEN_MAP[10].value, result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((TOKEN_MAP[15].value, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
+                tokens.append((TOKEN_MAP[10], result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((TOKEN_MAP[15], result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
             else:
-                tokens.append((TOKEN_MAP[result.data[n].type].value, result.data[n].start_pos, value_as_string))
+                tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
 
         return tokens
