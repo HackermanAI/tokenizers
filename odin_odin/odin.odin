@@ -200,8 +200,6 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                // fmt.println(strings.to_string(text[index]))
-                // fmt.println(strings.to_string(text[index + 1]))
 
                 // check if multi-line comment is closed
                 if index < len(text) && index + 1 < len(text) && text[index] == '*' && text[index + 1] == '/' {
@@ -220,8 +218,6 @@ Token :: struct {
 
                 continue
             }
-            
-            fmt.println("OK")
             
             // operator
             append(&tokens, Token{ type = 9, start_pos = index, value = strings.to_string(lexeme) })
