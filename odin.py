@@ -82,7 +82,7 @@ class Lexer(object):
         tokens = []
         result = lib.process_input(string_arg)
         for n in range(result.len):
-            print(result.data[n].type.to_python())
+            # print(result.data[n].type.to_python())
             # print(result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python())
             tokens.append((result.data[n].type.to_python(), result.data[n].start_pos, result.data[n].value.to_python()))
 
