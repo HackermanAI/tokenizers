@@ -58,38 +58,56 @@ class Lexer(object):
         while current_char_index < len(text):
             current_char = text[current_char_index]
             match current_char:
+                
+                # whitespace
                 case ' ' | '\t' | '\r':
                     current_char_index += 1
+
+                # newline
                 case '\n':
                     current_char_index += 1
-                    # update state
-                    RHS = False
+                    
+                    RHS = False # reset state
+
+                # comment
                 case '#':
                     start_pos = current_char_index
                     current_char_index += 1
+                    
                     line = current_char
+                    
                     while current_char_index < len(text) and text[current_char_index] != '\n':
                         line += text[current_char_index]
                         current_char_index += 1
+                    
                     tokens.append((COMMENT, start_pos, line))
+
+                # assignment
                 case '=':
                     tokens.append((BUILT_IN, current_char_index, current_char))
                     current_char_index += 1
-                    # update state
-                    RHS = True
+                    
+                    RHS = True # update state
+                
+                # header or list
                 case '[':
                     start_pos = current_char_index
-                    header = str(current_char)
-                    
                     current_char_index += 1
 
-                    if RHS == False:
+                    header = str(current_char)
+
+                    # nested headers
+                    if not RHS:
                         nested_level = 0
                         while current_char_index < len(text) and text[current_char_index].isprintable():
                             header += str(text[current_char_index])
+                            
+                            # increase nested level
                             if text[current_char_index] == '[':
                                 nested_level += 1
                                 current_char_index += 1
+                            
+                            # decrease nested level (until no)
                             elif text[current_char_index] == ']':
                                 current_char_index += 1
                                 if nested_level > 0:
@@ -103,20 +121,22 @@ class Lexer(object):
                     else:
                         tokens.append((DEFAULT, start_pos, current_char))    
                 
-                # anons
+                # anon
                 case ']' | '{' | '}' | ',' | '.':
                     tokens.append((DEFAULT, current_char_index, current_char))
                     current_char_index += 1
                 
-                # strings
+                # string
                 case '"' | '\'':
-                    start_pos = current_char_index
-                    string = str(current_char)
-                    
+                    start_pos = current_char_index                    
                     current_char_index += 1
+
+                    string = str(current_char)
 
                     while current_char_index < len(text) and text[current_char_index].isprintable():
                         string += str(text[current_char_index])
+                        
+                        # exit on current_char == " or current_char == ' (whatever opened string)
                         if text[current_char_index] == current_char:
                             current_char_index += 1
                             break
@@ -129,31 +149,26 @@ class Lexer(object):
                     # number
                     if current_char.isdigit() or current_char in { "+", "-" }:
                         start_pos = current_char_index
-                        number = str(current_char)
                         current_char_index += 1
+
+                        number = str(current_char)
                         
-                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in [".", "+", "-", "_"]):
+                        while current_char_index < len(text) and (
+                            text[current_char_index].isdigit() or
+                            text[current_char_index].isalpha() or
+                            text[current_char_index] in [".", "+", "-", "_"]
+                        ):
                             number += str(text[current_char_index])
                             current_char_index += 1
 
-                        # match using regex
-                        # number_type = DEFAULT
-                        # for type_, pattern in self.TOML_NUMBER_PATTERNS.items():
-                        #     if re.match(pattern, number):
-                        #         number_type = NUMBER
-                        #         break
-
-                        # if number_type == NUMBER:
-                        #     tokens.append((NUMBER, start_pos, number))
-                        # else:
-                        #     tokens.append((DEFAULT, start_pos, number))
                         tokens.append((NUMBER, start_pos, number))
                     
                     # identifiers
                     elif current_char.isidentifier():
                         start_pos = current_char_index
-                        identifier = str(current_char)
                         current_char_index += 1
+
+                        identifier = str(current_char)
                         
                         while current_char_index < len(text) and text[current_char_index].isidentifier():
                             identifier += str(text[current_char_index])
@@ -162,12 +177,16 @@ class Lexer(object):
                         # conditional
                         if identifier in { "true", "false" }:
                             tokens.append((CONDITIONAL, start_pos, identifier))
+                        
                         # nan
                         elif identifier in { "nan", "inf" }:
                             tokens.append((NUMBER, start_pos, identifier))
+                        
                         # identifier
                         else:   
                             tokens.append((DEFAULT, start_pos, identifier))
+                    
+                    # catch-all
                     else:
                         tokens.append((DEFAULT, current_char_index, current_char))
                         current_char_index += 1
