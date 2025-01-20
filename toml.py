@@ -23,23 +23,13 @@
 
 # Tokenizer for TOML
 
-WHITESPACE  = "whitespace"
 DEFAULT     = "default"
 KEYWORD     = "keyword"
-CLASS       = "class"
-NAME        = "name"
-PARAMETER   = "PARAMETER"
-LAMBDA      = "lambda"
 STRING      = "string"
 NUMBER      = "number"
-OPERATOR    = "operator"
 COMMENT     = "comment"
-SPECIAL     = "special"
 CONDITIONAL = "conditional"
 BUILT_IN    = "built_in"
-ERROR       = "error"
-WARNING     = "warning"
-SUCCESS     = "success"
 
 class Lexer(object):
     def __init__(self): pass
