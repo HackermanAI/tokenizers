@@ -60,7 +60,7 @@ class String(ctypes.Structure):
     ]
 
     def to_python(self):
-        if self.text: return ctypes.string_at(self.text).decode("utf-8")
+        if self.text: return ctypes.string_at(self.text, self.len).decode("utf-8")
         return ""
 
 # Odin custom struct for Token
