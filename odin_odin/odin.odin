@@ -23,29 +23,29 @@
 
 // Tokenizer for Odin
 
-// 0  WHITESPACE
-// 1  DEFAULT
-// 2  KEYWORD
-// 3  CLASS
-// 4  NAME
-// 5  PARAMETER
-// 6  LAMBDA
-// 7  STRING
-// 8  NUMBER
-// 9  OPERATOR
-// 10 COMMENT
-// 11 SPECIAL
-// 12 CONDITIONAL
-// 13 BUILT_IN
-// 14 ERROR
-// 15 WARNING
-// 16 SUCCESS
-
 package odin_odin
 
 import "base:runtime"
 import "core:strings"
 import "core:fmt"
+
+WHITESPACE  :: 0
+DEFAULT     :: 1
+KEYWORD     :: 2
+CLASS       :: 3
+NAME        :: 4
+PARAMETER   :: 5
+LAMBDA      :: 6
+STRING      :: 7
+NUMBER      :: 8
+OPERATOR    :: 9
+COMMENT     :: 10
+SPECIAL     :: 11
+CONDITIONAL :: 12
+BUILT_IN    :: 13
+ERROR       :: 14
+WARNING     :: 15
+SUCCESS     :: 16
 
 KEYWORDS: [35]string = [35]string{
     "asm",
@@ -296,15 +296,17 @@ Token :: struct {
 
         // string
         // todo : add '' and ``
-        if text[index] == '"' {
+        if text[index] == '"' || text[index] == '\'' || text[index] == '`' {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
+
+            quote := text[index]
             
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
-            for index < len(text) && text[index] != '"' {
+            for index < len(text) && text[index] != quote {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
@@ -348,6 +350,11 @@ Token :: struct {
                 append(&tokens, Token{ type = 12, start_pos = start_pos, value = strings.to_string(lexeme) })
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
+                // replace token at -2 with name if proc declaration (otherwise default)
+                if strings.to_string(lexeme) == "proc" {
+                    assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
+                }
+
                 append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
             // built_in
             } else if is_built_in(strings.to_string(lexeme)) {
