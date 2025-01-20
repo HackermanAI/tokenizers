@@ -26,7 +26,23 @@
 import os
 import ctypes
 
-from main import TOKEN_MAP # token map is same for all lexers
+WHITESPACE  = "whitespace"
+DEFAULT     = "default"
+KEYWORD     = "keyword"
+CLASS       = "class"
+NAME        = "name"
+PARAMETER   = "PARAMETER"
+LAMBDA      = "lambda"
+STRING      = "string"
+NUMBER      = "number"
+OPERATOR    = "operator"
+COMMENT     = "comment"
+SPECIAL     = "special"
+CONDITIONAL = "conditional"
+BUILT_IN    = "built_in"
+ERROR       = "error"
+WARNING     = "warning"
+SUCCESS     = "success"
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
 
@@ -66,7 +82,13 @@ class Lexer(object):
     def lexer_name(self): return "Odin"
 
     def declarations(self):
-        return { "pattern": { ":: proc": "name", ":: struct": "default" }, "token_pos": 0 }
+        return {
+            "pattern": {
+                ":: proc": "name", # use name as style
+                ":: struct": "default" # use default as style
+            },
+            "token_pos": 0 # token to style is at line start (i.e. before pattern)
+        }
 
     def block_starters(self): return { "(", "[", "{", "\"", "\'" }
 
@@ -89,8 +111,6 @@ class Lexer(object):
 
         # call process_input (Odin procedure)
         result = lib.process_input(text_string_arg)
-
-        # todo : fix issue with multi-line comments
 
         # process result
         for n in range(result.len):
