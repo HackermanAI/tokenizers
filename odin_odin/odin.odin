@@ -329,7 +329,7 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            append(&tokens, Token{ type = 8, start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = NUMBER, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
