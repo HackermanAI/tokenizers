@@ -44,19 +44,29 @@ WARNING     = "warning"
 SUCCESS     = "success"
 
 class Lexer(object):
-    def __init__(self):
-        self.CONDITIONAL = [
-            "true",
-            "false"
-        ]
-        self.NUMBER_REGEX = {
-            "BINARY"    : r"^0[bB][01]+$",
-            "HEX"       : r"^0[xX][0-9a-fA-F]+$",
-            "OCTAL"     : r"^0[oO][0-7]+$",
-            "FLOAT_SCI" : r"^\d+(\.\d+)?[eE][+-]?\d+$",
-            "COMPLEX"   : r"^(\d+(\.\d+)?|\.\d+)?[+-]?\d+(\.\d+)?[jJ]$",
-            "DECIMAL"   : r"^\d+(\.\d+)?$"
-        }
+    def __init__(self): pass
+        # self.CONDITIONAL = [
+        #     "true",
+        #     "false"
+        # ]
+        # self.TOML_NUMBER_PATTERNS = {
+        #     # decimal integers with positive and negative sign
+        #     "INTEGER": r"^-?\d+$",
+        #     # decimal floating-point numbers with optional exponent
+        #     "FLOAT": r"^\d+(\.\d+)?([eE][+-]?\d+)?$",
+        #     # binary integers start with 0b followed by 0 or 1
+        #     "BINARY": r"^0b[01]+$",
+        #     # hexadecimal integers start with 0x
+        #     "HEX": r"^0x[0-9a-fA-F]+$",
+        #     # octal integers start with 0o
+        #     "OCTAL": r"^0o[0-7]+$",
+        #     # positive and negative infinity
+        #     "INF": r"^[+-]inf$",
+        #     # nan
+        #     "NAN": r"^nan$",
+        #     # complex numbers (not standard in TOML)
+        #     "COMPLEX": r"^[-+]?\d+(\.\d+)?([eE][+-]?\d+)?[+-]\d+(\.\d+)?([eE][+-]?\d+)?[jJ]?$",
+        # }
 
     def comment_char(self): return "#"
 
@@ -116,10 +126,12 @@ class Lexer(object):
                         tokens.append((KEYWORD, start_pos, header))
                     else:
                         tokens.append((DEFAULT, start_pos, current_char))    
-
+                
+                # anons
                 case ']' | '{' | '}' | ',' | '.':
                     tokens.append((DEFAULT, current_char_index, current_char))
                     current_char_index += 1
+                
                 # strings
                 case '"' | '\'':
                     start_pos = current_char_index
@@ -137,27 +149,30 @@ class Lexer(object):
                     
                     tokens.append((STRING, start_pos, string))
                 case _:
+                    
                     # number
-                    if current_char.isdigit():
+                    if current_char.isdigit() or current_char in { "+", "-" }:
                         start_pos = current_char_index
                         number = str(current_char)
                         current_char_index += 1
                         
-                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
+                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in [".", "+", "-", "_"]):
                             number += str(text[current_char_index])
                             current_char_index += 1
 
                         # match using regex
-                        number_type = DEFAULT
-                        for type_, pattern in self.NUMBER_REGEX.items():
-                            if re.match(pattern, number):
-                                number_type = NUMBER
-                                break
+                        # number_type = DEFAULT
+                        # for type_, pattern in self.TOML_NUMBER_PATTERNS.items():
+                        #     if re.match(pattern, number):
+                        #         number_type = NUMBER
+                        #         break
 
-                        if number_type == NUMBER:
-                            tokens.append((NUMBER, start_pos, number))
-                        else:
-                            tokens.append((DEFAULT, start_pos, number))
+                        # if number_type == NUMBER:
+                        #     tokens.append((NUMBER, start_pos, number))
+                        # else:
+                        #     tokens.append((DEFAULT, start_pos, number))
+                        tokens.append((NUMBER, start_pos, number))
+                    
                     # identifiers
                     elif current_char.isidentifier():
                         start_pos = current_char_index
@@ -169,8 +184,11 @@ class Lexer(object):
                             current_char_index += 1
 
                         # conditional
-                        if identifier in self.CONDITIONAL:
+                        if identifier in { "true", "false" }:
                             tokens.append((CONDITIONAL, start_pos, identifier))
+                        # nan
+                        elif identifier in { "nan", "inf" }:
+                            tokens.append((NUMBER, start_pos, identifier))
                         # identifier
                         else:   
                             tokens.append((DEFAULT, start_pos, identifier))
