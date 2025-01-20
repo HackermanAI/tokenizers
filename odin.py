@@ -26,29 +26,33 @@
 import os
 import ctypes
 
-from main import TOKEN_MAP # to map int value from Odin to style string
+TOKEN_MAP = { # to map int value from Odin to style string
+    0: "whitespace",
+    1: "default",
+    2: "keyword",
+    3: "class",
+    4: "name",
+    5: "parameter",
+    6: "lambda",
+    7: "string",
+    8: "number",
+    9: "operator",
+    10: "comment",
+    11: "special",
+    12: "conditional",
+    13: "built_in",
+    14: "error",
+    15: "warning",
+    16: "success"
+}
 
-WHITESPACE  = "whitespace"
-DEFAULT     = "default"
-KEYWORD     = "keyword"
-CLASS       = "class"
-NAME        = "name"
-PARAMETER   = "PARAMETER"
-LAMBDA      = "lambda"
-STRING      = "string"
-NUMBER      = "number"
-OPERATOR    = "operator"
 COMMENT     = "comment"
 SPECIAL     = "special"
-CONDITIONAL = "conditional"
-BUILT_IN    = "built_in"
-ERROR       = "error"
 WARNING     = "warning"
-SUCCESS     = "success"
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
 
-# odin internal struct for string (rawptr and len)
+# Odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
         ("text", ctypes.POINTER(ctypes.c_uint8)),
@@ -59,7 +63,7 @@ class String(ctypes.Structure):
         if self.text: return ctypes.string_at(self.text, self.len).decode("utf-8")
         return ""
 
-# odin custom struct for Token
+# Odin custom struct for Token
 class Token(ctypes.Structure):
     _fields_ = [
         # ("type", String),
@@ -68,7 +72,7 @@ class Token(ctypes.Structure):
         ("value", String),
     ]
 
-# odin internal struct for [dynamic]Token
+# Odin internal struct for [dynamic]Token
 class DynamicToken(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(Token)),
