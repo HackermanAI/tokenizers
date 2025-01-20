@@ -144,12 +144,6 @@ is_conditional :: proc(value: string) -> bool {
     return value == "true" || value == "false"
 }
 
-// todo : need to call this from external?
-// @export free_memory :: proc () {
-//     free_all(context.temp_allocator)
-//     fmt.println("free_memory done")
-// }
-
 Token :: struct {
     type: int,
     start_pos: int,
@@ -183,9 +177,9 @@ Token :: struct {
                     strings.write_byte(&lexeme, text[index])
                     index += 1
                 }
-                append(&tokens, Token{ type = 10, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = COMMENT, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                append(&tokens, Token{ type = 14, start_pos = index, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = ERROR, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
             continue
@@ -207,7 +201,7 @@ Token :: struct {
             strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
             index += 1
             
-            append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -228,7 +222,8 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
                 index += 1
             }
-            append(&tokens, Token{ type = 7, start_pos = start_pos, value = strings.to_string(lexeme) })
+
+            append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -243,7 +238,8 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            append(&tokens, Token{ type = 8, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
+            append(&tokens, Token{ type = NUMBER, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -260,11 +256,11 @@ Token :: struct {
             }
 
             if is_conditional(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = 12, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = CONDITIONAL, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else if is_name(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = 1, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
             } else {
-                append(&tokens, Token{ type = 14, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = ERROR, start_pos = start_pos, value = strings.to_string(lexeme) })
             }
             continue
         }
@@ -273,7 +269,7 @@ Token :: struct {
         // defer strings.builder_destroy(&lexeme)
         
         strings.write_byte(&lexeme, text[index])
-        append(&tokens, Token{ type = 14, start_pos = index, value = strings.to_string(lexeme) })
+        append(&tokens, Token{ type = ERROR, start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
 
@@ -285,22 +281,5 @@ Token :: struct {
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {    
     result := tokenize(arg)
-    // fmt.println(result)
-
     return result
 }
-
-// main :: proc() {
-//     // TEST_TEXT :: `
-//     // [header]
-//     // -- comment
-//     // font "Fira Code"
-//     // font_size 14
-//     // `
-
-//     // result := tokenize(TEST_TEXT)
-//     // fmt.println(result)
-
-//     test_result := test_tokenize()
-//     fmt.println("Odin :", test_result)
-// }
