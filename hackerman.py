@@ -26,11 +26,33 @@
 import os
 import ctypes
 
-from main import TOKEN_MAP # token map is same for all lexers
+TOKEN_MAP = { # to map int value from Odin to style string
+    0: "whitespace",
+    1: "default",
+    2: "keyword",
+    3: "class",
+    4: "name",
+    5: "parameter",
+    6: "lambda",
+    7: "string",
+    8: "number",
+    9: "operator",
+    10: "comment",
+    11: "special",
+    12: "conditional",
+    13: "built_in",
+    14: "error",
+    15: "warning",
+    16: "success"
+}
+
+COMMENT = "comment"
+SPECIAL = "special"
+WARNING = "warning"
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "hackerman_odin.dylib"))
 
-# odin internal struct for string (rawptr and len)
+# Odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
     _fields_ = [
         ("text", ctypes.POINTER(ctypes.c_uint8)),
@@ -41,7 +63,7 @@ class String(ctypes.Structure):
         if self.text: return ctypes.string_at(self.text).decode("utf-8")
         return ""
 
-# odin custom struct for Token
+# Odin custom struct for Token
 class Token(ctypes.Structure):
     _fields_ = [
         # ("type", String),
@@ -50,7 +72,7 @@ class Token(ctypes.Structure):
         ("value", String),
     ]
 
-# odin internal struct for [dynamic]Token
+# Odin internal struct for [dynamic]Token
 class DynamicToken(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(Token)),
@@ -89,11 +111,11 @@ class Lexer(object):
             
             # find todo and note in comments
             if result.data[n].type == 10 and " todo :" in value_as_string:
-                tokens.append((TOKEN_MAP[10], result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((TOKEN_MAP[11], result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
+                tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((SPECIAL, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
             elif result.data[n].type == 10 and " note :" in value_as_string:
-                tokens.append((TOKEN_MAP[10], result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((TOKEN_MAP[15], result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
+                tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
+                tokens.append((WARNING, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
             else:
                 tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
 
