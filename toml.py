@@ -1,7 +1,7 @@
 
 # MIT License
 
-# Copyright 2025 @asyncze (Michael Sjöberg)
+# Copyright 2024, 2025 @asyncze (Michael Sjöberg)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,77 +23,159 @@
 
 # Tokenizer for TOML
 
-# 0  WHITESPACE
-# 1  DEFAULT
-# 2  KEYWORD
-# 3  CLASS
-# 4  NAME
-# 5  PARAMETER
-# 6  LAMBDA
-# 7  STRING
-# 8  NUMBER
-# 9  OPERATOR
-# 10 COMMENT
-# 11 SPECIAL
-# 12 CONDITIONAL
-# 13 BUILT_IN
-# 14 ERROR
-# 15 WARNING
-# 16 SUCCESS
+import re
 
-from main import TOKEN_MAP # token map is same for all lexers
-
-from pygments import lex
-from pygments.lexers import TOMLLexer
-from pygments.token import Token
-
-TOKEN_MAP_PYGMENTS = {
-    Token.Text.Whitespace: 0,
-    Token.Text: 1,
-    Token.Punctuation: 1,
-    Token.Generic: 1,
-    Token.Other: 1,
-    Token.Keyword.Constant: 2,
-    Token.Keyword.Declaration: 2,
-    Token.Keyword.Namespace: 2,
-    Token.Keyword.Reserved: 2,
-    Token.Name.Class: 3,
-    Token.Name.Function: 4,
-    Token.Name.Property: 5,
-    Token.Literal: 7,
-    Token.Literal.String.Single: 7,
-    Token.Literal.String.Double: 7,
-    Token.Literal.Number.Integer: 8,
-    Token.Literal.Number.Float: 8,
-    Token.Operator: 9,
-    Token.Literal.Date: 9,
-    Token.Comment.Single: 10,
-    Token.Comment.Multiline: 10,
-    Token.Keyword.Type: 11,
-    Token.Keyword.Constant: 12,
-    Token.Name.Builtin: 13,
-    Token.Error: 14,
-}
+WHITESPACE  = "whitespace"
+DEFAULT     = "default"
+KEYWORD     = "keyword"
+CLASS       = "class"
+NAME        = "name"
+PARAMETER   = "PARAMETER"
+LAMBDA      = "lambda"
+STRING      = "string"
+NUMBER      = "number"
+OPERATOR    = "operator"
+COMMENT     = "comment"
+SPECIAL     = "special"
+CONDITIONAL = "conditional"
+BUILT_IN    = "built_in"
+ERROR       = "error"
+WARNING     = "warning"
+SUCCESS     = "success"
 
 class Lexer(object):
-    def __init__(self): pass
+    def __init__(self):
+        self.CONDITIONAL = [
+            "true",
+            "false"
+        ]
+        self.NUMBER_REGEX = {
+            "BINARY"    : r"^0[bB][01]+$",
+            "HEX"       : r"^0[xX][0-9a-fA-F]+$",
+            "OCTAL"     : r"^0[oO][0-7]+$",
+            "FLOAT_SCI" : r"^\d+(\.\d+)?[eE][+-]?\d+$",
+            "COMPLEX"   : r"^(\d+(\.\d+)?|\.\d+)?[+-]?\d+(\.\d+)?[jJ]$",
+            "DECIMAL"   : r"^\d+(\.\d+)?$"
+        }
 
     def comment_char(self): return "#"
 
     def lexer_name(self): return "TOML"
-    
+
     def tokenize(self, text):
         tokens = []
+        current_char = ''
+        current_char_index = 0
 
-        # todo : use pygments for quick lexer (might not be performant on larger files)
-        lexer = TOMLLexer()
-        
-        result = list(lexer.get_tokens_unprocessed(text))
-        for token in result:
-            token_type = str(TOKEN_MAP[TOKEN_MAP_PYGMENTS[token[1]]] if token[1] in TOKEN_MAP_PYGMENTS else TOKEN_MAP[1])
-            start_pos = int(token[0])
-            value = str(token[2])
+        RHS = False # helper to detect non-header brackets
 
-            tokens.append((token_type, start_pos, value))
+        while current_char_index < len(text):
+            current_char = text[current_char_index]
+            match current_char:
+                case ' ' | '\t' | '\r':
+                    current_char_index += 1
+                case '\n':
+                    current_char_index += 1
+                    # update state
+                    RHS = False
+                case '#':
+                    start_pos = current_char_index
+                    current_char_index += 1
+                    line = current_char
+                    while current_char_index < len(text) and text[current_char_index] != '\n':
+                        line += text[current_char_index]
+                        current_char_index += 1
+                    tokens.append((COMMENT, start_pos, line))
+                case '=':
+                    tokens.append((BUILT_IN, current_char_index, current_char))
+                    current_char_index += 1
+                    # update state
+                    RHS = True
+                case '[':
+                    start_pos = current_char_index
+                    header = str(current_char)
+                    
+                    current_char_index += 1
+
+                    if RHS == False:
+                        nested_level = 0
+                        while current_char_index < len(text) and text[current_char_index].isprintable():
+                            header += str(text[current_char_index])
+                            if text[current_char_index] == '[':
+                                nested_level += 1
+                                current_char_index += 1
+                            elif text[current_char_index] == ']':
+                                current_char_index += 1
+                                if nested_level > 0:
+                                    nested_level -= 1
+                                else:
+                                    break
+                            else:
+                                current_char_index += 1
+
+                        tokens.append((KEYWORD, start_pos, header))
+                    else:
+                        tokens.append((DEFAULT, start_pos, current_char))    
+
+                case ']' | '{' | '}' | ',' | '.':
+                    tokens.append((DEFAULT, current_char_index, current_char))
+                    current_char_index += 1
+                # strings
+                case '"' | '\'':
+                    start_pos = current_char_index
+                    string = str(current_char)
+                    
+                    current_char_index += 1
+
+                    while current_char_index < len(text) and text[current_char_index].isprintable():
+                        string += str(text[current_char_index])
+                        if text[current_char_index] == current_char:
+                            current_char_index += 1
+                            break
+                        else:
+                            current_char_index += 1
+                    
+                    tokens.append((STRING, start_pos, string))
+                case _:
+                    # number
+                    if current_char.isdigit():
+                        start_pos = current_char_index
+                        number = str(current_char)
+                        current_char_index += 1
+                        
+                        while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index].isalpha() or text[current_char_index] in ["."]):
+                            number += str(text[current_char_index])
+                            current_char_index += 1
+
+                        # match using regex
+                        number_type = DEFAULT
+                        for type_, pattern in self.NUMBER_REGEX.items():
+                            if re.match(pattern, number):
+                                number_type = NUMBER
+                                break
+
+                        if number_type == NUMBER:
+                            tokens.append((NUMBER, start_pos, number))
+                        else:
+                            tokens.append((DEFAULT, start_pos, number))
+                    # identifiers
+                    elif current_char.isidentifier():
+                        start_pos = current_char_index
+                        identifier = str(current_char)
+                        current_char_index += 1
+                        
+                        while current_char_index < len(text) and text[current_char_index].isidentifier():
+                            identifier += str(text[current_char_index])
+                            current_char_index += 1
+
+                        # conditional
+                        if identifier in self.CONDITIONAL:
+                            tokens.append((CONDITIONAL, start_pos, identifier))
+                        # identifier
+                        else:   
+                            tokens.append((DEFAULT, start_pos, identifier))
+                    else:
+                        tokens.append((DEFAULT, current_char_index, current_char))
+                        current_char_index += 1
 
         return tokens
