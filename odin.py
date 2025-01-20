@@ -65,7 +65,8 @@ class Lexer(object):
 
     def lexer_name(self): return "Odin"
 
-    def declarations(self): return { ":: proc", ":: struct" }
+    def declarations(self):
+        return { "pattern": { ":: proc": "name", ":: struct": "default" }, "token_pos": 0 }
 
     def block_starters(self): return { "(", "[", "{", "\"", "\'" }
 
