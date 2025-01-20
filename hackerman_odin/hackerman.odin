@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAME: [73]string = [73]string{
+NAMES: [73]string = [73]string{
     // editor
     "font",
     "font_weight",
@@ -132,7 +132,7 @@ NAME: [73]string = [73]string{
 }
 
 is_name :: proc(value: string) -> bool {
-    for name in NAME {
+    for name in NAMES {
         if name == value {
             return true
         }
