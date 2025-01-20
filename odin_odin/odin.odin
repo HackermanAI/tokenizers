@@ -212,7 +212,7 @@ Token :: struct {
             }
             
             // operator
-            append(&tokens, Token{ type = 9, start_pos = index, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
             index += 1
             continue
         }
@@ -229,11 +229,11 @@ Token :: struct {
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add ':' to lexeme buffer
                 index += 2
-                append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // range
             } else {
-                append(&tokens, Token{ type = 9, start_pos = index, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
             continue
@@ -251,7 +251,7 @@ Token :: struct {
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add '.' to lexeme buffer
                 index += 2
-                append(&tokens, Token{ type = 9, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = OPERATOR, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // default
             } else {
@@ -270,7 +270,7 @@ Token :: struct {
             // defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index])
-            append(&tokens, Token{ type = 9, start_pos = index, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
             index += 1
             continue
         }
@@ -290,7 +290,7 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            append(&tokens, Token{ type = 2, start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -314,7 +314,7 @@ Token :: struct {
             strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
             index += 1
             
-            append(&tokens, Token{ type = 7, start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -347,7 +347,7 @@ Token :: struct {
 
             // conditional
             if is_conditional(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = 12, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = CONDITIONAL, start_pos = start_pos, value = strings.to_string(lexeme) })
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
                 // replace token at -2 with name if proc declaration (otherwise default)
