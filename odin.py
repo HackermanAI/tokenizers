@@ -46,9 +46,9 @@ TOKEN_MAP = { # to map int value from Odin to style string
     16: "success"
 }
 
-COMMENT     = "comment"
-SPECIAL     = "special"
-WARNING     = "warning"
+COMMENT = "comment"
+SPECIAL = "special"
+WARNING = "warning"
 
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
 
