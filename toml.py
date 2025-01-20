@@ -23,8 +23,6 @@
 
 # Tokenizer for TOML
 
-import re
-
 WHITESPACE  = "whitespace"
 DEFAULT     = "default"
 KEYWORD     = "keyword"
@@ -45,28 +43,6 @@ SUCCESS     = "success"
 
 class Lexer(object):
     def __init__(self): pass
-        # self.CONDITIONAL = [
-        #     "true",
-        #     "false"
-        # ]
-        # self.TOML_NUMBER_PATTERNS = {
-        #     # decimal integers with positive and negative sign
-        #     "INTEGER": r"^-?\d+$",
-        #     # decimal floating-point numbers with optional exponent
-        #     "FLOAT": r"^\d+(\.\d+)?([eE][+-]?\d+)?$",
-        #     # binary integers start with 0b followed by 0 or 1
-        #     "BINARY": r"^0b[01]+$",
-        #     # hexadecimal integers start with 0x
-        #     "HEX": r"^0x[0-9a-fA-F]+$",
-        #     # octal integers start with 0o
-        #     "OCTAL": r"^0o[0-7]+$",
-        #     # positive and negative infinity
-        #     "INF": r"^[+-]inf$",
-        #     # nan
-        #     "NAN": r"^nan$",
-        #     # complex numbers (not standard in TOML)
-        #     "COMPLEX": r"^[-+]?\d+(\.\d+)?([eE][+-]?\d+)?[+-]\d+(\.\d+)?([eE][+-]?\d+)?[jJ]?$",
-        # }
 
     def comment_char(self): return "#"
 
