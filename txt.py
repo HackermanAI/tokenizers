@@ -23,25 +23,23 @@
 
 # Tokenizer for Plain Text
 
-# 0  WHITESPACE
-# 1  DEFAULT
-# 2  KEYWORD
-# 3  CLASS
-# 4  NAME
-# 5  PARAMETER
-# 6  LAMBDA
-# 7  STRING
-# 8  NUMBER
-# 9  OPERATOR
-# 10 COMMENT
-# 11 SPECIAL
-# 12 CONDITIONAL
-# 13 BUILT_IN
-# 14 ERROR
-# 15 WARNING
-# 16 SUCCESS
-
-from main import TOKEN_MAP # token map is same for all lexers
+# WHITESPACE  = "whitespace"
+DEFAULT     = "default"
+KEYWORD     = "keyword"
+# CLASS       = "class"
+# NAME        = "name"
+# PARAMETER   = "PARAMETER"
+# LAMBDA      = "lambda"
+# STRING      = "string"
+# NUMBER      = "number"
+# OPERATOR    = "operator"
+# COMMENT     = "comment"
+# SPECIAL     = "special"
+# CONDITIONAL = "conditional"
+# BUILT_IN    = "built_in"
+# ERROR       = "error"
+# WARNING     = "warning"
+# SUCCESS     = "success"
 
 class Lexer(object):
     def __init__(self): pass
@@ -58,13 +56,16 @@ class Lexer(object):
         while current_char_index < len(text):
             current_char = text[current_char_index]
             match current_char:
+                # whitespace
                 case ' ' | '\t' | '\r' | '\n':
                     current_char_index += 1
+                # dot as keyword
                 case '.':
-                    tokens.append((str(TOKEN_MAP[2]), int(current_char_index), str(current_char))) # keyword
+                    tokens.append((KEYWORD, int(current_char_index), str(current_char)))
                     current_char_index += 1
+                # catch-all
                 case _:
-                    tokens.append((str(TOKEN_MAP[1]), int(current_char_index), str(current_char))) # default
+                    tokens.append((DEFAULT, int(current_char_index), str(current_char)))
                     current_char_index += 1
 
         return tokens
