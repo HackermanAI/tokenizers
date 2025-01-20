@@ -152,7 +152,7 @@ Token :: struct {
     value: string,
 }
 
-@export tokenize :: proc(text: string) -> [dynamic]Token {
+tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
 
     tokens: [dynamic]Token
@@ -383,7 +383,8 @@ Token :: struct {
 // odin run odin_odin
 // odin build odin_odin -build-mode:dll
 
-@export process_input :: proc(arg: string) -> [dynamic]Token {    
+@export
+process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
     return result
 }
