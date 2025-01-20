@@ -23,29 +23,29 @@
 
 // Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
-// 0  WHITESPACE
-// 1  DEFAULT
-// 2  KEYWORD
-// 3  CLASS
-// 4  NAME
-// 5  PARAMETER
-// 6  LAMBDA
-// 7  STRING
-// 8  NUMBER
-// 9  OPERATOR
-// 10 COMMENT
-// 11 SPECIAL
-// 12 CONDITIONAL
-// 13 BUILT_IN
-// 14 ERROR
-// 15 WARNING
-// 16 SUCCESS
-
 package hackerman_odin
 
 import "base:runtime"
 import "core:strings"
 import "core:fmt"
+
+WHITESPACE  :: 0
+DEFAULT     :: 1
+KEYWORD     :: 2
+CLASS       :: 3
+NAME        :: 4
+PARAMETER   :: 5
+LAMBDA      :: 6
+STRING      :: 7
+NUMBER      :: 8
+OPERATOR    :: 9
+COMMENT     :: 10
+SPECIAL     :: 11
+CONDITIONAL :: 12
+BUILT_IN    :: 13
+ERROR       :: 14
+WARNING     :: 15
+SUCCESS     :: 16
 
 NAME: [73]string = [73]string{
     // editor
