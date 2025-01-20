@@ -228,7 +228,9 @@ class Lexer(object):
                     # update state for custom function declaration styling
                     if function_declaration: function_parameters += 1
                     # update state for custom function name styling
-                    # if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: tokens[-2] = (TOKEN_MAP[4], tokens[-2][1], tokens[-2][2])
+                    if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]:
+                        new_token = (TOKEN_MAP[4], tokens[-2][1], tokens[-2][2])
+                        tokens[-2] = new_token
                     # update state for custom function arguments styling
                     if len(tokens) > 1 and tokens[-2][0] == TOKEN_MAP[4]: function_arguments += 1
 
@@ -266,7 +268,9 @@ class Lexer(object):
                         tokens.append((TOKEN_MAP[9], current_char_index, current_char))
                         current_char_index += 1
                         # todo : set custom styling for identifiers before = as parameters
-                        if function_arguments == 1: tokens[-2].type = TOKEN_MAP[5]
+                        if function_arguments == 1:
+                            new_token = (TOKEN_MAP[5], tokens[-2][1], tokens[-2][2])
+                            tokens[-2] = new_token
                 case '!':
                     # conditional
                     next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else None
@@ -305,12 +309,12 @@ class Lexer(object):
                     string = current_char
                     current_char_index += 1
 
-                    format_string = (
-                        len(tokens) > 0 and 
-                        tokens[-1][0] == TOKEN_MAP[4] and 
-                        tokens[-1][1] == "f"
-                    )
-                    if format_string: tokens[-1].type = TOKEN_MAP[13]
+                    # format_string = (
+                    #     len(tokens) > 0 and 
+                    #     tokens[-1][0] == TOKEN_MAP[4] and 
+                    #     tokens[-1][1] == "f"
+                    # )
+                    # if format_string: tokens[-1][0] = TOKEN_MAP[13]
 
                     # multi-line (triple quotes)
                     if current_char_index + 2 < len(text) and text[current_char_index:current_char_index + 2] == current_char * 2:
@@ -345,33 +349,34 @@ class Lexer(object):
                             # string += text[start_pos + 1:current_char_index]
                             string += text[current_char_index:-1]
                     
-                    # handle format strings
-                    if format_string:
-                        fstring_pattern = re.compile(
-                            f"({self.FSTRING_REGEX['STRING_TEXT']})|"
-                            f"({self.FSTRING_REGEX['EXPRESSION']})|"
-                            f"({self.FSTRING_REGEX['ESCAPE_SEQ']})"
-                        )
-                        for match in fstring_pattern.finditer(string):
-                            f_start_pos, f_end_pos = match.start(), match.end()
+                    # # handle format strings
+                    # if format_string:
+                    #     fstring_pattern = re.compile(
+                    #         f"({self.FSTRING_REGEX['STRING_TEXT']})|"
+                    #         f"({self.FSTRING_REGEX['EXPRESSION']})|"
+                    #         f"({self.FSTRING_REGEX['ESCAPE_SEQ']})"
+                    #     )
+                    #     for match in fstring_pattern.finditer(string):
+                    #         f_start_pos, f_end_pos = match.start(), match.end()
 
-                            # match regular text
-                            if match.group(1):
-                                tokens.append((TOKEN_MAP[7], start_pos + f_start_pos, match.group(1)))
+                    #         # match regular text
+                    #         if match.group(1):
+                    #             tokens.append((TOKEN_MAP[7], start_pos + f_start_pos, match.group(1)))
 
-                            # match format string expressions
-                            elif match.group(2):
-                                f_tokens, _, _ = self.tokenize(match.group(2))
-                                for token in f_tokens:
-                                    new_pos = start_pos + f_start_pos + token.start_pos
-                                    tokens.append(Token(token.type, new_pos, token.value))
+                    #         # match format string expressions
+                    #         elif match.group(2):
+                    #             f_tokens, _, _ = self.tokenize(match.group(2))
+                    #             for token in f_tokens:
+                    #                 new_pos = start_pos + f_start_pos + token[1]
+                    #                 tokens.append((token[0], new_pos[1], token[2]))
 
-                            # match escaped characters
-                            elif match.group(3):
-                                tokens.append((TOKEN_MAP[5], start_pos + f_start_pos, match.group(3)))
-                    else:
-                        # print((TOKEN_MAP[7], start_pos, string))
-                        tokens.append((TOKEN_MAP[7], start_pos, string))
+                    #         # match escaped characters
+                    #         elif match.group(3):
+                    #             tokens.append((TOKEN_MAP[5], start_pos + f_start_pos, match.group(3)))
+                    # else:
+                    #     # print((TOKEN_MAP[7], start_pos, string))
+                    
+                    tokens.append((TOKEN_MAP[7], start_pos, string))
 
                 case _:
                     # number
@@ -466,7 +471,7 @@ class Lexer(object):
                                         tokens.append((TOKEN_MAP[4], start_pos, identifier))
                                     else:
                                         # using identifier as type to easier find and style identifiers post lexing
-                                        tokens.append((TOKEN_MAP[4], start_pos, identifier))
+                                        tokens.append((TOKEN_MAP[1], start_pos, identifier))
                     
                     else:
                         # raise Exception("tokenize : unknown character :", current_char)
