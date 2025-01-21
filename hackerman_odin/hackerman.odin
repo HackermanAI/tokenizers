@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [73]string = [73]string{
+NAMES: [74]string = [74]string{
     // editor
     "font",
     "font_weight",
@@ -99,7 +99,7 @@ NAMES: [73]string = [73]string{
     "zoom_out",
     "toggle_file_explorer",
     "split_view",
-    // todos
+    "select_all",
     "find_in_file",
     "undo",
     "redo",
