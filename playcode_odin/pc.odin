@@ -48,7 +48,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-KEYWORDS: [35]string = [35]string{
+KEYWORDS: [5]string = [5]string{
     "if",
     "else",
     "while",
@@ -108,7 +108,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
                 append(&tokens, Token{ type = COMMENT, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // assert
-            else if index + 1 < len(text) && text[index + 1] == '>' {
+            } else if index + 1 < len(text) && text[index + 1] == '>' {
                 start_pos := index
                 strings.write_byte(&lexeme, text[index + 1]) // add '>' to lexeme buffer
                 index += 2
@@ -146,11 +146,11 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             strings.write_byte(&lexeme, text[index]) // add '@' to lexeme buffer
             index += 1
             
-            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
+            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_') {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            append(&tokens, Token{ type = PARAMETER, start_pos = start_pos, value = strings.to_string(lexeme) })
+            append(&tokens, Token{ type = LAMBDA, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
@@ -208,6 +208,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // conditional
             if is_conditional(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = CONDITIONAL, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
                 // replace token at -2 with name if proc declaration (otherwise default)
@@ -216,12 +217,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
                 }
 
                 append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
-            // built_in
-            } else if is_built_in(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = BUILT_IN, start_pos = start_pos, value = strings.to_string(lexeme) })
-            // type
-            } else if is_type(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = SPECIAL, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // default
             } else {
                 append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
@@ -240,21 +236,10 @@ tokenize :: proc(text: string) -> [dynamic]Token {
     return tokens
 }
 
-// odin run odin_odin
-// odin build odin_odin -build-mode:dll
+// odin run playcode_odin
+// odin build playcode_odin -build-mode:dll
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
     return result
 }
-
-// for testing only
-// main :: proc() {
-//     TEXT :: `
-//     @(cold)
-//     `
-
-//     result := tokenize(TEXT)
-//     fmt.println(result)
-// }
-
