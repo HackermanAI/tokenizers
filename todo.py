@@ -23,11 +23,11 @@
 
 # Tokenizer for Todo
 
-DEFAULT     = "default"
-KEYWORD     = "keyword"
-COMMENT     = "comment"
-ERROR       = "error"
-SUCCESS     = "success"
+DEFAULT = "default"
+KEYWORD = "keyword"
+COMMENT = "comment"
+ERROR = "error"
+SUCCESS = "success"
 
 class Lexer(object):
     def __init__(self): pass
