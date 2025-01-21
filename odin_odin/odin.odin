@@ -304,15 +304,16 @@ tokenize :: proc(text: string) -> [dynamic]Token {
 
             quote := text[index]
             
-            strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
+            strings.write_byte(&lexeme, text[index]) // add open quote to lexeme buffer
             index += 1
             for index < len(text) && text[index] != quote {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            
-            strings.write_byte(&lexeme, text[index]) // add '"' to lexeme buffer
-            index += 1
+            if index < len(text) {
+                strings.write_byte(&lexeme, text[index]) // add closing quote to lexeme buffer (if any)
+                index += 1
+            }
             
             append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
@@ -383,8 +384,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
 // odin run odin_odin
 // odin build odin_odin -build-mode:dll
 
-@export
-process_input :: proc(arg: string) -> [dynamic]Token {
+@export process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
     return result
 }
