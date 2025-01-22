@@ -87,6 +87,7 @@ class Lexer(object):
                         if text[current_char_index] == '[':
                             tokens.append((NAME, int(start_pos), str(line))) # append token for line up until [
 
+                            # todo : create helper function for this
                             start_pos = current_char_index # set start_pos for special
                             special = text[current_char_index]
                             current_char_index += 1
@@ -103,7 +104,7 @@ class Lexer(object):
                             tokens.append((SPECIAL, int(start_pos), str(special)))
 
                             # handle special case of whitespace at start of next name section on line
-                            if text[current_char_index] == ' ': current_char_index += 1
+                            if current_char_index < len(text) and text[current_char_index] == ' ': current_char_index += 1
 
                             start_pos = current_char_index # reset start pos for next char on line
                             line = str() # reset line to char at new start pos
