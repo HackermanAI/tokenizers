@@ -26,6 +26,7 @@
 DEFAULT = "default"
 KEYWORD = "keyword"
 COMMENT = "comment"
+NAME = "name"
 ERROR = "error"
 SUCCESS = "success"
 
@@ -83,7 +84,7 @@ class Lexer(object):
                         line += text[current_char_index]
                         current_char_index += 1
                     
-                    tokens.append((DEFAULT, int(start_pos), str(line)))
+                    tokens.append((NAME, int(start_pos), str(line)))
 
                 # important
                 case '*':                    
