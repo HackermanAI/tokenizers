@@ -27,6 +27,7 @@ DEFAULT = "default"
 KEYWORD = "keyword"
 COMMENT = "comment"
 NAME = "name"
+SPECIAL = "special"
 ERROR = "error"
 SUCCESS = "success"
 
@@ -76,13 +77,39 @@ class Lexer(object):
 
                 # not done
                 case '-':                    
-                    start_pos = current_char_index                    
+                    start_pos = current_char_index
                     current_char_index += 1
                     line = current_char
                     
                     while current_char_index < len(text) and text[current_char_index] != '\n':
-                        line += text[current_char_index]
-                        current_char_index += 1
+
+                        # handle nested special
+                        if text[current_char_index] == '[':
+                            tokens.append((NAME, int(start_pos), str(line))) # append token for line up until [
+
+                            start_pos = current_char_index # set start_pos for special
+                            special = text[current_char_index]
+                            current_char_index += 1
+                            
+                            while current_char_index < len(text) and text[current_char_index] != '\n':
+                                special += text[current_char_index]
+
+                                if text[current_char_index] == ']':
+                                    current_char_index += 1
+                                    break
+                                else:
+                                    current_char_index += 1
+                            
+                            tokens.append((SPECIAL, int(start_pos), str(special)))
+
+                            # handle special case of whitespace at start of next name section on line
+                            if text[current_char_index] == ' ': current_char_index += 1
+
+                            start_pos = current_char_index # reset start pos for next char on line
+                            line = str() # reset line to char at new start pos
+                        else:
+                            line += text[current_char_index]
+                            current_char_index += 1
                     
                     tokens.append((NAME, int(start_pos), str(line)))
 
