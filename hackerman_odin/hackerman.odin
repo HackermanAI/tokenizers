@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [78]string = [78]string{
+NAMES: [80]string = [80]string{
     // editor
     "font",
     "font_weight",
@@ -97,17 +97,19 @@ NAMES: [78]string = [78]string{
     "line_comment",
     "set_bookmark",
     "open_config_file",
+    "open_functions_file",
     "build_and_run",
     "move_to_line_start",
     "move_to_line_start_with_select",
     "zoom_in",
     "zoom_out",
-    "toggle_file_explorer",
     "split_view",
+    "toggle_file_explorer",
     "select_all",
     "find_in_file",
     "undo",
     "redo",
+    "next_tab",
     // theme
     "background",
     "foreground",
