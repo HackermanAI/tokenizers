@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [74]string = [74]string{
+NAMES: [78]string = [78]string{
     // editor
     "font",
     "font_weight",
@@ -76,6 +76,11 @@ NAMES: [74]string = [74]string{
     "highlight_current_line",
     "highlight_current_line_on_jump",
     "show_eol",
+    // status bar
+    "show_path_to_file",
+    "show_active_tokenizer",
+    "show_model_status",
+    "show_cursor_position",
     // ollama
     // openai
     "model",
