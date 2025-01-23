@@ -87,6 +87,8 @@ class Lexer(object):
 
     def lexer_name(self): return "Hackerman DSCL"
 
+    def delimiters(self): return { "[", "\"" }
+
     def tokenize(self, text):
         tokens = []
         
