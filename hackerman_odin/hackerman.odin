@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [80]string = [80]string{
+NAMES: [84]string = [84]string{
     // editor
     "font",
     "font_weight",
@@ -65,7 +65,7 @@ NAMES: [80]string = [80]string{
     // toggles
     "show_line_numbers",
     "transparent",
-    "blockcursor",
+    "cursor_as_block",
     "wrap_word",
     "blinking_cursor",
     "auto_hide_scrollbar",
@@ -73,9 +73,10 @@ NAMES: [80]string = [80]string{
     "highlight_todos",
     "whitespace_visible",
     "indent_guides",
-    "highlight_current_line",
-    "highlight_current_line_on_jump",
+    "highlight_line",
+    "highlight_line_on_jump",
     "show_eol",
+    "file_explorer_hide_unsupported",
     // status bar
     "show_path_to_file",
     "show_active_tokenizer",
@@ -104,11 +105,14 @@ NAMES: [80]string = [80]string{
     "zoom_in",
     "zoom_out",
     "split_view",
-    "toggle_file_explorer",
+    "open_file_explorer",
+    "open_folder_at_file",
+    "open_terminal_at_file",
     "select_all",
     "find_in_file",
     "undo",
     "redo",
+    "previous_tab",
     "next_tab",
     // theme
     "background",
@@ -118,8 +122,8 @@ NAMES: [80]string = [80]string{
     "text_color",
     "text_highlight",
     "cursor",
-    "whitespace",
     // syntax colors
+    "whitespace",
     "default",
     "keyword",
     "class",
