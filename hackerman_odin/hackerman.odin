@@ -47,9 +47,8 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [84]string = [84]string{
-    // editor
-    "font",
+NAMES: [87]string = [87]string{
+    "font", // editor
     "font_weight",
     "font_size",
     "tab_width",
@@ -62,8 +61,7 @@ NAMES: [84]string = [84]string{
     "file_explorer_root",
     "model_to_use",
     "eol_mode",
-    // toggles
-    "show_line_numbers",
+    "show_line_numbers", // toggles
     "transparent",
     "cursor_as_block",
     "wrap_word",
@@ -81,17 +79,13 @@ NAMES: [84]string = [84]string{
     "autocomplete",
     "auto_indent",
     "debug_mode",
-    // status bar
-    "show_path_to_file",
+    "show_path_to_file", // status bar
     "show_active_tokenizer",
     "show_model_status",
     "show_cursor_position",
-    // ollama
-    // openai
-    "model",
+    "model", // ollama, openai
     "key",
-    // bindings
-    "save_file",
+    "save_file", // bindings
     "new_file",
     "new_window",
     "open_file",
@@ -117,16 +111,14 @@ NAMES: [84]string = [84]string{
     "redo",
     "previous_tab",
     "next_tab",
-    // theme
-    "background",
+    "background", // theme
     "foreground",
     "selection",
     "selection_inactive",
     "text_color",
     "text_highlight",
     "cursor",
-    // syntax colors
-    "whitespace",
+    "whitespace", // syntax colors
     "default",
     "keyword",
     "class",
