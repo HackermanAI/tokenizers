@@ -205,7 +205,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
                 
                 // otherwise return default
                 } else {
-                    append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
+                    append(&tokens, Token{ type = ERROR, start_pos = start_pos, value = strings.to_string(lexeme) })
                 }
 
                 continue
@@ -312,9 +312,13 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             if index < len(text) {
                 strings.write_byte(&lexeme, text[index]) // add closing quote to lexeme buffer (if any)
                 index += 1
+
+                append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
+            // no closing quote
+            } else {
+                append(&tokens, Token{ type = ERROR, start_pos = start_pos, value = strings.to_string(lexeme) })
             }
             
-            append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
         }
 
