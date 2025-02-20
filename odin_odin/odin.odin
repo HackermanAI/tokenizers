@@ -266,11 +266,13 @@ tokenize :: proc(text: string) -> [dynamic]Token {
            text[index] == '*' || text[index] == '/' || text[index] == '%' || text[index] == '&' || text[index] == '|' || text[index] == '~' ||
            text[index] == '|' || text[index] == '<' || text[index] == '>' {
             
-            lexeme := strings.builder_make(alloc) // helper to store lexemes
+            //lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
+
+            // todo : replace strings.builder with string(text[index:index+1])
             
-            strings.write_byte(&lexeme, text[index])
-            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
+            //strings.write_byte(&lexeme, text[index])
+            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = string(text[index:index+1]) })
             index += 1
             continue
         }
