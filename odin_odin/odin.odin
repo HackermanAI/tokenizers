@@ -295,7 +295,6 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         }
 
         // string
-        // todo : add '' and ``
         if text[index] == '"' || text[index] == '\'' || text[index] == '`' {
             start_pos := index
             
