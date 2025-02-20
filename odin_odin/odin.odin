@@ -352,7 +352,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
                 // replace token at -2 with name if proc declaration (otherwise default)
-                if strings.to_string(lexeme) == "proc" {
+                if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
                     assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
                 }
 
