@@ -162,6 +162,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
     index: int = 0
     for index < len(text) {
         if text[index] == ' ' || text[index] == '\t' || text[index] == '\n' {
+            append(&tokens, Token{ type = WHITESPACE, start_pos = index, value = string(text[index:index+1]) })
             index += 1
             continue
         }
