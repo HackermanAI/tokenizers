@@ -162,7 +162,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
     index: int = 0
     for index < len(text) {
         if text[index] == ' ' || text[index] == '\t' || text[index] == '\n' {
-            append(&tokens, Token{ type = WHITESPACE, start_pos = index, value = string(text[index:index+1]) })
+            // append(&tokens, Token{ type = WHITESPACE, start_pos = index, value = string(text[index:index+1]) }) // this currenly mess post-processing of tokens up (since prev token is often whitespace)
             index += 1
             continue
         }
@@ -357,7 +357,9 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
                 // replace token at -2 with name if proc declaration (otherwise default)
-                if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
+                // if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
+                    // todo : how to handle post processing properly when not all text is tokenized at once? (run async on document?)
+                if strings.to_string(lexeme) == "proc" {
                     assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
                 }
 
@@ -375,11 +377,12 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             continue
         }
 
-        lexeme := strings.builder_make(alloc) // helper to store lexemes
-        // defer strings.builder_destroy(&lexeme)
+        // lexeme := strings.builder_make(alloc) // helper to store lexemes
+        // // defer strings.builder_destroy(&lexeme)
         
-        strings.write_byte(&lexeme, text[index])
-        append(&tokens, Token{ type = DEFAULT, start_pos = index, value = strings.to_string(lexeme) })
+        // strings.write_byte(&lexeme, text[index])
+        // append(&tokens, Token{ type = DEFAULT, start_pos = index, value = strings.to_string(lexeme) })
+        append(&tokens, Token{ type = DEFAULT, start_pos = index, value = string(text[index:index+1]) })
         index += 1
     }
 
