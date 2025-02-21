@@ -46,6 +46,7 @@ BUILT_IN    :: 13
 ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
+TYPE        :: 17
 
 KEYWORDS: [35]string = [35]string{
     "asm",
@@ -363,9 +364,9 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // built_in
             } else if is_built_in(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = BUILT_IN, start_pos = start_pos, value = strings.to_string(lexeme) })
-            // type
+            // types
             } else if is_type(strings.to_string(lexeme)) {
-                append(&tokens, Token{ type = SPECIAL, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = TYPE, start_pos = start_pos, value = strings.to_string(lexeme) })
             // default
             } else {
                 append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
