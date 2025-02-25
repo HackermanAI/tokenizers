@@ -122,17 +122,11 @@ class Lexer(object):
         # process result
         for n in range(result.len):
             value_as_string = result.data[n].value.to_python()
-            
-            # find todo and note in comments
-            # if result.data[n].type == COMMENT and " todo :" in value_as_string:
-            #     tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
-            #     tokens.append((SPECIAL, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
-            # elif result.data[n].type == COMMENT and " note :" in value_as_string:
-            #     tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
-            #     tokens.append((WARNING, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
-            # else:
-            #     tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
 
-            tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
+            # change some names to default
+            if result.data[n].type == 4 and not (result.data[n + 2].type == 2 and result.data[n + 2].value.to_python() == "proc"):
+                tokens.append(("default", result.data[n].start_pos, value_as_string))
+            else:
+                tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
 
         return tokens
