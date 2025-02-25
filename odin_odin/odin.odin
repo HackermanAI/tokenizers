@@ -154,10 +154,12 @@ Token :: struct {
 }
 
 tokenize :: proc(text: string) -> [dynamic]Token {
-    alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
+    alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
 
     tokens: [dynamic]Token
     tokens = runtime.make([dynamic]Token, 0, alloc);
+
+    // todo : return pointer to token array to use in call back to free memory
     
     index: int = 0
     for index < len(text) {
@@ -170,7 +172,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // comment | operator
         if text[index] == '/' {            
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add '/' to lexeme buffer
             
@@ -222,7 +224,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // :: or :
         if text[index] == ':' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add ':' to lexeme buffer
 
@@ -244,7 +246,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // .. or .
         if text[index] == '.'  {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '.' to lexeme buffer
             
@@ -268,10 +270,6 @@ tokenize :: proc(text: string) -> [dynamic]Token {
            text[index] == '*' || text[index] == '/' || text[index] == '%' || text[index] == '&' || text[index] == '|' || text[index] == '~' ||
            text[index] == '|' || text[index] == '<' || text[index] == '>' {
             
-            //lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
-            
-            //strings.write_byte(&lexeme, text[index])
             append(&tokens, Token{ type = OPERATOR, start_pos = index, value = string(text[index:index+1]) })
             index += 1
             continue
@@ -282,7 +280,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '#' to lexeme buffer
             index += 1
@@ -301,7 +299,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
 
             quote := text[index]
             
@@ -329,7 +327,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && ((text[index] >= '0' && text[index] <= '9') || text[index] == '.') {
                 strings.write_byte(&lexeme, text[index])
@@ -344,7 +342,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            // defer strings.builder_destroy(&lexeme)
+            defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
                 strings.write_byte(&lexeme, text[index])
@@ -357,13 +355,6 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
-                // replace token at -2 with name if proc declaration (otherwise default)
-                // if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
-                    // todo : how to handle post processing properly when not all text is tokenized at once? (run async on document?)
-                // if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
-                //     assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
-                // }
-
                 append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // built_in
@@ -378,14 +369,10 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             } else {
                 append(&tokens, Token{ type = NAME, start_pos = start_pos, value = strings.to_string(lexeme) })
             }
+            
             continue
         }
 
-        // lexeme := strings.builder_make(alloc) // helper to store lexemes
-        // // defer strings.builder_destroy(&lexeme)
-        
-        // strings.write_byte(&lexeme, text[index])
-        // append(&tokens, Token{ type = DEFAULT, start_pos = index, value = strings.to_string(lexeme) })
         append(&tokens, Token{ type = DEFAULT, start_pos = index, value = string(text[index:index+1]) })
         index += 1
     }
