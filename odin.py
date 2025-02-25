@@ -51,7 +51,7 @@ COMMENT = "comment"
 SPECIAL = "special"
 WARNING = "warning"
 
-lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin_odin.dylib"))
+lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin.dylib"))
 
 # Odin internal struct for string (rawptr and len)
 class String(ctypes.Structure):
