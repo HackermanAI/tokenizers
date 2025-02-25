@@ -374,9 +374,9 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             } else if is_type(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = TYPE, start_pos = start_pos, value = strings.to_string(lexeme) })
             
-            // default
+            // name
             } else {
-                append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
+                append(&tokens, Token{ type = NAME, start_pos = start_pos, value = strings.to_string(lexeme) })
             }
             continue
         }
