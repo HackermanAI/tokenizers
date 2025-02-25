@@ -172,7 +172,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // comment | operator
         if text[index] == '/' {            
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add '/' to lexeme buffer
             
@@ -224,7 +224,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // :: or :
         if text[index] == ':' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
 
             strings.write_byte(&lexeme, text[index]) // add ':' to lexeme buffer
 
@@ -246,7 +246,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         // .. or .
         if text[index] == '.'  {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '.' to lexeme buffer
             
@@ -280,7 +280,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             strings.write_byte(&lexeme, text[index]) // add '#' to lexeme buffer
             index += 1
@@ -299,7 +299,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
 
             quote := text[index]
             
@@ -327,7 +327,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && ((text[index] >= '0' && text[index] <= '9') || text[index] == '.') {
                 strings.write_byte(&lexeme, text[index])
@@ -342,7 +342,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
-            defer strings.builder_destroy(&lexeme)
+            // defer strings.builder_destroy(&lexeme)
             
             for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
                 strings.write_byte(&lexeme, text[index])
