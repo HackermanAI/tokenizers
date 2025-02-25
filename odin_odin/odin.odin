@@ -354,22 +354,26 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // conditional
             if is_conditional(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = CONDITIONAL, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // keyword
             } else if is_keyword(strings.to_string(lexeme)) {
                 // replace token at -2 with name if proc declaration (otherwise default)
                 // if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
                     // todo : how to handle post processing properly when not all text is tokenized at once? (run async on document?)
-                if strings.to_string(lexeme) == "proc" {
-                    assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
-                }
+                // if strings.to_string(lexeme) == "proc" && len(tokens) > 2 {
+                //     assign_at(&tokens, len(tokens) - 2, Token{ type = NAME, start_pos = tokens[len(tokens) - 2].start_pos, value = tokens[len(tokens) - 2].value })
+                // }
 
                 append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // built_in
             } else if is_built_in(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = BUILT_IN, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // types
             } else if is_type(strings.to_string(lexeme)) {
                 append(&tokens, Token{ type = TYPE, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // default
             } else {
                 append(&tokens, Token{ type = DEFAULT, start_pos = start_pos, value = strings.to_string(lexeme) })
