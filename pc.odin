@@ -235,7 +235,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
     return tokens
 }
 
-// odin build playcode.odin -file -build-mode:dll
+// odin build pc.odin -file -build-mode:dll
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
