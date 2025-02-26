@@ -20,3 +20,6 @@ TEST_hackerman.cpython-312-darwin.so
 odin_odin.bin
 odin_odin.dylib
 playcode_odin.dylib
+hackerman.dylib
+odin.dylib
+pc.dylib
