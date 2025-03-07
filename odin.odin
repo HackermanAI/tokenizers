@@ -29,6 +29,8 @@ import "base:runtime"
 import "core:strings"
 import "core:fmt"
 
+import "core:unicode/utf8"
+
 WHITESPACE  :: 0
 DEFAULT     :: 1
 KEYWORD     :: 2
@@ -153,56 +155,86 @@ Token :: struct {
     value: string,
 }
 
-tokenize :: proc(text: string) -> [dynamic]Token {
-    alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
+convert_to_runes :: proc(text: string) -> [dynamic]rune {
+    alloc := runtime.default_allocator()
+    runes: [dynamic]rune = runtime.make([dynamic]rune, 0, alloc)
+    
+    i: int = 0
+    for i < len(text) {
+        r, width := utf8.decode_rune(text[i:])
+        append_elem(&runes, r)
+        i += width
+    }
+    return runes
+}
 
-    tokens: [dynamic]Token
-    tokens = runtime.make([dynamic]Token, 0, alloc);
+@(optimization_mode="favor_size")
+tokenize :: proc(text: string) -> [dynamic]Token {    
+    alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
+    tokens: [dynamic]Token = runtime.make([dynamic]Token, 0, alloc);
 
     // todo : return pointer to token array to use in call back to free memory
+
+    runes := convert_to_runes(text)
     
     index: int = 0
-    for index < len(text) {
-        if text[index] == ' ' || text[index] == '\t' || text[index] == '\n' {
-            // append(&tokens, Token{ type = WHITESPACE, start_pos = index, value = string(text[index:index+1]) }) // this currenly mess post-processing of tokens up (since prev token is often whitespace)
+    for index < len(runes) {
+
+        // whitespace
+        if runes[index] == ' ' || runes[index] == '\t' || runes[index] == '\n' {
             index += 1
             continue
         }
 
+        // attribute
+        if runes[index] == '@' {
+            lexeme := strings.builder_make(alloc)
+            strings.write_rune(&lexeme, runes[index])
+            
+            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
+            index += 1
+
+            continue
+        }
+
         // comment | operator
-        if text[index] == '/' {            
+        if runes[index] == '/' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
-            strings.write_byte(&lexeme, text[index]) // add '/' to lexeme buffer
+            strings.write_rune(&lexeme, runes[index]) // add '/' to lexeme buffer
             
             // single-line comment
-            if index + 1 < len(text) && text[index + 1] == '/' {                
+            if index + 1 < len(runes) && runes[index + 1] == '/' {                
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1]) // add '/' to lexeme buffer
+                strings.write_rune(&lexeme, runes[index + 1]) // add '/' to lexeme buffer
                 index += 2
-                for index < len(text) && text[index] != '\n' {
-                    strings.write_byte(&lexeme, text[index])
+                
+                for index < len(runes) && runes[index] != '\n' {
+                    strings.write_rune(&lexeme, runes[index])
                     index += 1
                 }
+                
                 append(&tokens, Token{ type = COMMENT, start_pos = start_pos, value = strings.to_string(lexeme) })
+                
                 continue
             }
             
             // multi-line comment
-            if index + 1 < len(text) && text[index + 1] == '*' {
+            if index + 1 < len(runes) && runes[index + 1] == '*' {
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1]) // add '*' to lexeme buffer
+                strings.write_rune(&lexeme, runes[index + 1]) // add '*' to lexeme buffer
                 index += 2
-                for index < len(text) && index + 1 < len(text) && text[index] != '*' && text[index + 1] != '/' {
-                    strings.write_byte(&lexeme, text[index])
+                
+                for index < len(runes) && index + 1 < len(runes) && runes[index] != '*' && runes[index + 1] != '/' {
+                    strings.write_rune(&lexeme, runes[index])
                     index += 1
                 }
 
                 // check if multi-line comment is closed
-                if index < len(text) && index + 1 < len(text) && text[index] == '*' && text[index + 1] == '/' {
-                    strings.write_byte(&lexeme, text[index]) // add '*' to lexeme buffer
-                    strings.write_byte(&lexeme, text[index + 1])  // add '/' to lexeme buffer
+                if index < len(runes) && index + 1 < len(runes) && runes[index] == '*' && runes[index + 1] == '/' {
+                    strings.write_rune(&lexeme, runes[index]) // add '*' to lexeme buffer
+                    strings.write_rune(&lexeme, runes[index + 1])  // add '/' to lexeme buffer
                     index += 2
 
                     append(&tokens, Token{ type = COMMENT, start_pos = start_pos, value = strings.to_string(lexeme) })
@@ -218,21 +250,23 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             // operator
             append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
             index += 1
+            
             continue
         }
 
         // :: or :
-        if text[index] == ':' {
+        if runes[index] == ':' {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
-            strings.write_byte(&lexeme, text[index]) // add ':' to lexeme buffer
+            strings.write_rune(&lexeme, runes[index]) // add ':' to lexeme buffer
 
             // constant
-            if index + 1 < len(text) && text[index + 1] == ':' {
+            if index + 1 < len(runes) && runes[index + 1] == ':' {
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1]) // add ':' to lexeme buffer
+                strings.write_rune(&lexeme, runes[index + 1]) // add ':' to lexeme buffer
                 index += 2
+                
                 append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // range
@@ -240,21 +274,23 @@ tokenize :: proc(text: string) -> [dynamic]Token {
                 append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
+            
             continue
         }
 
         // .. or .
-        if text[index] == '.'  {
+        if runes[index] == '.'  {
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            strings.write_byte(&lexeme, text[index]) // add '.' to lexeme buffer
+            strings.write_rune(&lexeme, runes[index]) // add '.' to lexeme buffer
             
             // range
-            if index + 1 < len(text) && text[index + 1] == '.' {
+            if index + 1 < len(runes) && runes[index + 1] == '.' {
                 start_pos := index
-                strings.write_byte(&lexeme, text[index + 1]) // add '.' to lexeme buffer
+                strings.write_rune(&lexeme, runes[index + 1]) // add '.' to lexeme buffer
                 index += 2
+                
                 append(&tokens, Token{ type = OPERATOR, start_pos = start_pos, value = strings.to_string(lexeme) })
             
             // default
@@ -262,58 +298,66 @@ tokenize :: proc(text: string) -> [dynamic]Token {
                 append(&tokens, Token{ type = DEFAULT, start_pos = index, value = strings.to_string(lexeme) })
                 index += 1
             }
+            
             continue
         }
 
         // operator
-        if text[index] == '=' || text[index] == '!' || text[index] == '^' || text[index] == '?' || text[index] == '+' || text[index] == '-' ||
-           text[index] == '*' || text[index] == '/' || text[index] == '%' || text[index] == '&' || text[index] == '|' || text[index] == '~' ||
-           text[index] == '|' || text[index] == '<' || text[index] == '>' {
+        if runes[index] == '=' || runes[index] == '!' || runes[index] == '^' || runes[index] == '?' || runes[index] == '+' || runes[index] == '-' ||
+           runes[index] == '*' || runes[index] == '/' || runes[index] == '%' || runes[index] == '&' || runes[index] == '|' || runes[index] == '~' ||
+           runes[index] == '|' || runes[index] == '<' || runes[index] == '>' {
+
+            lexeme := strings.builder_make(alloc)
+            strings.write_rune(&lexeme, runes[index])
             
-            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = string(text[index:index+1]) })
+            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
             index += 1
+            
             continue
         }
 
         // directive
-        if text[index] == '#'  {
+        if runes[index] == '#'  {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            strings.write_byte(&lexeme, text[index]) // add '#' to lexeme buffer
+            strings.write_rune(&lexeme, runes[index]) // add '#' to lexeme buffer
             index += 1
             
             // directive
-            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-                strings.write_byte(&lexeme, text[index])
+            for index < len(runes) && ((runes[index] >= 'a' && runes[index] <= 'z') || (runes[index] >= 'A' && runes[index] <= 'Z') || runes[index] == '_' || (runes[index] >= '0' && runes[index] <= '9')) {
+                strings.write_rune(&lexeme, runes[index])
                 index += 1
             }
+            
             append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             continue
         }
 
         // string
-        if text[index] == '"' || text[index] == '\'' || text[index] == '`' {
+        if runes[index] == '"' || runes[index] == '\'' || runes[index] == '`' {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
 
-            quote := text[index]
+            quote := runes[index]
             
-            strings.write_byte(&lexeme, text[index]) // add open quote to lexeme buffer
+            strings.write_rune(&lexeme, runes[index]) // add open quote to lexeme buffer
             index += 1
-            for index < len(text) && text[index] != quote {
-                strings.write_byte(&lexeme, text[index])
+            for index < len(runes) && runes[index] != quote {
+                strings.write_rune(&lexeme, runes[index])
                 index += 1
             }
-            if index < len(text) {
-                strings.write_byte(&lexeme, text[index]) // add closing quote to lexeme buffer (if any)
+            if index < len(runes) {
+                strings.write_rune(&lexeme, runes[index]) // add closing quote to lexeme buffer (if any)
                 index += 1
 
                 append(&tokens, Token{ type = STRING, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             // no closing quote
             } else {
                 append(&tokens, Token{ type = ERROR, start_pos = start_pos, value = strings.to_string(lexeme) })
@@ -323,29 +367,31 @@ tokenize :: proc(text: string) -> [dynamic]Token {
         }
 
         // number
-        if text[index] >= '0' && text[index] <= '9' {
+        if runes[index] >= '0' && runes[index] <= '9' {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && ((text[index] >= '0' && text[index] <= '9') || text[index] == '.') {
-                strings.write_byte(&lexeme, text[index])
+            for index < len(runes) && ((runes[index] >= '0' && runes[index] <= '9') || runes[index] == '.') {
+                strings.write_rune(&lexeme, runes[index])
                 index += 1
             }
+            
             append(&tokens, Token{ type = NUMBER, start_pos = start_pos, value = strings.to_string(lexeme) })
+            
             continue
         }
 
         // conditional | keyword | built_in | type | _
-        if (text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' {
+        if (runes[index] >= 'a' && runes[index] <= 'z') || (runes[index] >= 'A' && runes[index] <= 'Z') || runes[index] == '_' {
             start_pos := index
             
             lexeme := strings.builder_make(alloc) // helper to store lexemes
             // defer strings.builder_destroy(&lexeme)
             
-            for index < len(text) && ((text[index] >= 'a' && text[index] <= 'z') || (text[index] >= 'A' && text[index] <= 'Z') || text[index] == '_' || (text[index] >= '0' && text[index] <= '9')) {
-                strings.write_byte(&lexeme, text[index])
+            for index < len(runes) && ((runes[index] >= 'a' && runes[index] <= 'z') || (runes[index] >= 'A' && runes[index] <= 'Z') || runes[index] == '_' || (runes[index] >= '0' && runes[index] <= '9')) {
+                strings.write_rune(&lexeme, runes[index])
                 index += 1
             }
 
@@ -373,7 +419,10 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             continue
         }
 
-        append(&tokens, Token{ type = DEFAULT, start_pos = index, value = string(text[index:index+1]) })
+        lexeme := strings.builder_make(alloc)
+        strings.write_rune(&lexeme, runes[index])
+
+        append(&tokens, Token{ type = DEFAULT, start_pos = index, value = strings.to_string(lexeme) })
         index += 1
     }
 
