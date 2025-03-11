@@ -47,13 +47,13 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [87]string = [87]string{
+NAMES: [96]string = [96]string{
     "font", // editor
     "font_weight",
     "font_size",
     "tab_width",
     "cursor_width",
-    "margin",
+    "editor_margin",
     "scrollbar_width",
     "scrollbar_opacity",
     "line_number_opacity",
@@ -89,12 +89,15 @@ NAMES: [87]string = [87]string{
     "new_file",
     "new_window",
     "open_file",
+    "fold_line",
     "fold_all",
+    "code_instruction",
     "code_completion",
+    "code_explain",
+    "code_suggestion",
     "line_indent",
     "line_unindent",
     "line_comment",
-    "set_bookmark",
     "open_config_file",
     "open_functions_file",
     "move_to_line_start",
@@ -107,10 +110,16 @@ NAMES: [87]string = [87]string{
     "open_terminal_at_file",
     "select_all",
     "find_in_file",
+    "go_to_line",
     "undo",
     "redo",
     "previous_tab",
     "next_tab",
+    "jump_to_home",
+    "jump_to_end",
+    "page_up",
+    "page_down",
+    "close_file",
     "background", // theme
     "foreground",
     "selection",
@@ -133,6 +142,7 @@ NAMES: [87]string = [87]string{
     "warning",
     "success",
     "special",
+    "type",
     "conditional",
     "built_in"
 }
@@ -204,8 +214,10 @@ Token :: struct {
                 strings.write_byte(&lexeme, text[index])
                 index += 1
             }
-            strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
-            index += 1
+            if index < len(text) && text[index] == ']' {
+                strings.write_byte(&lexeme, text[index]) // add ']' to lexeme buffer
+                index += 1
+            }
             
             append(&tokens, Token{ type = KEYWORD, start_pos = start_pos, value = strings.to_string(lexeme) })
             continue
