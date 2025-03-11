@@ -110,15 +110,6 @@ class Lexer(object):
         # process result
         for n in range(result.len):
             value_as_string = result.data[n].value.to_python()
-            
-            # find todo and note in comments
-            if result.data[n].type == 10 and " todo :" in value_as_string:
-                tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((SPECIAL, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # special
-            elif result.data[n].type == 10 and " note :" in value_as_string:
-                tokens.append((COMMENT, result.data[n].start_pos, value_as_string[:2]))
-                tokens.append((WARNING, result.data[n].start_pos + len(value_as_string[:2]), value_as_string[2:])) # warning
-            else:
-                tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
+            tokens.append((TOKEN_MAP[result.data[n].type], result.data[n].start_pos, value_as_string))
 
         return tokens
