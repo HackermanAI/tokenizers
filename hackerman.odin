@@ -47,7 +47,7 @@ ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
 
-NAMES: [96]string = [96]string{
+NAMES: [98]string = [98]string{
     "font", // editor
     "font_weight",
     "font_size",
@@ -75,6 +75,7 @@ NAMES: [96]string = [96]string{
     "highlight_line_on_jump",
     "show_eol",
     "file_explorer_hide_unsupported",
+    "open_on_largest_screen",
     "auto_close_delimiters",
     "autocomplete",
     "auto_indent",
