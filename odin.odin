@@ -23,6 +23,8 @@
 
 // Tokenizer for Odin
 
+// odin build odin.odin -file -build-mode:dll
+
 package odin_tokenizer
 
 import "base:runtime"
@@ -428,8 +430,6 @@ tokenize :: proc(text: string) -> [dynamic]Token {
 
     return tokens
 }
-
-// odin build odin.odin -file -build-mode:dll
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
