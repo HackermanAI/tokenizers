@@ -207,7 +207,7 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             strings.write_rune(&lexeme, runes[index]) // add '/' to lexeme buffer
             
             // single-line comment
-            if index + 1 < len(runes) && runes[index + 1] == '/' {                
+            if index + 1 < len(runes) && runes[index + 1] == '/' {
                 start_pos := index
                 strings.write_rune(&lexeme, runes[index + 1]) // add '/' to lexeme buffer
                 index += 2
