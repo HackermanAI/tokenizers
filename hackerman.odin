@@ -23,11 +23,15 @@
 
 // Tokenizer for Hackerman DSCL (TOML-like custom DSL)
 
+// odin build hackerman.odin -file -build-mode:dll
+
 package hackerman_tokenizer
 
 import "base:runtime"
 import "core:strings"
 import "core:fmt"
+
+import "core:unicode/utf8"
 
 WHITESPACE  :: 0
 DEFAULT     :: 1
@@ -46,6 +50,7 @@ BUILT_IN    :: 13
 ERROR       :: 14
 WARNING     :: 15
 SUCCESS     :: 16
+TYPE        :: 17
 
 NAMES: [98]string = [98]string{
     "font", // editor
@@ -167,7 +172,21 @@ Token :: struct {
     value: string,
 }
 
-@export tokenize :: proc(text: string) -> [dynamic]Token {
+convert_to_runes :: proc(text: string) -> [dynamic]rune {
+    alloc := runtime.default_allocator()
+    runes: [dynamic]rune = runtime.make([dynamic]rune, 0, alloc)
+    
+    i: int = 0
+    for i < len(text) {
+        r, width := utf8.decode_rune(text[i:])
+        append_elem(&runes, r)
+        i += width
+    }
+    return runes
+}
+
+@(optimization_mode="favor_size")
+tokenize :: proc(text: string) -> [dynamic]Token {
     alloc := runtime.default_allocator() // need to do this to not get assertion erron when calling from FFI
 
     tokens: [dynamic]Token
@@ -295,9 +314,7 @@ Token :: struct {
     return tokens
 }
 
-// odin build hackerman.odin -file -build-mode:dll
-
-@export process_input :: proc(arg: string) -> [dynamic]Token {    
+@export process_input :: proc(arg: string) -> [dynamic]Token {
     result := tokenize(arg)
     return result
 }
