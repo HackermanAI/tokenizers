@@ -23,6 +23,8 @@
 
 // Tokenizer for PlayCode https://github.com/asyncze/playcode
 
+// todo : update to use runes instead
+
 package playcode_tokenizer
 
 import "base:runtime"
