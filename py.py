@@ -175,7 +175,7 @@ class Lexer(object):
                         tokens.append((OPERATOR, current_char_index, "-="))
                         current_char_index += 2
                     elif next_char == '>':
-                        tokens.append((TOKEN_MAP[DEFAULT], current_char_index, "->"))
+                        tokens.append((DEFAULT, current_char_index, "->"))
                         current_char_index += 2
                     else:
                         tokens.append((OPERATOR, current_char_index, current_char))
