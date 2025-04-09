@@ -31,16 +31,16 @@ KEYWORD         = "keyword"
 CLASS           = "class"
 NAME            = "name"
 PARAMETER       = "parameter"
-LAMBDA          = "lambda",
-STRING          = "string",
-NUMBER          = "number",
-OPERATOR        = "operator",
-COMMENT         = "comment",
-SPECIAL         = "special",
-CONDITIONAL     = "conditional",
-BUILT_IN        = "built_in",
-ERROR           = "error",
-WARNING         = "warning",
+LAMBDA          = "lambda"
+STRING          = "string"
+NUMBER          = "number"
+OPERATOR        = "operator"
+COMMENT         = "comment"
+SPECIAL         = "special"
+CONDITIONAL     = "conditional"
+BUILT_IN        = "built_in"
+ERROR           = "error"
+WARNING         = "warning"
 SUCCESS         = "success"
 
 class Lexer(object):
