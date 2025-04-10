@@ -315,22 +315,28 @@ class Lexer(object):
                     # multi-line (triple quotes)
                     if current_char_index + 2 < len(text) and text[current_char_index:current_char_index + 2] == current_char * 2:
                         string += current_char * 2
-                        current_char_index += 3
+                        current_char_index += 2
 
-                        while current_char_index < len(text):
-                            if (
-                                current_char_index + 2 < len(text) and
-                                text[current_char_index:current_char_index + 3] == current_char * 3
-                            ):
-                                string += text[start_pos + 1:current_char_index + 3]
-                                current_char_index += 3
-                                break
-                            
-                            current_char_index += 1
+                        end_str = "'''" if current_char == "'" else '"""'
+                        end = text.find(end_str, current_char_index)
+
+                        # if unclosed
+                        if end < 0:
+                            string += text[current_char_index:] # rest of text
+                            current_char_index = len(text)
+                        # otherwise
                         else:
-                            # handle case where closing triple quotes are missing
-                            string += text[current_char_index:-1]
-                            # string = text[start_pos:-1]
+                            string += text[current_char_index:end] # until end
+                            string += end_str
+                            current_char_index = end + len(end_str)
+
+                        # while current_char_index < len(text):
+                        #     if (current_char_index + 2 < len(text) and text[current_char_index:current_char_index + 3] == current_char * 3):
+                        #         string += text[start_pos + 1:current_char_index + 3]
+                        #         current_char_index += 3
+                        #         break
+                            
+                        #     current_char_index += 1
                     
                     # single-line string
                     else:
@@ -340,10 +346,6 @@ class Lexer(object):
                                 current_char_index += 1
                                 break
                             current_char_index += 1
-                        else:
-                            # handle case where closing quote is missing
-                            # string += text[start_pos + 1:current_char_index]
-                            string += text[current_char_index:-1]
                     
                     # # handle format strings
                     # if format_string:
