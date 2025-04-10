@@ -453,6 +453,10 @@ class Lexer(object):
                                 # if next_non_empty_char in { ",", ")" }: skip_next_parameter = False
                                 
                                 tokens.append((PARAMETER, start_pos, identifier))
+
+                            # custom style for function names
+                            elif next_non_empty_char == "(":
+                                tokens.append((NAME, start_pos, identifier))
                             
                             # otherwise
                             else:
@@ -471,7 +475,7 @@ class Lexer(object):
                     
                     else:
                         # raise Exception("tokenize : unknown character :", current_char)
-                        tokens.append((DEFAULT, current_char_index, current_char))
+                        tokens.append((ERROR, current_char_index, current_char))
                         current_char_index += 1
 
         return tokens
