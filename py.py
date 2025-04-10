@@ -111,7 +111,7 @@ class Lexer(object):
 
     def block_starters(self): return { ":", "(", "[", "{", "\"", "\'" }
 
-    def delimiters(self): return { "(", "[", "{", "\"", "\'" } # todo : move to this Hackerman config file
+    # def delimiters(self): return { "(", "[", "{", "\"", "\'" } # todo : move to this Hackerman config file
 
     def tokenize(self, text):        
         tokens = []
