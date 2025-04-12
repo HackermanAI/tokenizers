@@ -37,8 +37,10 @@ NUMBER          = "number"
 OPERATOR        = "operator"
 COMMENT         = "comment"
 SPECIAL         = "special"
+TYPE            = "type"
 CONDITIONAL     = "conditional"
 BUILT_IN        = "built_in"
+
 ERROR           = "error"
 WARNING         = "warning"
 SUCCESS         = "success"
@@ -74,11 +76,14 @@ class Lexer(object):
             "sum",          "vars",         "zip"
         ]
         # data types
+        self.TYPES = [
+            "type",         "int",          "float",        "complex",
+            "str",          "bool",         "dict",         "tuple",
+            "list",         "frozenset",    "bytes",        "bytearray",
+            "memoryview"
+        ]
         self.SPECIALS = [
-            "self",         "type",         "int",          "float",
-            "complex",      "str",          "bool",         "dict",
-            "tuple",        "list",         "frozenset",    "bytes",
-            "bytearray",    "memoryview"
+            "self"
         ]
         # todo : rename this to special2? (default blue is special1 for class stuff)
         self.FUNC_PARAMS = [
@@ -415,6 +420,9 @@ class Lexer(object):
                         # conditional
                         elif identifier in self.CONSTANTS:
                             tokens.append((CONDITIONAL, start_pos, identifier))
+                        # types
+                        elif identifier in self.TYPES:
+                            tokens.append((TYPE, start_pos, identifier))
                         # special
                         elif identifier in self.SPECIALS and not (function_declaration and identifier == "self"):
                             tokens.append((SPECIAL, start_pos, identifier))
