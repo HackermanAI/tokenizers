@@ -48,10 +48,6 @@ TOKEN_MAP = { # to map int value from Odin to style string
     22: "success",
 }
 
-COMMENT = "comment"
-SPECIAL = "special"
-WARNING = "warning"
-
 lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "odin.dylib"))
 
 # Odin internal struct for string (rawptr and len)
