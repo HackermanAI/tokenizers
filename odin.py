@@ -94,9 +94,9 @@ class Lexer(object):
             "token_pos": 0 # token to style is at line start (i.e. before pattern)
         }
 
-    def block_starters(self): return { "(", "[", "{" } # to help auto indent on block starters
+    # def block_starters(self): return { "(", "[", "{" } # to help auto indent on block starters
 
-    def delimiters(self): return { "(", "[", "{", "\"", "\'" } # to auto insert closing char
+    # def delimiters(self): return { "(", "[", "{", "\"", "\'" } # to auto insert closing char
 
     def tokenize(self, text):
         tokens = []
