@@ -27,3 +27,4 @@ pc.dylib
 build/*
 todo.c
 todo.cpython-312-darwin.so
+hackerman.c
