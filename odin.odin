@@ -22,8 +22,7 @@
 // SOFTWARE.
 
 // Tokenizer for Odin
-
-// odin build odin.odin -file -build-mode:dll
+// generate dylib -> odin build odin.odin -file -build-mode:dll
 
 package odin_tokenizer
 
