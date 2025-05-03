@@ -44,12 +44,14 @@ NUMBER      :: 8
 OPERATOR    :: 9
 COMMENT     :: 10
 SPECIAL     :: 11
-CONDITIONAL :: 12
-BUILT_IN    :: 13
-ERROR       :: 14
-WARNING     :: 15
-SUCCESS     :: 16
-TYPE        :: 17
+TYPE        :: 12
+CONDITIONAL :: 13
+BUILT_IN    :: 14
+
+// system colors
+ERROR       :: 20
+WARNING     :: 21
+SUCCESS     :: 22
 
 KEYWORDS: [35]string = [35]string{
     "asm",
