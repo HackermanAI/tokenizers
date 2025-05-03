@@ -29,13 +29,13 @@ from libc.string cimport memcpy
 
 cimport cython
 
-cdef str DEFAULT        = "default"
-cdef str KEYWORD        = "keyword"
-cdef str COMMENT        = "comment"
-cdef str NAME           = "name"
-cdef str SPECIAL        = "special"
-cdef str ERROR          = "error"
-cdef str SUCCESS        = "success"
+cdef str DEFAULT = "default"
+cdef str KEYWORD = "keyword"
+cdef str COMMENT = "comment"
+cdef str NAME = "name"
+cdef str SPECIAL = "special"
+cdef str ERROR = "error"
+cdef str SUCCESS = "success"
 
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
