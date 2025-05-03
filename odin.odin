@@ -29,7 +29,6 @@ package odin_tokenizer
 import "base:runtime"
 import "core:strings"
 import "core:fmt"
-
 import "core:unicode/utf8"
 
 WHITESPACE  :: 0
@@ -171,9 +170,22 @@ convert_to_runes :: proc(text: string) -> [dynamic]rune {
     return runes
 }
 
+handle_whitespace :: proc(index: int) -> int {
+    return index + 1;
+}
+
+handle_at_token :: proc(runes: [dynamic]rune, index: int, tokens: ^[dynamic]Token, alloc: runtime.Allocator) -> int {    
+    lexeme := strings.builder_make(alloc);
+    strings.write_rune(&lexeme, runes[index])
+    
+    append(tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
+
+    return index + 1;
+}
+
 @(optimization_mode="favor_size")
-tokenize :: proc(text: string) -> [dynamic]Token {    
-    alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
+tokenize :: proc(text: string, alloc: runtime.Allocator) -> [dynamic]Token {    
+    // alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
     tokens: [dynamic]Token = runtime.make([dynamic]Token, 0, alloc);
 
     // todo : return pointer to token array to use in call back to free memory
@@ -182,6 +194,15 @@ tokenize :: proc(text: string) -> [dynamic]Token {
     
     index: int = 0
     for index < len(runes) {
+
+        // switch runes[index] {
+        // case ' ', '\t', '\n':
+        //     index = handle_whitespace(index);
+        // case '@':
+        //     index = handle_at_token(runes, index, &tokens, alloc);
+        // case:
+            // index = handle_default_token(runes, index, &tokens, alloc);
+        //}
 
         // whitespace
         if runes[index] == ' ' || runes[index] == '\t' || runes[index] == '\n' {
@@ -194,9 +215,13 @@ tokenize :: proc(text: string) -> [dynamic]Token {
             lexeme := strings.builder_make(alloc)
             strings.write_rune(&lexeme, runes[index])
             
-            append(&tokens, Token{ type = OPERATOR, start_pos = index, value = strings.to_string(lexeme) })
+            append(&tokens, Token{
+                type = OPERATOR,
+                start_pos = index,
+                value = strings.to_string(lexeme)
+            })
+            
             index += 1
-
             continue
         }
 
@@ -433,7 +458,9 @@ tokenize :: proc(text: string) -> [dynamic]Token {
 }
 
 @export process_input :: proc(arg: string) -> [dynamic]Token {
-    result := tokenize(arg)
+    alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
+    result := tokenize(arg, alloc)
+
     return result
 }
 
