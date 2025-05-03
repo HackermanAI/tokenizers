@@ -171,7 +171,7 @@ convert_to_runes :: proc(text: string) -> [dynamic]rune {
     return runes
 }
 
-@(optimization_mode="speed")
+@(optimization_mode="favor_size")
 tokenize :: proc(text: string) -> [dynamic]Token {    
     alloc := runtime.default_allocator() // need to do this to not get assertion error when calling from FFI
     tokens: [dynamic]Token = runtime.make([dynamic]Token, 0, alloc);
