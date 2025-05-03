@@ -78,6 +78,13 @@ class DynamicToken(ctypes.Structure):
         ("cap", ctypes.c_ssize_t), # this is important c_ssize_t and not c_int
     ]
 
+# class AllocatorStruct(ctypes.Structure):
+#     _fields_ = [
+#         ("data", DynamicToken),
+#         ("count", ctypes.c_ssize_t),
+#         ("backing_ptr", ctypes.c_void_p),
+#     ]
+
 class Lexer(object):
     def __init__(self): pass
 
@@ -104,6 +111,10 @@ class Lexer(object):
         # define arg and res types
         lib.process_input.argtypes = [String]
         lib.process_input.restype = DynamicToken
+        # lib.process_input.restype = AllocatorStruct
+
+        # lib.free_tokens.argtypes = [c_void_p]
+        # lib.free_tokens.restype = None
 
         # convert text input to Odin String structure
         text_as_bytes = text.encode("utf-8")
@@ -115,6 +126,7 @@ class Lexer(object):
 
         # call process_input (Odin procedure)
         result = lib.process_input(text_string_arg)
+        # result = result.data
 
         # process result
         for n in range(result.len):
