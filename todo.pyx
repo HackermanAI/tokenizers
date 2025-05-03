@@ -116,11 +116,12 @@ cdef int handle_priority_task(int current_char_index, str text, list tokens):
 
 @cython.cclass
 class Lexer:
-    def __init__(self): pass
-
-    def comment_char(self): return None
-
+    
+    @property
     def lexer_name(self): return "Todo (pyx)"
+
+    @property
+    def comment_char(self): return ""
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
