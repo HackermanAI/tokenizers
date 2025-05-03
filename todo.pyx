@@ -37,6 +37,23 @@ cdef str SPECIAL        = "special"
 cdef str ERROR          = "error"
 cdef str SUCCESS        = "success"
 
+cdef int handle_whitespace(int current_char_index):
+    current_char_index += 1
+    return current_char_index
+
+cdef int handle_header(int current_char_index, str text, list tokens):
+    cdef int start_pos = current_char_index
+    cdef str line = text[current_char_index]
+    current_char_index += 1
+
+    while current_char_index < len(text) and text[current_char_index] != '\n':
+        line += text[current_char_index]
+        current_char_index += 1
+
+    tokens.append((KEYWORD, start_pos, line))
+
+    return current_char_index
+
 @cython.cclass
 class Lexer:
     def __init__(self): pass
@@ -57,21 +74,9 @@ class Lexer:
             current_char = text[current_char_index]
 
             # whitespace
-            if current_char in (' ', '\t', '\r', '\n'):
-                current_char_index += 1
-                continue
-
+            if current_char in (' ', '\t', '\r', '\n'): current_char_index = handle_whitespace(current_char_index)
             # header
-            if current_char == '#':
-                start_pos = current_char_index
-                line = current_char
-                current_char_index += 1
-
-                while current_char_index < len(text) and text[current_char_index] != '\n':
-                    line += text[current_char_index]
-                    current_char_index += 1
-
-                tokens.append((KEYWORD, start_pos, line))
+            elif current_char == '#': current_char_index = handle_header(current_char_index, text, tokens)
 
             # done
             elif current_char == '+':
