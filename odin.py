@@ -39,12 +39,13 @@ TOKEN_MAP = { # to map int value from Odin to style string
     9: "operator",
     10: "comment",
     11: "special",
-    12: "conditional",
-    13: "built_in",
-    14: "error",
-    15: "warning",
-    16: "success",
-    17: "type"
+    12: "type",
+    13: "conditional",
+    14: "built_in",
+    # system colors
+    20: "error",
+    21: "warning",
+    22: "success",
 }
 
 COMMENT = "comment"
