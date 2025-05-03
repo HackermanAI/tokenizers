@@ -24,3 +24,4 @@ hackerman.dylib
 odin.dylib
 pc.dylib
 .venv/*
+build/*
