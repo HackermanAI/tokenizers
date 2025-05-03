@@ -25,3 +25,4 @@ odin.dylib
 pc.dylib
 .venv/*
 build/*
+todo.c
