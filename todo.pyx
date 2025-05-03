@@ -26,26 +26,24 @@
 # cython: language_level=3
 from cpython cimport PyUnicode_FromStringAndSize
 from libc.string cimport memcpy
+
 cimport cython
 
-cdef str DEFAULT = "default"
-cdef str KEYWORD = "keyword"
-cdef str COMMENT = "comment"
-cdef str NAME = "name"
-cdef str SPECIAL = "special"
-cdef str ERROR = "error"
-cdef str SUCCESS = "success"
+cdef str DEFAULT        = "default"
+cdef str KEYWORD        = "keyword"
+cdef str COMMENT        = "comment"
+cdef str NAME           = "name"
+cdef str SPECIAL        = "special"
+cdef str ERROR          = "error"
+cdef str SUCCESS        = "success"
 
 @cython.cclass
 class Lexer:
-    def __init__(self):
-        pass
+    def __init__(self): pass
 
-    def comment_char(self):
-        return None
+    def comment_char(self): return None
 
-    def lexer_name(self):
-        return "Todo PYX"
+    def lexer_name(self): return "Todo (pyx)"
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
@@ -58,10 +56,12 @@ class Lexer:
         while current_char_index < len(text):
             current_char = text[current_char_index]
 
+            # whitespace
             if current_char in (' ', '\t', '\r', '\n'):
                 current_char_index += 1
                 continue
 
+            # header
             if current_char == '#':
                 start_pos = current_char_index
                 line = current_char
@@ -73,6 +73,7 @@ class Lexer:
 
                 tokens.append((KEYWORD, start_pos, line))
 
+            # done
             elif current_char == '+':
                 start_pos = current_char_index
                 line = current_char
@@ -84,6 +85,7 @@ class Lexer:
 
                 tokens.append((SUCCESS, start_pos, line))
 
+            # not done
             elif current_char == '-':
                 start_pos = current_char_index
                 line = current_char
@@ -116,6 +118,7 @@ class Lexer:
 
                 tokens.append((NAME, start_pos, line))
 
+            # important
             elif current_char == '*':
                 start_pos = current_char_index
                 line = current_char
@@ -127,6 +130,7 @@ class Lexer:
 
                 tokens.append((ERROR, start_pos, line))
 
+            # style everything else as comment
             else:
                 tokens.append((COMMENT, current_char_index, current_char))
                 current_char_index += 1
