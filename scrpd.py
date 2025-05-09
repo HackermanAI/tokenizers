@@ -31,11 +31,23 @@ cdef str KEYWORD = "keyword"
 cdef str COMMENT = "comment"
 cdef str NAME = "name"
 cdef str SPECIAL = "special"
-cdef str ERROR = "error"
-cdef str SUCCESS = "success"
+cdef str RED = "error"
+cdef str GREEN = "success"
 
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
+    return current_char_index
+
+cdef int handle_command(int current_char_index, str text, list tokens):
+    cdef int start_pos = current_char_index
+    cdef str line = text[current_char_index]
+    current_char_index += 1
+
+    while current_char_index < len(text) and text[current_char_index] != '\n':
+        line += text[current_char_index]
+        current_char_index += 1
+
+    tokens.append((NAME, start_pos, line))
     return current_char_index
 
 cdef int handle_header(int current_char_index, str text, list tokens):
@@ -59,7 +71,7 @@ cdef int handle_done_task(int current_char_index, str text, list tokens):
         line += text[current_char_index]
         current_char_index += 1
 
-    tokens.append((SUCCESS, start_pos, line))
+    tokens.append((GREEN, start_pos, line))
     return current_char_index
 
 cdef int handle_not_done_task(int current_char_index, str text, list tokens):
@@ -71,7 +83,7 @@ cdef int handle_not_done_task(int current_char_index, str text, list tokens):
 
     while current_char_index < len(text) and text[current_char_index] != '\n':
         if text[current_char_index] == '[':
-            tokens.append((NAME, start_pos, line))
+            tokens.append((DEFAULT, start_pos, line))
             
             # update state
             start_pos = current_char_index
@@ -96,7 +108,7 @@ cdef int handle_not_done_task(int current_char_index, str text, list tokens):
             line += text[current_char_index]
             current_char_index += 1
 
-    tokens.append((NAME, start_pos, line))
+    tokens.append((DEFAULT, start_pos, line))
     return current_char_index
 
 cdef int handle_priority_task(int current_char_index, str text, list tokens):
@@ -108,14 +120,14 @@ cdef int handle_priority_task(int current_char_index, str text, list tokens):
         line += text[current_char_index]
         current_char_index += 1
 
-    tokens.append((ERROR, start_pos, line))
+    tokens.append((RED, start_pos, line))
     return current_char_index
 
 @cython.cclass
 class Lexer:
     
     @property
-    def lexer_name(self): return "Todo (pyx)"
+    def lexer_name(self): return "Scratch Pad"
 
     @property
     def comment_char(self): return ""
@@ -127,9 +139,12 @@ class Lexer:
 
         while current_char_index < len(text):
             current_char = text[current_char_index]
+            next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else ""
 
             # whitespace
             if current_char in (' ', '\t', '\r', '\n'): current_char_index = handle_whitespace(current_char_index)
+            # command
+            elif current_char == '>' and next_char == '>': current_char_index = handle_command(current_char_index, text, tokens)
             # header
             elif current_char == '#': current_char_index = handle_header(current_char_index, text, tokens)
             # done task
@@ -140,7 +155,7 @@ class Lexer:
             elif current_char == '*': current_char_index = handle_priority_task(current_char_index, text, tokens)
             # style everything else as comment
             else:
-                tokens.append((COMMENT, current_char_index, current_char))
+                tokens.append((DEFAULT, current_char_index, current_char))
                 current_char_index += 1
 
         return tokens
