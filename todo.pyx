@@ -24,9 +24,6 @@
 # Tokenizer for Todo (.pyx-version)
 
 # cython: language_level=3
-from cpython cimport PyUnicode_FromStringAndSize
-from libc.string cimport memcpy
-
 cimport cython
 
 cdef str DEFAULT = "default"
