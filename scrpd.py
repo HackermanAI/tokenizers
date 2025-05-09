@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Scratch Pad (.pyx-version)
+# Tokenizer for Scratch Pad (.pyx)
 
 # cython: language_level=3
 cimport cython
