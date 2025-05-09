@@ -28,3 +28,5 @@ build/*
 todo.c
 todo.cpython-312-darwin.so
 hackerman.c
+scrpd.c
+scrpd.cpython-312-darwin.so
