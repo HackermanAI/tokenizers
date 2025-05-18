@@ -50,6 +50,18 @@ cdef int handle_command(int current_char_index, str text, list tokens):
     tokens.append((NAME, start_pos, line))
     return current_char_index
 
+cdef int handle_chat(int current_char_index, str text, list tokens):
+    cdef int start_pos = current_char_index
+    cdef str line = text[current_char_index]
+    current_char_index += 1
+
+    while current_char_index < len(text) and text[current_char_index] != '\n':
+        line += text[current_char_index]
+        current_char_index += 1
+
+    tokens.append((SPECIAL, start_pos, line))
+    return current_char_index
+
 cdef int handle_header(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str line = text[current_char_index]
@@ -151,6 +163,8 @@ class Lexer:
                 continue
             # command
             elif new_line and current_char == '>' and next_char == '>': current_char_index = handle_command(current_char_index, text, tokens)
+            # chat
+            elif new_line and current_char == '%' and next_char == '%': current_char_index = handle_chat(current_char_index, text, tokens)
             # header
             elif new_line and current_char == '#': current_char_index = handle_header(current_char_index, text, tokens)
             # done task
