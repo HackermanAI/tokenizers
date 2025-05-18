@@ -135,6 +135,23 @@ cdef int handle_priority_task(int current_char_index, str text, list tokens):
     tokens.append((ERROR, start_pos, line))
     return current_char_index
 
+cdef int handle_identifiers(int current_char_index, str text, list tokens):
+    cdef int start_pos = current_char_index
+    cdef str line = text[current_char_index]
+    current_char_index += 1
+
+    while current_char_index < len(text) and text[current_char_index] != '\n':
+        line += text[current_char_index]
+        current_char_index += 1
+
+    
+    if line.startswith("eliza > "):
+        tokens.append((SPECIAL, start_pos, line))
+    else:
+        tokens.append((DEFAULT, start_pos, line))
+    
+    return current_char_index
+
 @cython.cclass
 class Lexer:
     
@@ -173,6 +190,8 @@ class Lexer:
             elif new_line and current_char == '-': current_char_index = handle_not_done_task(current_char_index, text, tokens)
             # priority task
             elif new_line and current_char == '*': current_char_index = handle_priority_task(current_char_index, text, tokens)
+            # handle identifiers
+            elif new_line and current_char.isalpha(): current_char_index = handle_identifiers(current_char_index, text, tokens)
             # style everything else as comment
             else:
                 tokens.append((DEFAULT, current_char_index, current_char))
