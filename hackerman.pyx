@@ -255,7 +255,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
 class Lexer:
 
     @property
-    def lexer_name(self): return "DSCL (pyx)"
+    def lexer_name(self): return "Hackerman Config"
 
     @property
     def comment_char(self): return "--"
