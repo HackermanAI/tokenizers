@@ -277,11 +277,15 @@ class Lexer:
             # header
             elif current_char == '[': current_char_index = handle_header(current_char_index, text, tokens)
             # string
-            elif current_char in { '\"', "\'" }: current_char_index = handle_string(current_char_index, text, tokens)
+            elif current_char in { '\"', '\'' }: current_char_index = handle_string(current_char_index, text, tokens)
             # number
             elif '0' <= current_char <= '9': current_char_index = handle_number(current_char_index, text, tokens)
             # identifier
             elif current_char.isalpha() or current_char == '_': current_char_index = handle_identifier(current_char_index, text, tokens)
+            # symbols
+            elif current_char in { '(', ')', ',' }:
+                tokens.append((COMMENT, current_char_index, current_char))
+                current_char_index += 1
             # unknown
             else:
                 tokens.append((ERROR, current_char_index, current_char))
