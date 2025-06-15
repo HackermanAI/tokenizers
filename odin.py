@@ -79,11 +79,11 @@ class DynamicToken(ctypes.Structure):
     ]
 
 class Lexer(object):
-    def __init__(self): pass
-
-    def comment_char(self): return "//"
-
+    @property
     def lexer_name(self): return "Odin"
+
+    @property
+    def comment_char(self): return "//"
 
     def declarations(self):
         return {
