@@ -32,3 +32,5 @@ scrpd.c
 scrpd.cpython-312-darwin.so
 txt.c
 txt.cpython-312-darwin.so
+odin.c
+odin.cpython-312-darwin.so
