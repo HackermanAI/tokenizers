@@ -230,7 +230,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
 
 @cython.cclass
 class Lexer:
-
+    
     @property
     def lexer_name(self): return "Odin"
 
