@@ -117,9 +117,14 @@ TYPES = frozenset({
 cdef int handle_attribute(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str line = text[current_char_index]
+    current_char_index += 1
+
+    while current_char_index < len(text) and (text[current_char_index].isalnum() or text[current_char_index] in { '_', '(', ')' }):
+        line += text[current_char_index]
+        current_char_index += 1
 
     tokens.append((OPERATOR, start_pos, line))
-    return current_char_index + 1
+    return current_char_index
 
 cdef int handle_directive(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
