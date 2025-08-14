@@ -24,9 +24,17 @@
 # Tokenizer for Odin
 
 # cython: language_level=3
+
+# from libcpp.vector cimport vector
+# from libc.string cimport memcmp
+# from cpython.bytes cimport PyBytes_AS_STRING, PyBytes_GET_SIZE
+# from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer
+# from cpython.mem cimport PyMem_Malloc, PyMem_Free
+
 cimport cython
 
 # --- Token Types ---
+
 cdef str WHITESPACE = "whitespace"
 cdef str DEFAULT = "default"
 cdef str KEYWORD = "keyword"
@@ -47,7 +55,48 @@ cdef str ERROR = "error"
 cdef str WARNING = "warning"
 cdef str SUCCESS = "success"
 
-# --- Keyword and Built-in Sets ---
+# cdef enum TokenKind:
+#     TK_DEFAULT = 0
+#     TK_KEYWORD
+#     TK_CLASS
+#     TK_NAME
+#     TK_PARAMETER
+#     TK_LAMBDA
+#     TK_STRING
+#     TK_NUMBER
+#     TK_OPERATOR
+#     TK_COMMENT
+#     TK_SPECIAL
+#     TK_TYPE
+#     TK_CONDITIONAL
+#     TK_BUILT_IN
+#     # system colors
+#     TK_ERROR
+#     TK_WARNING
+#     TK_SUCCESS
+
+# cdef struct Token:
+#     int kind
+#     Py_ssize_t start
+#     Py_ssize_t length
+
+# --- Helpers ---
+
+cdef inline bint is_alpha(unsigned char c) nogil:
+    c = c | 32
+    return (c >= ord('a') and c <= ord('z')) or c == ord('_')
+
+cdef inline bint is_digit(unsigned char c) nogil:
+    return c >= ord('0') and c <= ord('9')
+
+cdef inline bint is_alnum(unsigned char c) nogil:
+    return is_alpha(c) or is_digit(c)
+
+# ' ', \t, \r, \f, \v
+# cdef inline bint is_space(unsigned char c) nogil:
+#     return c==32 or c==9 or c==13 or c==12 or c==11
+
+
 KEYWORDS = frozenset({ 
     "asm",
     "auto_cast",
@@ -116,14 +165,13 @@ TYPES = frozenset({
     "bool",
 })
 
-# --- Helper Functions for Tokenization ---
 
 cdef int handle_attribute(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
     # cdef str line = text[current_char_index]
     current_char_index += 1 # Consume '@'
 
-    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] in { '_', '(', ')' }):
+    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] in { '_', '(', ')' }):
         # line += text[current_char_index]
         current_char_index += 1
 
@@ -135,7 +183,7 @@ cdef int handle_directive(int current_char_index, str text, int length, list tok
     # cdef str line = text[current_char_index]
     current_char_index += 1 # Consume '#'
 
-    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] == '_'):
+    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] == '_'):
         # line += text[current_char_index]
         current_char_index += 1
 
@@ -208,7 +256,7 @@ cdef int handle_number(int current_char_index, str text, int length, list tokens
     cdef int start_pos = current_char_index
     # cdef str line = ""
 
-    while current_char_index < length and (text[current_char_index].isdigit() or text[current_char_index] == '.'):
+    while current_char_index < length and (text[current_char_index].is_digit() or text[current_char_index] == '.'):
         # line += text[current_char_index]
         current_char_index += 1
 
@@ -219,7 +267,7 @@ cdef int handle_identifier(int current_char_index, str text, int length, list to
     cdef int start_pos = current_char_index
     # cdef str line = ""
 
-    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] == '_'):
+    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] == '_'):
         # line += text[current_char_index]
         current_char_index += 1
 
@@ -293,10 +341,10 @@ class Lexer:
             elif current_char in { '\"', '\'', '`' }:
                 current_char_index = handle_string(current_char_index, text, length, tokens)
             # number
-            elif current_char.isdigit():
+            elif current_char.is_digit():
                 current_char_index = handle_number(current_char_index, text, length, tokens)
             # identifier
-            elif current_char.isalpha() or current_char == '_':
+            elif current_char.is_alpha() or current_char == '_':
                 current_char_index = handle_identifier(current_char_index, text, length, tokens)
             # default
             else:
@@ -304,3 +352,13 @@ class Lexer:
                 current_char_index += 1
 
         return tokens
+
+
+
+
+
+
+
+
+
+
