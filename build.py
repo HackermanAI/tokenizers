@@ -8,6 +8,7 @@
 # export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 # .venv/bin/python build.py build_ext --inplace
 
+# import sys
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 
@@ -15,4 +16,18 @@ setup(ext_modules=cythonize([Extension("todo", ["todo.pyx"])], compiler_directiv
 setup(ext_modules=cythonize([Extension("hackerman", ["hackerman.pyx"])], compiler_directives={ "language_level": "3" }))
 setup(ext_modules=cythonize([Extension("scrpd", ["scrpd.pyx"])], compiler_directives={ "language_level": "3" }))
 setup(ext_modules=cythonize([Extension("txt", ["txt.pyx"])], compiler_directives={ "language_level": "3" }))
-setup(ext_modules=cythonize([Extension("odin", ["odin.pyx"])], compiler_directives={ "language_level": "3" }))
+
+setup(ext_modules=cythonize([Extension("odin", ["odin.pyx"], ["-O3", "-std=c11"])], compiler_directives={ "language_level": "3" }))
+
+# ext = Extension(
+#     "odin",
+#     sources=["odin.pyx"],
+#     extra_compile_args=["-O3", "-std=c11"],
+# )
+# if sys.platform == "darwin":
+#     ext.extra_link_args = ["-undefined", "dynamic_lookup"]
+
+# setup(
+#     name="odin",
+#     ext_modules=cythonize([ext], language_level=3),
+# )
