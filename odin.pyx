@@ -24,13 +24,6 @@
 # Tokenizer for Odin
 
 # cython: language_level=3
-
-# from libcpp.vector cimport vector
-# from libc.string cimport memcmp
-# from cpython.bytes cimport PyBytes_AS_STRING, PyBytes_GET_SIZE
-# from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer
-# from cpython.mem cimport PyMem_Malloc, PyMem_Free
-
 cimport cython
 
 # --- Token Types ---
@@ -54,47 +47,6 @@ cdef str BUILT_IN = "built_in"
 cdef str ERROR = "error"
 cdef str WARNING = "warning"
 cdef str SUCCESS = "success"
-
-# cdef enum TokenKind:
-#     TK_DEFAULT = 0
-#     TK_KEYWORD
-#     TK_CLASS
-#     TK_NAME
-#     TK_PARAMETER
-#     TK_LAMBDA
-#     TK_STRING
-#     TK_NUMBER
-#     TK_OPERATOR
-#     TK_COMMENT
-#     TK_SPECIAL
-#     TK_TYPE
-#     TK_CONDITIONAL
-#     TK_BUILT_IN
-#     # system colors
-#     TK_ERROR
-#     TK_WARNING
-#     TK_SUCCESS
-
-# cdef struct Token:
-#     int kind
-#     Py_ssize_t start
-#     Py_ssize_t length
-
-# --- Helpers ---
-
-cdef inline bint is_alpha(unsigned char c) nogil:
-    c = c | 32
-    return (c >= ord('a') and c <= ord('z')) or c == ord('_')
-
-cdef inline bint is_digit(unsigned char c) nogil:
-    return c >= ord('0') and c <= ord('9')
-
-cdef inline bint is_alnum(unsigned char c) nogil:
-    return is_alpha(c) or is_digit(c)
-
-# ' ', \t, \r, \f, \v
-# cdef inline bint is_space(unsigned char c) nogil:
-#     return c==32 or c==9 or c==13 or c==12 or c==11
 
 
 KEYWORDS = frozenset({ 
@@ -168,11 +120,9 @@ TYPES = frozenset({
 
 cdef int handle_attribute(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = text[current_char_index]
     current_char_index += 1 # Consume '@'
 
-    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] in { '_', '(', ')' }):
-        # line += text[current_char_index]
+    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] in { '_', '(', ')' }):
         current_char_index += 1
 
     tokens.append((OPERATOR, start_pos, text[start_pos:current_char_index]))
@@ -180,11 +130,9 @@ cdef int handle_attribute(int current_char_index, str text, int length, list tok
 
 cdef int handle_directive(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = text[current_char_index]
     current_char_index += 1 # Consume '#'
 
-    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] == '_'):
-        # line += text[current_char_index]
+    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] == '_'):
         current_char_index += 1
 
     tokens.append((KEYWORD, start_pos, text[start_pos:current_char_index]))
@@ -192,18 +140,15 @@ cdef int handle_directive(int current_char_index, str text, int length, list tok
 
 cdef int handle_operator(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = text[current_char_index]
 
     tokens.append((OPERATOR, start_pos, text[current_char_index]))
     return current_char_index + 1
 
 cdef int handle_comment(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = text[current_char_index]
-    current_char_index += 1 # Consume '//'
+    current_char_index += 1
 
     while current_char_index < length and text[current_char_index] != '\n':
-        # line += text[current_char_index]
         current_char_index += 1
 
     tokens.append((COMMENT, start_pos, text[start_pos:current_char_index]))
@@ -211,19 +156,15 @@ cdef int handle_comment(int current_char_index, str text, int length, list token
 
 cdef int handle_multiline_comment(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = text[current_char_index]
-    current_char_index += 1 # Consume '/*'
+    current_char_index += 1
 
     while current_char_index + 1 < length:
         if text[current_char_index] == '*' and text[current_char_index + 1] == '/':
-            # line += text[current_char_index]
-            # line += text[current_char_index + 1]
             current_char_index += 2
             
             tokens.append((COMMENT, start_pos, text[start_pos:current_char_index]))
             return current_char_index
         
-        # line += text[current_char_index]
         current_char_index += 1
 
     tokens.append((ERROR, start_pos, text[start_pos:current_char_index]))
@@ -232,32 +173,28 @@ cdef int handle_multiline_comment(int current_char_index, str text, int length, 
 cdef int handle_string(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
     cdef str quote = text[current_char_index]
-    # cdef str line = quote
     current_char_index += 1
 
     while current_char_index < length and text[current_char_index] != quote:
-        # Handle escaped quotes
+        # handle escaped quotes
         if text[current_char_index] == '\\' and current_char_index + 1 < length:
             current_char_index += 2
         else:
             current_char_index += 1
 
     if current_char_index < length and text[current_char_index] == quote:
-        # line += text[current_char_index]
         current_char_index += 1
         tokens.append((STRING, start_pos, text[start_pos:current_char_index]))
     else:
-        # Unterminated string
+        # unterminated string
         tokens.append((ERROR, start_pos, text[start_pos:current_char_index]))
     
     return current_char_index
 
 cdef int handle_number(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = ""
 
-    while current_char_index < length and (text[current_char_index].is_digit() or text[current_char_index] == '.'):
-        # line += text[current_char_index]
+    while current_char_index < length and (text[current_char_index].isdigit() or text[current_char_index] == '.'):
         current_char_index += 1
 
     tokens.append((NUMBER, start_pos, text[start_pos:current_char_index]))
@@ -265,10 +202,8 @@ cdef int handle_number(int current_char_index, str text, int length, list tokens
 
 cdef int handle_identifier(int current_char_index, str text, int length, list tokens):
     cdef int start_pos = current_char_index
-    # cdef str line = ""
 
-    while current_char_index < length and (text[current_char_index].is_alnum() or text[current_char_index] == '_'):
-        # line += text[current_char_index]
+    while current_char_index < length and (text[current_char_index].isalnum() or text[current_char_index] == '_'):
         current_char_index += 1
 
     cdef str identifier = text[start_pos:current_char_index]
@@ -341,10 +276,10 @@ class Lexer:
             elif current_char in { '\"', '\'', '`' }:
                 current_char_index = handle_string(current_char_index, text, length, tokens)
             # number
-            elif current_char.is_digit():
+            elif current_char.isdigit():
                 current_char_index = handle_number(current_char_index, text, length, tokens)
             # identifier
-            elif current_char.is_alpha() or current_char == '_':
+            elif current_char.isalpha() or current_char == '_':
                 current_char_index = handle_identifier(current_char_index, text, length, tokens)
             # default
             else:
