@@ -28,6 +28,7 @@ cimport cython
 
 cdef str DEFAULT = "default"
 
+
 @cython.cclass
 class Lexer:
     
@@ -61,3 +62,4 @@ class Lexer:
                 current_char_index += 1
 
         return tokens
+
