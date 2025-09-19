@@ -47,44 +47,47 @@ cdef str WARNING = "warning"
 cdef str SUCCESS = "success"
 
 ACCEPTED_NAMES = frozenset({ 
-    
-    # editor
-    "font",
+
+    # system
+    "font_family",
     "font_weight",
     "font_size",
-    "tab_width",
-    "cursor_width",
-    "editor_margin",
-    "scrollbar_width",
-    "scrollbar_opacity",
-    "line_number_opacity",
     "window_opacity",
+    "system_opacity",
     "theme",
+    "adaptive_theme",
     "file_explorer_root",
-    "model_to_use",
+    "terminal",
+    "path_to_shell",
+    "path_to_playlist",
+
+    # editor
+    # "font_family",
+    # "font_weight",
+    # "font_size",
+    "tab_width",
+    "cursor_style",
+    "cursor_width",
+    "scrollbar_width",
     "eol_mode",
-    "folded_code_indicator",
+    "whitespace_symbol",
     
     # toggles
+    "ai_features",
     "show_line_numbers",
-    "cursor_as_block",
+    "show_fold_margin",
     "wrap_word",
     "blinking_cursor",
-    "auto_hide_scrollbar",
-    "show_minimap",
     "highlight_todos",
     "whitespace_visible",
     "indent_guides",
     "highlight_line",
     "highlight_line_on_jump",
     "show_eol",
-    "file_explorer_hide_unsupported",
     "open_on_largest_screen",
     "autocomplete",
     "auto_indent",
-    "debug_mode",
-    "focus_mode",
-    "adaptive_cursor",
+    "replace_tabs_with_spaces",
 
     "auto_close_single_quote",
     "auto_close_double_quote",
@@ -93,14 +96,15 @@ ACCEPTED_NAMES = frozenset({
     "auto_close_parentheses",
 
     # status bar
+    "show_line_info",
     "show_path_to_file",
     "show_active_tokenizer",
     "show_model_status",
-    "show_cursor_position",
 
     # models
     "code_completion",
     "code_instruction",
+    "chat",
 
     "model",
     "key",
@@ -114,33 +118,51 @@ ACCEPTED_NAMES = frozenset({
     "fold_all",
     "code_instruction",
     "code_completion",
-    "code_explain",
-    "code_suggestion",
     "line_indent",
     "line_unindent",
     "line_comment",
     "open_config_file",
-    "open_functions_file",
+    "open_scripts_file",
     "move_to_line_start",
     "move_to_line_start_with_select",
     "zoom_in",
     "zoom_out",
-    "split_view",
+    "toggle_split_editor",
     "open_file_explorer",
     "open_folder_at_file",
     "open_terminal_at_file",
     "select_all",
     "find_in_file",
-    "go_to_line",
+    "find_in_project",
     "undo",
     "redo",
-    "previous_tab",
-    "next_tab",
     "jump_to_home",
     "jump_to_end",
     "page_up",
     "page_down",
     "close_file",
+    "command_chat_complete",
+    "python_eval_line",
+    "toggle_audio_player",
+    "toggle_play",
+    "start_command",
+    "start_chat",
+
+    # pane navigation
+    "focus_main_editor",
+    "focus_split_editor",
+    "previous_tab",
+    "next_tab",
+
+    "switch_to_buffer_1",
+    "switch_to_buffer_2",
+    "switch_to_buffer_3",
+    "switch_to_buffer_4",
+    "switch_to_buffer_5",
+    "switch_to_buffer_6",
+    "switch_to_buffer_7",
+    "switch_to_buffer_8",
+    "switch_to_buffer_9",
 
     # colors
     "background",
@@ -151,6 +173,9 @@ ACCEPTED_NAMES = frozenset({
     "text_highlight",
     "cursor",
     "whitespace",
+
+    "editor_bg",
+    "editor_handle",
     
     "default",
     "keyword",
@@ -172,9 +197,11 @@ ACCEPTED_NAMES = frozenset({
     "success",
 })
 
+
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
     return current_char_index
+
 
 cdef int handle_comment(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -187,6 +214,7 @@ cdef int handle_comment(int current_char_index, str text, list tokens):
 
     tokens.append((COMMENT, start_pos, line))
     return current_char_index
+
 
 cdef int handle_header(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -203,6 +231,7 @@ cdef int handle_header(int current_char_index, str text, list tokens):
 
     tokens.append((KEYWORD, start_pos, lexeme))
     return current_char_index
+
 
 cdef int handle_string(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -221,6 +250,7 @@ cdef int handle_string(int current_char_index, str text, list tokens):
     tokens.append((STRING, start_pos, lexeme))
     return current_char_index
 
+
 cdef int handle_number(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str lexeme = ""
@@ -231,6 +261,7 @@ cdef int handle_number(int current_char_index, str text, list tokens):
 
     tokens.append((NUMBER, start_pos, lexeme))
     return current_char_index
+
 
 cdef int handle_identifier(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -250,6 +281,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
         tokens.append((ERROR, start_pos, lexeme))
 
     return current_char_index
+
 
 @cython.cclass
 class Lexer:
