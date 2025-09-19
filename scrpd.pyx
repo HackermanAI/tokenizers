@@ -34,9 +34,11 @@ cdef str SPECIAL = "special"
 cdef str ERROR = "error"
 cdef str SUCCESS = "success"
 
+
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
     return current_char_index
+
 
 cdef int handle_command(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -50,6 +52,7 @@ cdef int handle_command(int current_char_index, str text, list tokens):
     tokens.append((NAME, start_pos, line))
     return current_char_index
 
+
 cdef int handle_chat(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str line = text[current_char_index]
@@ -61,6 +64,7 @@ cdef int handle_chat(int current_char_index, str text, list tokens):
 
     tokens.append((SPECIAL, start_pos, line))
     return current_char_index
+
 
 cdef int handle_header(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -74,6 +78,7 @@ cdef int handle_header(int current_char_index, str text, list tokens):
     tokens.append((KEYWORD, start_pos, line))
     return current_char_index
 
+
 cdef int handle_done_task(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str line = text[current_char_index]
@@ -85,6 +90,7 @@ cdef int handle_done_task(int current_char_index, str text, list tokens):
 
     tokens.append((SUCCESS, start_pos, line))
     return current_char_index
+
 
 cdef int handle_not_done_task(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
@@ -123,6 +129,7 @@ cdef int handle_not_done_task(int current_char_index, str text, list tokens):
     tokens.append((NAME, start_pos, line))
     return current_char_index
 
+
 cdef int handle_priority_task(int current_char_index, str text, list tokens):
     cdef int start_pos = current_char_index
     cdef str line = text[current_char_index]
@@ -135,31 +142,21 @@ cdef int handle_priority_task(int current_char_index, str text, list tokens):
     tokens.append((ERROR, start_pos, line))
     return current_char_index
 
-# cdef int handle_identifiers(int current_char_index, str text, list tokens):
-#     cdef int start_pos = current_char_index
-#     cdef str line = text[current_char_index]
-#     current_char_index += 1
-
-#     while current_char_index < len(text) and text[current_char_index] != '\n':
-#         line += text[current_char_index]
-#         current_char_index += 1
-
-    
-#     if line.startswith("eliza > "):
-#         tokens.append((SPECIAL, start_pos, line))
-#     else:
-#         tokens.append((DEFAULT, start_pos, line))
-    
-#     return current_char_index
 
 @cython.cclass
 class Lexer:
     
     @property
-    def lexer_name(self): return "Scratch Pad"
+    def lexer_name(self):
+        return "Scratch Pad"
 
     @property
-    def comment_char(self): return ""
+    def comment_char(self):
+        return ""
+
+    @property
+    def line_comment(self):
+        return ""
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
