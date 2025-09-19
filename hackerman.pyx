@@ -255,10 +255,16 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
 class Lexer:
 
     @property
-    def lexer_name(self): return "Hackerman Config"
+    def lexer_name(self):
+        return "Hackerman Config"
 
     @property
-    def comment_char(self): return "--"
+    def comment_char(self):
+        return "--"
+
+    @property
+    def line_comment(self):
+        return "--"
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
