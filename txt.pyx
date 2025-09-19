@@ -39,6 +39,10 @@ class Lexer:
     def comment_char(self):
         return ""
 
+    @property
+    def line_comment(self):
+        return ""
+
     def tokenize(self, str text):
         cdef int current_char_index = 0
         cdef int text_length = len(text)
