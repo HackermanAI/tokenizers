@@ -48,23 +48,16 @@ cdef str SUCCESS = "success"
 
 ACCEPTED_NAMES = frozenset({ 
 
-    # system
-    "font_family",
-    "font_weight",
-    "font_size",
-    "window_opacity",
-    "system_opacity",
-    "theme",
-    "adaptive_theme",
-    "file_explorer_root",
-    "terminal",
-    "path_to_shell",
-    "path_to_playlist",
+    # [editor]
+    
+    "system_font",
+    "system_font_size",
+    "system_font_weight",
 
-    # editor
-    # "font_family",
-    # "font_weight",
-    # "font_size",
+    "editor_font",
+    "editor_font_size",
+    "editor_font_weight",
+
     "tab_width",
     "cursor_style",
     "cursor_width",
@@ -72,13 +65,23 @@ ACCEPTED_NAMES = frozenset({
     "eol_mode",
     "whitespace_symbol",
     
-    # toggles
+    "window_opacity",
+    "system_opacity",
+    
+    "theme",
+    "adaptive_theme",
+    "file_explorer_root",
+    "terminal",
+    "path_to_shell",
+    "path_to_playlist",
+    
+    # -- toggles
+    
     "ai_features",
     "show_line_numbers",
     "show_fold_margin",
     "wrap_word",
     "blinking_cursor",
-    "highlight_todos",
     "whitespace_visible",
     "indent_guides",
     "highlight_line",
@@ -95,13 +98,15 @@ ACCEPTED_NAMES = frozenset({
     "auto_close_curly_bracket",
     "auto_close_parentheses",
 
-    # status bar
+    # -- status bar
+    
     "show_line_info",
     "show_path_to_file",
-    "show_active_tokenizer",
+    "show_active_lexer",
     "show_model_status",
 
-    # models
+    # [models]
+    
     "code_completion",
     "code_instruction",
     "chat",
