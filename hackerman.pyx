@@ -87,7 +87,7 @@ ACCEPTED_NAMES = frozenset({
     "ai_features",
     "show_line_numbers",
     "show_fold_margin",
-    "show_audio_player",
+    "show_now_playing",
     "wrap_word",
     "indent_guides",
     "highlight_line",
@@ -97,6 +97,7 @@ ACCEPTED_NAMES = frozenset({
     "autocomplete",
     "auto_indent",
     "replace_tabs_with_spaces",
+    "auto_close_tags",
 
     "auto_close_single_quote",
     "auto_close_double_quote",
@@ -287,6 +288,90 @@ ACCEPTED_NAMES = frozenset({
     "success",
 })
 
+VALID_VALUES_PER_NAME = {
+    "system_font": "isalpha",
+    "system_font_size": "int",
+    "system_font_weight": ["light", "normal", "medium", "bold"],
+
+    "editor_font": "isalpha",
+    "editor_font_size": "int",
+    "editor_font_weight": ["light", "normal", "medium", "bold"],
+
+    "tab_width": "int",
+    "cursor_style": ["default", "line", "block"],
+    "cursor_width": "int",
+    "scrollbar_width": "int",
+    "eol_mode": ["crlf", "cr", "lf"],
+    "whitespace_symbol": 1,
+    "whitespace_visible": ["always", "select"],
+    "editor_line_height": ["default", "compact", "comfortable"],
+    "blinking_cursor": "int",
+
+    "chat_start_symbol": 2,
+    "command_start_symbol": 2,
+
+    "window_opacity": "float",
+    "system_opacity": "float",
+
+    "theme": "isalpha",
+    "adaptive_theme": "list",
+    # "file_explorer_root": "str",
+    "file_explorer_in_sidebar": ["left", "right"],
+    # "terminal": "str",
+    # "path_to_shell": "str",
+    # "path_to_playlist": "str",    
+    
+    "ai_features": "bool",
+    "show_line_numbers": "bool",
+    "show_fold_margin": "bool",
+    "show_now_playing": "bool",
+    "wrap_word": "bool",
+    "indent_guides": "bool",
+    "highlight_line": "bool",
+    "highlight_line_on_jump": "bool",
+    "show_eol": "bool",
+    "open_on_largest_screen": "bool",
+    "autocomplete": "bool",
+    "auto_indent": "bool",
+    "replace_tabs_with_spaces": "bool",
+    "auto_close_tags": "bool",
+    "auto_close_single_quote": "bool",
+    "auto_close_double_quote": "bool",
+    "auto_close_square_bracket": "bool",
+    "auto_close_curly_bracket": "bool",
+    "auto_close_parentheses": "bool",
+
+    "show_line_info": "bool",
+    "show_path_to_file": "bool",
+    "show_active_lexer": "bool",
+    "show_model_status": "bool",
+
+    "code_completion": "list",
+    "code_instruction": "list",
+    "chat": "list",
+
+    # "model": "str",
+    # "key": "str",
+}
+
+cdef int is_int(str text):
+    try:
+        int(text)
+        return True
+    except ValueError:
+        return False
+
+cdef int is_float(str text):
+    try:
+        float(text)
+        return True
+    except ValueError:
+        return False
+
+cdef int is_bool(str text):
+    text = text.lower()
+    return text == "true" or text == "false"
+
 
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
@@ -323,54 +408,171 @@ cdef int handle_header(int current_char_index, str text, list tokens):
     return current_char_index
 
 
-cdef int handle_string(int current_char_index, str text, list tokens):
-    cdef int start_pos = current_char_index
-    cdef str quote = text[current_char_index]
-    cdef str lexeme = quote
-    current_char_index += 1
+# cdef int handle_string(int current_char_index, str text, list tokens):
+#     cdef int start_pos = current_char_index
+#     cdef str quote = text[current_char_index]
+#     cdef str lexeme = quote
+#     current_char_index += 1
 
-    while current_char_index < len(text) and text[current_char_index] != quote and text[current_char_index] != '\n':
-        lexeme += text[current_char_index]
-        current_char_index += 1
+#     while current_char_index < len(text) and text[current_char_index] != quote and text[current_char_index] != '\n':
+#         lexeme += text[current_char_index]
+#         current_char_index += 1
 
-    if current_char_index < len(text) and text[current_char_index] == quote:
-        lexeme += text[current_char_index]
-        current_char_index += 1
+#     if current_char_index < len(text) and text[current_char_index] == quote:
+#         lexeme += text[current_char_index]
+#         current_char_index += 1
 
-    tokens.append((STRING, start_pos, lexeme))
-    return current_char_index
+#     tokens.append((STRING, start_pos, lexeme))
+#     return current_char_index
 
 
-cdef int handle_number(int current_char_index, str text, list tokens):
-    cdef int start_pos = current_char_index
-    cdef str lexeme = ""
+# cdef int handle_number(int current_char_index, str text, list tokens):
+#     cdef int start_pos = current_char_index
+#     cdef str lexeme = ""
 
-    while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index] == '.'):
-        lexeme += text[current_char_index]
-        current_char_index += 1
+#     while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index] == '.'):
+#         lexeme += text[current_char_index]
+#         current_char_index += 1
 
-    tokens.append((NUMBER, start_pos, lexeme))
-    return current_char_index
+#     tokens.append((NUMBER, start_pos, lexeme))
+#     return current_char_index
 
 
 cdef int handle_identifier(int current_char_index, str text, list tokens):
+    cdef int text_length = len(text)
+    cdef int char_index = current_char_index
     cdef int start_pos = current_char_index
-    cdef str lexeme = ""
+    cdef str lexeme
 
-    while current_char_index < len(text) and (text[current_char_index].isalnum() or text[current_char_index] == '_'):
-        lexeme += text[current_char_index]
-        current_char_index += 1
+    # LHS
 
-    if lexeme in { "true", "false" }:
-        tokens.append((CONDITIONAL, start_pos, lexeme))
-    
-    elif lexeme in ACCEPTED_NAMES:
+    while char_index < text_length and (text[char_index].isalnum() or text[char_index] == '_'):
+        char_index += 1
+
+    lexeme = text[start_pos:char_index]
+
+    if lexeme in ACCEPTED_NAMES:
         tokens.append((DEFAULT, start_pos, lexeme))
-    
     else:
         tokens.append((ERROR, start_pos, lexeme))
 
-    return current_char_index
+    # skip whitespace between LHS and RHS
+    while char_index < text_length and (text[char_index] == ' ' or text[char_index] == '\t'):
+        char_index += 1
+
+    cdef int rhs_start = char_index
+    cdef int comment_pos = -1
+
+    # find comment pos
+    while char_index < text_length and text[char_index] not in ('\r', '\n'):
+        if text[char_index] == '-' and char_index + 1 < text_length and text[char_index + 1] == '-':
+            comment_pos = char_index
+            break
+        
+        char_index += 1
+
+    cdef int rhs_end = comment_pos if comment_pos != -1 else char_index
+    cdef str rhs_raw = text[rhs_start:rhs_end]
+
+    # RHS
+
+    cdef str rhs = text[rhs_start:char_index].rstrip()
+    if rhs.endswith(','):
+        rhs = rhs[:-1].rstrip()
+
+    cdef int rhs_offset_rel = 0
+    cdef int rhs_len = len(rhs_raw)
+
+    cdef int item_s
+    cdef int item_e
+    cdef int trimmed_end_rel
+    cdef str item_text
+    cdef int abs_item_start
+
+    # handle RHS values
+
+    while rhs_offset_rel < rhs_len:
+        
+        # skip leading whitespace
+        while rhs_offset_rel < rhs_len and (rhs_raw[rhs_offset_rel] == ' ' or rhs_raw[rhs_offset_rel] == '\t'):
+            rhs_offset_rel += 1
+        
+        item_s = rhs_offset_rel
+
+        # scan to comma or EOL
+        while rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] != ',':
+            rhs_offset_rel += 1
+        
+        item_e = rhs_offset_rel
+
+        # trim trailing whitespace
+        trimmed_end_rel = item_e - 1
+        while trimmed_end_rel >= item_s and (rhs_raw[trimmed_end_rel] == ' ' or rhs_raw[trimmed_end_rel] == '\t'):
+            trimmed_end_rel -= 1
+        
+        trimmed_end_rel += 1
+
+        if trimmed_end_rel > item_s:
+            item_text = rhs_raw[item_s:trimmed_end_rel]
+            abs_item_start = rhs_start + item_s
+
+            if item_text.startswith('"'):
+                tokens.append((STRING, abs_item_start, item_text))
+            else:
+                if lexeme in VALID_VALUES_PER_NAME.keys():
+                    valid_values = VALID_VALUES_PER_NAME[lexeme]
+
+                    # list of strings
+                    if isinstance(valid_values, list):
+                        if item_text in valid_values:
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    # int
+                    elif valid_values == "int":
+                        if is_int(item_text):
+                            tokens.append((NUMBER, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    # float
+                    elif valid_values == "float":
+                        if is_float(item_text):
+                            tokens.append((NUMBER, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    # bool
+                    elif valid_values == "bool":
+                        if is_bool(item_text):
+                            tokens.append((NUMBER, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    # isalpha
+                    elif valid_values == "isalpha":
+                        if item_text.isalpha():
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    # length var
+                    elif isinstance(valid_values, int):
+                        if len(item_text) <= valid_values:
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
+                    else:
+                        tokens.append((STRING, abs_item_start, item_text))
+
+        # if there is a comma, emit it with exact absolute position
+        if rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] == ',':
+            tokens.append((DEFAULT, rhs_start + rhs_offset_rel, ","))
+            rhs_offset_rel += 1
+
+    return char_index
 
 
 @cython.cclass
@@ -396,28 +598,41 @@ class Lexer:
 
         while current_char_index < len(text):
             current_char = text[current_char_index]
-            next_char = text[current_char_index] if current_char_index + 1 < len(text) else ""
+            next_char = text[current_char_index + 1] if current_char_index + 1 < len(text) else ""
 
             # whitespace
-            if current_char in { ' ', '\t', '\r', '\n' }: current_char_index = handle_whitespace(current_char_index)
+            if current_char in { ' ', '\t', '\r', '\n' }:
+                current_char_index = handle_whitespace(current_char_index)
+            
             # comment
-            elif current_char == '-' and next_char == '-': current_char_index = handle_comment(current_char_index, text, tokens)
+            elif current_char == '-' and next_char == '-':
+                current_char_index = handle_comment(current_char_index, text, tokens)
+            
             # header
-            elif current_char == '[': current_char_index = handle_header(current_char_index, text, tokens)
-            # string
-            elif current_char in { '\"', '\'' }: current_char_index = handle_string(current_char_index, text, tokens)
-            # number
-            elif '0' <= current_char <= '9': current_char_index = handle_number(current_char_index, text, tokens)
+            elif current_char == '[':
+                current_char_index = handle_header(current_char_index, text, tokens)
+            
+            # # string
+            # elif current_char in { '\"', '\'' }:
+            #     current_char_index = handle_string(current_char_index, text, tokens)
+            
+            # # number
+            # elif '0' <= current_char <= '9':
+            #     current_char_index = handle_number(current_char_index, text, tokens)
+            
+            # # symbols
+            # elif current_char in { '(', ')', ',' }:
+            #     tokens.append((COMMENT, current_char_index, current_char))
+            #     current_char_index += 1
+
             # identifier
-            elif current_char.isalpha() or current_char == '_': current_char_index = handle_identifier(current_char_index, text, tokens)
-            # symbols
-            elif current_char in { '(', ')', ',' }:
-                tokens.append((COMMENT, current_char_index, current_char))
-                current_char_index += 1
+            elif current_char.isalpha() or current_char == '_':
+                current_char_index = handle_identifier(current_char_index, text, tokens)
+            
             # unknown
-            else:
-                tokens.append((ERROR, current_char_index, current_char))
-                current_char_index += 1
+            # else:
+            #     tokens.append((ERROR, current_char_index, current_char))
+            #     current_char_index += 1
 
         return tokens
 
