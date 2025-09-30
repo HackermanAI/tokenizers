@@ -108,7 +108,8 @@ ACCEPTED_NAMES = frozenset({
     # -- status bar
     
     "show_line_info",
-    "show_path_to_file",
+    "show_path_to_project",
+    "show_path_to_pos",
     "show_active_lexer",
     "show_model_status",
 
@@ -342,7 +343,8 @@ VALID_VALUES_PER_NAME = {
     "auto_close_parentheses": "bool",
 
     "show_line_info": "bool",
-    "show_path_to_file": "bool",
+    "show_path_to_project": "bool",
+    "show_path_to_pos": "bool",
     "show_active_lexer": "bool",
     "show_model_status": "bool",
 
@@ -500,7 +502,9 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
         item_s = rhs_offset_rel
 
         # scan to comma or EOL
-        while rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] != ',':
+        # while rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] != ',':
+        #     rhs_offset_rel += 1
+        while rhs_offset_rel < rhs_len:
             rhs_offset_rel += 1
         
         item_e = rhs_offset_rel
@@ -536,6 +540,13 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
                         else:
                             tokens.append((ERROR, abs_item_start, item_text))
 
+                    # list
+                    elif valid_values == "list":
+                        if "," in item_text:
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+
                     # float
                     elif valid_values == "float":
                         if is_float(item_text):
@@ -563,9 +574,14 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
                             tokens.append((STRING, abs_item_start, item_text))
                         else:
                             tokens.append((ERROR, abs_item_start, item_text))
-
+                    
+                    # wildcard (valid name but unknown input)
                     else:
                         tokens.append((STRING, abs_item_start, item_text))
+                
+                # if not in valid names
+                else:
+                    tokens.append((COMMENT, abs_item_start, item_text))
 
         # if there is a comma, emit it with exact absolute position
         if rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] == ',':
