@@ -1,7 +1,26 @@
 
+
 # Tokenizers for Hackerman Text
 
-## Build file for Cython(.pyx) files
+This repo supports the bring-your-own-lexer feature in Hackerman Text code editor.
+
+It's primarily used to support naive syntax highlightning of unsupported languages, DSL, or your own hobby languages (or esolangs).
+
+**Note that Cython tokenizers will not be as performant as built-in lexers written in C++.**
+
+
+## Getting started
+
+See examples on how to implement a new tokenizer.
+
+The token CONSTANTS at top of file should correspond with colors used in your theme in the Hackerman Text config file (.hackerman). You can add or remove any color CONSTANTS as long as the theme file stays consistent.
+
+### MacOS
+
+The binary (your-tokenizer-for-lang.so) should be placed in the Application Support/Hackerman Text/tokenziers folder.
+
+
+## Example build file for Cython (.pyx)
 
 	from setuptools import setup, Extension
 	from Cython.Build import cythonize
@@ -19,7 +38,8 @@
 	    )
 	)
 
-# .sh build script
+
+# Example `.sh` build script
 
 	#!/bin/bash
 
