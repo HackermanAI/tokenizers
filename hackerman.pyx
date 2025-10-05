@@ -646,9 +646,9 @@ class Lexer:
                 current_char_index = handle_identifier(current_char_index, text, tokens)
             
             # unknown
-            # else:
-            #     tokens.append((ERROR, current_char_index, current_char))
-            #     current_char_index += 1
+            else:
+                tokens.append((ERROR, current_char_index, current_char))
+                current_char_index += 1
 
         return tokens
 
