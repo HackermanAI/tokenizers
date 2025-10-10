@@ -46,58 +46,91 @@ cdef str ERROR = "error"
 cdef str WARNING = "warning"
 cdef str SUCCESS = "success"
 
-ACCEPTED_NAMES = frozenset({ 
+ACCEPTED_NAMES = frozenset({
+
+    # [license]
+
+    "product_key",
 
     # [editor]
     
-    "system_font",
-    "system_font_size",
-    "system_font_weight",
+    "ui_font",
+    "ui_font_weight",
+    "ui_font_size",
 
-    "editor_font",
-    "editor_font_size",
-    "editor_font_weight",
+    "font",
+    "font_weight",
+    "font_size",
 
-    "tab_width",
     "cursor_style",
-    "cursor_width",
-    "scrollbar_width",
-    "eol_mode",
-    "whitespace_symbol",
     "whitespace_visible",
     "editor_line_height",
-    "blinking_cursor",
-
-    "chat_start_symbol",
-    "command_start_symbol",
+    
+    "tab_width",
+    "caret_blink_period",
     
     "window_opacity",
-    "system_opacity",
+    "ui_opacity",
     
     "theme",
     "adaptive_theme",
+
     "file_explorer_root",
-    "file_explorer_in_sidebar",
-    "terminal",
+    
+    "file_explorer_as_sidebar",
+    "outline_panel_as_sidebar",
+    
+    "terminal_to_use",
     "path_to_shell",
     "path_to_playlist",
     
+    "vertical_rulers",
+    
     # -- toggles
     
-    "ai_features",
+    "ai_features_enabled",
+    
     "show_line_numbers",
     "show_fold_margin",
+    "show_scrollbar",
+    "show_indent_guides",
     "show_now_playing",
-    "wrap_word",
-    "indent_guides",
-    "highlight_line",
-    "highlight_line_on_jump",
-    "show_eol",
+    "blinking_cursor",
+    "highlight_current_line",
+    "eol_symbols_visible",
     "open_on_largest_screen",
     "autocomplete",
     "auto_indent",
     "replace_tabs_with_spaces",
+    
+    "wrap_word",
     "auto_close_tags",
+    "highlight_line_on_jump",
+
+    "copy_line_if_no_selection",
+    "cut_line_if_no_selection",
+    
+    "use_buffer_switcher",
+
+    # -- symbols
+
+    "unsaved_symbol",
+    "whitespace_symbol",
+    "chat_start_symbol",
+    "command_start_symbol",
+
+    # -- advanced
+
+    "auto_hide_fold_buttons",
+    "eol_mode",
+
+    "cursor_width",
+    "caret_extra_height",
+    "scrollbar_width",
+    "whitespace_opacity",
+    "indent_guides_opacity",
+    "fade_scrollbar",
+    "fade_split_handle",
 
     "auto_close_single_quote",
     "auto_close_double_quote",
@@ -109,7 +142,6 @@ ACCEPTED_NAMES = frozenset({
     
     "show_line_info",
     "show_path_to_project",
-    "show_path_to_pos",
     "show_active_lexer",
     "show_model_status",
 
@@ -119,10 +151,8 @@ ACCEPTED_NAMES = frozenset({
     "code_instruction",
     "chat",
 
-    "model",
-    "key",
+    # [keybinds]
 
-    # keybinds
     "save_file",
     "new_file",
     "new_window",
@@ -153,8 +183,9 @@ ACCEPTED_NAMES = frozenset({
     "line_indent",
     "line_unindent",
     "selection_duplicate",
-    "move_selected_lines_up",
-    "move_selected_lines_down",
+    "move_line_up",
+    "move_line_down",
+    "copy_path_to_file",
 
     "document_start",
     "document_end",
@@ -168,14 +199,17 @@ ACCEPTED_NAMES = frozenset({
     "char_right",
     "char_left_extend",
     "char_right_extend",
+    
     "line_up",
     "line_down",
     "line_up_extend",
     "line_down_extend",
+    
     "line_start",
     "line_end",
     "line_start_extend",
     "line_end_extend",
+    
     "line_scroll_up",
     "line_scroll_down",
     "line_add_caret_up",
@@ -193,22 +227,27 @@ ACCEPTED_NAMES = frozenset({
     "para_down",
     "para_up_extend",
     "para_down_extend",
+    
     "word_left",
     "word_right",
     "word_left_extend",
     "word_right_extend",
+    
     "word_left_end",
     "word_right_end",
     "word_left_end_extend",
     "word_right_end_extend",
+    
     "word_part_left",
     "word_part_right",
     "word_part_left_extend",
     "word_part_right_extend",
+    
     "page_up",
     "page_down",
     "page_up_extend",
     "page_down_extend",
+    
     "stuttered_page_up",
     "stuttered_page_down",
     "stuttered_page_up_extend",
@@ -240,7 +279,8 @@ ACCEPTED_NAMES = frozenset({
     "start_command",
     "start_chat",
 
-    # pane navigation
+    # -- pane navigation
+    
     "focus_main_editor",
     "focus_split_editor",
     "previous_tab",
@@ -256,18 +296,18 @@ ACCEPTED_NAMES = frozenset({
     "switch_to_buffer_8",
     "switch_to_buffer_9",
 
-    # colors
+    # [user]
+
+    # this section is skipped
+
+    # theme colors
+    
     "background",
     "foreground",
     "selection",
-    "selection_inactive",
     "text_color",
     "text_highlight",
     "cursor",
-    "whitespace",
-
-    "editor_bg",
-    "editor_handle",
     
     "default",
     "keyword",
@@ -282,7 +322,7 @@ ACCEPTED_NAMES = frozenset({
     "special",
     "type",
     "conditional",
-    "built_in",
+    "builtin",
 
     "error",
     "warning",
@@ -290,57 +330,99 @@ ACCEPTED_NAMES = frozenset({
 })
 
 VALID_VALUES_PER_NAME = {
-    "system_font": "isalpha",
-    "system_font_size": "int",
-    "system_font_weight": ["light", "normal", "medium", "bold"],
+    
+    # [license]
 
-    "editor_font": "isalpha",
-    "editor_font_size": "int",
-    "editor_font_weight": ["light", "normal", "medium", "bold"],
+    "product_key": "isalpha",
 
+    # [editor]
+
+    "ui_font": "isalpha",
+    "ui_font_weight": ["light", "normal", "medium", "bold"],
+    "ui_font_size": "int",
+
+    "font": "isalpha",
+    "font_weight": ["light", "normal", "medium", "bold"],
+    "font_size": "int",
+
+    "cursor_style": ["line", "block"],
+    "whitespace_visible": ["always", "onselect"],
+    "editor_line_height": ["compact", "comfortable"],
+    
     "tab_width": "int",
-    "cursor_style": ["default", "line", "block"],
-    "cursor_width": "int",
-    "scrollbar_width": "int",
-    "eol_mode": ["crlf", "cr", "lf"],
-    "whitespace_symbol": 1,
-    "whitespace_visible": ["always", "select"],
-    "editor_line_height": ["default", "compact", "comfortable"],
-    "blinking_cursor": "int",
-
-    "chat_start_symbol": 2,
-    "command_start_symbol": 2,
+    "caret_blink_period": "int",
 
     "window_opacity": "float",
-    "system_opacity": "float",
+    "ui_opacity": "float",
 
     "theme": "isalpha",
     "adaptive_theme": "list",
-    # "file_explorer_root": "str",
-    "file_explorer_in_sidebar": ["left", "right"],
-    # "terminal": "str",
-    # "path_to_shell": "str",
-    # "path_to_playlist": "str",    
+
+    # "file_explorer_root": "isalpha",
+
+    "file_explorer_as_sidebar": ["left", "right"],
+    "outline_panel_as_sidebar": ["left", "right"],
+
+    "terminal_to_use": "isalpha",
+    # "path_to_shell": "isalpha",
+    # "path_to_playlist": "isalpha",
+
+    "vertical_rulers": "list",
+
+    # -- toggles
+
+    "ai_features_enabled": "bool",
     
-    "ai_features": "bool",
     "show_line_numbers": "bool",
     "show_fold_margin": "bool",
+    "show_scrollbar": "bool",
+    "show_indent_guides": "bool",
     "show_now_playing": "bool",
-    "wrap_word": "bool",
-    "indent_guides": "bool",
-    "highlight_line": "bool",
-    "highlight_line_on_jump": "bool",
-    "show_eol": "bool",
+
+    "blinking_cursor": "bool",
+    "highlight_current_line": "bool",
+    "eol_symbols_visible": "bool",
     "open_on_largest_screen": "bool",
     "autocomplete": "bool",
     "auto_indent": "bool",
     "replace_tabs_with_spaces": "bool",
+
+    "wrap_word": "bool",
     "auto_close_tags": "bool",
+    "highlight_line_on_jump": "bool",
+
+    "copy_line_if_no_selection": "bool",
+    "cut_line_if_no_selection": "bool",
+
+    "use_buffer_switcher": "bool",
+
+    # -- symbols
+
+    # "unsaved_symbol": "isalpha",
+    "whitespace_symbol": 1,
+    "chat_start_symbol": 2,
+    "command_start_symbol": 2,
+    
+    # -- advanced
+
+    "auto_hide_fold_buttons": ["noncurrent", "never"],
+    "eol_mode": ["crlf", "cr", "lf"],
+
+    "cursor_width": "int",
+    "caret_extra_height": "int",
+    "scrollbar_width": "int",
+    "whitespace_opacity": "float",
+    "indent_guides_opacity": "float",
+    "fade_scrollbar": "int",
+    "fade_split_handle": "int",
+    
     "auto_close_single_quote": "bool",
     "auto_close_double_quote": "bool",
     "auto_close_square_bracket": "bool",
     "auto_close_curly_bracket": "bool",
     "auto_close_parentheses": "bool",
+
+    # -- status bar
 
     "show_line_info": "bool",
     "show_path_to_project": "bool",
@@ -348,12 +430,11 @@ VALID_VALUES_PER_NAME = {
     "show_active_lexer": "bool",
     "show_model_status": "bool",
 
+    # [models]
+
     "code_completion": "list",
     "code_instruction": "list",
     "chat": "list",
-
-    # "model": "str",
-    # "key": "str",
 }
 
 cdef int is_int(str text):
