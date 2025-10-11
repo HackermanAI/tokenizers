@@ -34,3 +34,5 @@ txt.c
 txt.cpython-312-darwin.so
 odin.c
 odin.cpython-312-darwin.so
+pc.c
+pc.cpython-312-darwin.so
