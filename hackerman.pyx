@@ -687,6 +687,16 @@ class Lexer:
     def line_comment(self):
         return "--"
 
+    def _is_class(self, line_text):
+        stripped = line_text.strip()
+        return stripped.startswith("[") and "]" in stripped
+
+    def _is_function_name(self, line_text):
+        return False
+
+    def _is_type_def(self, line_text):
+        return False
+
     def tokenize(self, str text):
         cdef int current_char_index = 0
         cdef str current_char
