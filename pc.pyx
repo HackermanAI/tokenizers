@@ -171,9 +171,6 @@ class Lexer:
     def lexer_name(self):
         return "PlayCode"
 
-    def name(self):
-        return self.lexer_name()
-
     @property
     def comment_char(self):
         return ["--", None]
