@@ -1,6 +1,6 @@
 
 
-![tokenizers.png](tokenizers.png)
+![tokenizers.gif](tokenizers.gif)
 
 
 # Tokenizers for Hackerman Text
