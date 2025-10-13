@@ -687,20 +687,6 @@ cdef class Lexer:
         self.comment_char = u"--"
         self.line_comment = u"--"
 
-    # lexer properties
-
-    property lexer_name:
-        def __get__(self):
-            return "Hackerman Config"
-
-    property comment_char:
-        def __get__(self):
-            return "--"
-
-    property line_comment:
-        def __get__(self):
-            return "--"
-
     # for outline panel
 
     cpdef bint _is_class(self, str line_text):
