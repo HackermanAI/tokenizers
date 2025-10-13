@@ -7,7 +7,7 @@
 
 This repo supports the bring-your-own-lexer feature in Hackerman Text code editor.
 
-It's primarily used to support naive syntax highlightning of unsupported languages, DSL, or your own hobby languages (or esolangs).
+It's primarily used to support naive syntax highlighting of unsupported languages, DSL, or your own hobby languages (or esolangs).
 
 **Note that Cython tokenizers will not be as performant as built-in lexers written in C++.**
 
