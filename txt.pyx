@@ -21,28 +21,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Plain Text
+# Tokenizer for Super Text (Plain Text with inline commands)
 
 # cython: language_level=3
 cimport cython
 
 cdef str DEFAULT = "default"
+cdef str WARNING = "warning"
 
 
-@cython.cclass
-class Lexer:
-    
-    @property
-    def lexer_name(self):
-        return "Plain Text"
+cdef class Lexer:
+    cdef public object cmd_start
+    cdef public object cmd_end
 
-    @property
-    def comment_char(self):
-        return ""
+    cdef readonly str lexer_name
+    cdef readonly str comment_char
+    cdef readonly str line_comment
 
-    @property
-    def line_comment(self):
-        return ""
+    def __cinit__(self, cmd_start=None, cmd_end=None):
+        self.cmd_start = cmd_start
+        self.cmd_end = cmd_end
+        
+        self.lexer_name = u"Super Text"
+        self.comment_char = u""
+        self.line_comment = u""
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
@@ -50,12 +52,46 @@ class Lexer:
         cdef str current_char
         cdef list tokens = []
 
+        cdef str line_buffer = ""
+
         while current_char_index < text_length:
             current_char = text[current_char_index]
+            line_buffer += current_char
+
+            # newline
+            if current_char == '\n':
+                current_char_index += 1
+                # reset line buffer
+                line_buffer = ""
 
             # whitespace
-            if current_char in { ' ', '\t', '\r', '\n' }:
+            elif current_char in (' ', '\t', '\r'):
                 current_char_index += 1
+            
+            # command (must be at start of line buffer)
+            elif current_char == self.cmd_start and line_buffer.startswith(self.cmd_start):
+                start_pos = current_char_index
+                current_char_index += 1 # consume command start symbol
+
+                while current_char_index < text_length:
+                    current_char = text[current_char_index]
+                    
+                    if current_char == '\n': # do not consume this here
+                        tokens.append((WARNING, start_pos, line_buffer))
+                        
+                        # reset line buffer
+                        line_buffer = ""
+                        
+                        break
+                        
+                    else:
+                        line_buffer += current_char
+                        current_char_index += 1
+
+                # no newline
+                if line_buffer != "":
+                    tokens.append((WARNING, start_pos, line_buffer))
+            
             # default
             else:
                 tokens.append((DEFAULT, current_char_index, current_char))
