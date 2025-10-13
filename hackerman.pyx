@@ -672,30 +672,48 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
     return char_index
 
 
-@cython.cclass
-class Lexer:
+cdef class Lexer:
+    cdef public object cmd_start
+    cdef public object cmd_end
 
-    @property
-    def lexer_name(self):
-        return "Hackerman Config"
+    cdef readonly str lexer_name
+    cdef readonly str comment_char
+    cdef readonly str line_comment
 
-    @property
-    def comment_char(self):
-        return "--"
+    def __cinit__(self, cmd_start=None, cmd_end=None):
+        self.cmd_start = cmd_start
+        self.cmd_end = cmd_end
+        self.lexer_name = u"Hackerman Config"
+        self.comment_char = u"--"
+        self.line_comment = u"--"
 
-    @property
-    def line_comment(self):
-        return "--"
+    # lexer properties
 
-    def _is_class(self, line_text):
-        stripped = line_text.strip()
-        return stripped.startswith("[") and "]" in stripped
+    property lexer_name:
+        def __get__(self):
+            return "Hackerman Config"
 
-    def _is_function_name(self, line_text):
+    property comment_char:
+        def __get__(self):
+            return "--"
+
+    property line_comment:
+        def __get__(self):
+            return "--"
+
+    # for outline panel
+
+    cpdef bint _is_class(self, str line_text):
+        cdef str stripped = line_text.strip()
+        return stripped.startswith("[") and ("]" in stripped)
+
+    cpdef bint _is_function_name(self, str line_text):
         return False
 
-    def _is_type_def(self, line_text):
+    cpdef bint _is_type_def(self, str line_text):
         return False
+
+    # tokenizer
 
     def tokenize(self, str text):
         cdef int current_char_index = 0
