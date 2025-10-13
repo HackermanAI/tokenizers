@@ -683,6 +683,7 @@ cdef class Lexer:
     def __cinit__(self, cmd_start=None, cmd_end=None):
         self.cmd_start = cmd_start
         self.cmd_end = cmd_end
+        
         self.lexer_name = u"Hackerman Config"
         self.comment_char = u"--"
         self.line_comment = u"--"
