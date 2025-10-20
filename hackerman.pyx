@@ -53,97 +53,111 @@ ACCEPTED_NAMES = frozenset({
     "product_key",
 
     # [editor]
-    
-    "ui_font",
-    "ui_font_weight",
-    "ui_font_size",
 
     "font",
     "font_weight",
     "font_size",
-
-    "cursor_style",
-    "whitespace_visible",
-    "editor_line_height",
-    
+    "line_height",
     "tab_width",
-    "caret_blink_period",
-    
-    "window_opacity",
-    "ui_opacity",
-    
     "theme",
     "adaptive_theme",
-
-    "file_explorer_root",
-    
-    "file_explorer_as_sidebar",
-    "outline_panel_as_sidebar",
-    
-    "terminal_to_use",
-    "path_to_shell",
-    "path_to_playlist",
-    
-    "vertical_rulers",
-    
-    # -- toggles
-    
-    "ai_features_enabled",
-    
-    "show_line_numbers",
-    "show_fold_margin",
-    "show_scrollbar",
-    "show_indent_guides",
-    "show_now_playing",
-    "blinking_cursor",
-    "highlight_current_line",
-    "eol_symbols_visible",
-    "open_on_largest_screen",
-    "autocomplete",
     "auto_indent",
-    "replace_tabs_with_spaces",
-    
-    "wrap_word",
-    "auto_close_tags",
-    "highlight_line_on_jump",
-
-    "copy_line_if_no_selection",
-    "cut_line_if_no_selection",
-    
-    "use_buffer_switcher",
-
-    # -- symbols
-
-    "unsaved_symbol",
-    "whitespace_symbol",
-    "chat_start_symbol",
-    "command_start_symbol",
-
-    # -- advanced
-
-    "auto_hide_fold_buttons",
-    "eol_mode",
-
-    "cursor_width",
-    "caret_extra_height",
-    "scrollbar_width",
-    "whitespace_opacity",
-    "indent_guides_opacity",
-    "fade_scrollbar",
-    "fade_split_handle",
-
     "auto_close_single_quote",
     "auto_close_double_quote",
     "auto_close_square_bracket",
     "auto_close_curly_bracket",
     "auto_close_parentheses",
 
-    # -- status bar
+    # -- ui
+
+    "show_line_numbers",
+    "show_fold_margin",
+    "show_scrollbar",
+    "show_indent_guides",
+    "show_inline_hints",
+    "show_auto_complete",
+
+    "show_fold_margin_buttons",
+    "scrollbar_width",
+    "indent_guides_opacity",
+
+    # -- cursor
+
+    "cursor_style",
+    "cursor_width",
+    "cursor_extra_height",
+    "cursor_line_highlight",
+    "cursor_blink",
+    "cursor_blink_period",
     
+    # -- sidebar
+
+    "sidebar_position",
+    
+    "show_folder_tree",
+    "show_outline_panel",
+
+    "file_explorer_root",
+    "file_types_to_exclude",
+
+    # -- statusbar
+
     "show_line_info",
     "show_path_to_project",
     "show_active_lexer",
     "show_model_status",
+
+    # -- playlist
+
+    "show_now_playing",
+    "sort_playlist_by_date",
+    
+    "path_to_playlist",
+
+    # -- misc
+
+    "ai_enabled",
+    
+    "window_opacity",
+    "ui_opacity",
+
+    "ui_font",
+    "ui_font_weight",
+    "ui_font_size",
+
+    "copy_line_if_no_selection",
+    "cut_line_if_no_selection",
+
+    "open_on_largest_screen",
+    "replace_tabs_with_spaces",
+    "file_to_open_on_startup",
+
+    "inline_command_in_files",
+    "inline_command_symbol",
+
+    "eol_mode",
+    "eol_symbols_visible",
+
+    "terminal_to_use",
+    "path_to_shell",
+
+    "whitespace_symbol",
+    "whitespace_visible",
+    "whitespace_opacity",
+
+    "unsaved_symbol", 
+    
+    "fade_scrollbar",
+    "fade_split_handle",
+    
+    "vertical_rulers",
+
+    # -- experimental
+
+    "use_buffer_switcher",
+    "wrap_word",
+    "auto_close_tags",
+    "highlight_line_on_jump",
 
     # [models]
     
@@ -337,84 +351,17 @@ VALID_VALUES_PER_NAME = {
 
     # [editor]
 
-    "ui_font": "isalpha",
-    "ui_font_weight": ["light", "normal", "medium", "bold"],
-    "ui_font_size": "int",
-
     "font": "isalpha",
     "font_weight": ["light", "normal", "medium", "bold"],
     "font_size": "int",
 
-    "cursor_style": ["line", "block"],
-    "whitespace_visible": ["always", "onselect"],
-    "editor_line_height": ["compact", "comfortable"],
-    
+    "line_height": ["compact", "comfortable"],
     "tab_width": "int",
-    "caret_blink_period": "int",
-
-    "window_opacity": "float",
-    "ui_opacity": "float",
 
     "theme": "isalpha",
     "adaptive_theme": "list",
 
-    # "file_explorer_root": "isalpha",
-
-    "file_explorer_as_sidebar": ["left", "right"],
-    "outline_panel_as_sidebar": ["left", "right"],
-
-    "terminal_to_use": "isalpha",
-    # "path_to_shell": "isalpha",
-    # "path_to_playlist": "isalpha",
-
-    "vertical_rulers": "list",
-
-    # -- toggles
-
-    "ai_features_enabled": "bool",
-    
-    "show_line_numbers": "bool",
-    "show_fold_margin": "bool",
-    "show_scrollbar": "bool",
-    "show_indent_guides": "bool",
-    "show_now_playing": "bool",
-
-    "blinking_cursor": "bool",
-    "highlight_current_line": "bool",
-    "eol_symbols_visible": "bool",
-    "open_on_largest_screen": "bool",
-    "autocomplete": "bool",
     "auto_indent": "bool",
-    "replace_tabs_with_spaces": "bool",
-
-    "wrap_word": "bool",
-    "auto_close_tags": "bool",
-    "highlight_line_on_jump": "bool",
-
-    "copy_line_if_no_selection": "bool",
-    "cut_line_if_no_selection": "bool",
-
-    "use_buffer_switcher": "bool",
-
-    # -- symbols
-
-    # "unsaved_symbol": "isalpha",
-    "whitespace_symbol": 1,
-    "chat_start_symbol": 2,
-    "command_start_symbol": 2,
-    
-    # -- advanced
-
-    "auto_hide_fold_buttons": ["noncurrent", "never"],
-    "eol_mode": ["crlf", "cr", "lf"],
-
-    "cursor_width": "int",
-    "caret_extra_height": "int",
-    "scrollbar_width": "int",
-    "whitespace_opacity": "float",
-    "indent_guides_opacity": "float",
-    "fade_scrollbar": "int",
-    "fade_split_handle": "int",
     
     "auto_close_single_quote": "bool",
     "auto_close_double_quote": "bool",
@@ -422,13 +369,99 @@ VALID_VALUES_PER_NAME = {
     "auto_close_curly_bracket": "bool",
     "auto_close_parentheses": "bool",
 
-    # -- status bar
+    # -- ui
+
+    "show_line_numbers": "bool",
+    "show_fold_margin": "bool",
+    "show_scrollbar": "bool",
+    "show_indent_guides": "bool",
+    "show_inline_hints": "bool",
+    "show_auto_complete": "bool",
+
+    "show_fold_margin_buttons": ["always", "folded_and_hover"],
+    "scrollbar_width": "int",
+    "indent_guides_opacity": "float",
+
+    # -- cursor
+
+    "cursor_style": ["line", "block"],
+    "cursor_width": "int",
+    "cursor_extra_height": "int",
+
+    "cursor_line_highlight": "bool",
+
+    "cursor_blink": "bool",
+    "cursor_blink_period": "int",
+
+    # -- sidebar
+
+    "sidebar_position": ["left", "right"],
+
+    "show_folder_tree": "bool",
+    "show_outline_panel": "bool",
+
+    # file_explorer_root: "isalpha",
+    "file_types_to_exclude": "list",
+
+    # -- statusbar
 
     "show_line_info": "bool",
     "show_path_to_project": "bool",
     "show_path_to_pos": "bool",
     "show_active_lexer": "bool",
     "show_model_status": "bool",
+
+    # -- playlist
+
+    "show_now_playing": "bool",
+    "sort_playlist_by_date": "bool",
+
+    # "path_to_playlist": "isalpha",
+
+    # -- misc
+
+    "ai_enabled": "bool",
+
+    "window_opacity": "float",
+    "ui_opacity": "float",
+
+    "ui_font": "isalpha",
+    "ui_font_weight": ["light", "normal", "medium", "bold"],
+    "ui_font_size": "int",
+
+    "copy_line_if_no_selection": "bool",
+    "cut_line_if_no_selection": "bool",
+
+    "open_on_largest_screen": "bool",
+    "replace_tabs_with_spaces": "bool",
+    # "file_to_open_on_startup": "isalpha",
+
+    "inline_command_in_files": "list",
+    "inline_command_symbol": 2, # max length
+
+    "eol_mode": ["crlf", "cr", "lf"],
+    "eol_symbols_visible": "bool",
+
+    "terminal_to_use": "isalpha",
+    # "path_to_shell": "isalpha",
+
+    "whitespace_symbol": 1,
+    "whitespace_visible": ["always", "select"],
+    "whitespace_opacity": "float",
+    
+    # "unsaved_symbol": "isalpha",
+
+    "fade_scrollbar": "int",
+    "fade_split_handle": "int",
+
+    "vertical_rulers": "list",
+
+    # -- experimental
+
+    "use_buffer_switcher": "bool",
+    "wrap_word": "bool",
+    "auto_close_tags": "bool",
+    "highlight_line_on_jump": "bool",
 
     # [models]
 
