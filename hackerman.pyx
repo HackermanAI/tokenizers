@@ -723,9 +723,13 @@ cdef class Lexer:
 
     # for outline panel
 
-    cpdef bint _is_class(self, str line_text):
+    def _is_class(self, str line_text):
         cdef str stripped = line_text.strip()
-        return stripped.startswith("[") and ("]" in stripped)
+
+        if not stripped.startswith("["):
+            return False
+
+        return [("keyword", stripped)]
 
     cpdef bint _is_function_name(self, str line_text):
         return False
