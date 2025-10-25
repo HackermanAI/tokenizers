@@ -183,8 +183,10 @@ class Lexer:
         return False
 
     def _is_function_name(self, line_text):
-        stripped = line_text.strip()
-        return stripped.startswith("@") and "=" in stripped
+        if not line_text.startswith("@"):
+            return False
+
+        return [("lambda", line_text)]
 
     def _is_type_def(self, line_text):
         return False
