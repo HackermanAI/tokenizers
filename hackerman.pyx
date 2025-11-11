@@ -92,6 +92,7 @@ ACCEPTED_NAMES = frozenset({
     
     # -- sidebar
 
+    "show_sidebar",
     "sidebar_position",
     
     "show_folder_tree",
@@ -433,7 +434,7 @@ VALID_VALUES_PER_NAME = {
     "replace_tabs_with_spaces": "bool",
     # "file_to_open_on_startup": "isalpha",
 
-    # "inline_command_in_files": "list",
+    "inline_command_in_files": "list",
     "inline_command_symbol": 2, # max length
 
     "eol_mode": ["crlf", "cr", "lf"],
@@ -451,11 +452,11 @@ VALID_VALUES_PER_NAME = {
     "fade_scrollbar": "int",
     "fade_split_handle": "int",
 
-    # "vertical_rulers": "list",
+    "vertical_rulers": "list",
 
     # -- experimental
 
-    "wrap_word": "bool",
+    "wrap_word": "list",
     "auto_close_tags": "bool",
     "highlight_line_on_jump": "bool",
     "tabs_over_spaces": "bool",
@@ -564,7 +565,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
 
     lexeme = text[start_pos:char_index]
 
-    if lexeme in ACCEPTED_NAMES:
+    if lexeme in ACCEPTED_NAMES or lexeme in VALID_VALUES_PER_NAME.keys():
         tokens.append((DEFAULT, start_pos, lexeme))
     else:
         tokens.append((ERROR, start_pos, lexeme))
