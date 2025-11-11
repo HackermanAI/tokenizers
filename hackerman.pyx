@@ -147,17 +147,14 @@ ACCEPTED_NAMES = frozenset({
 
     "unsaved_symbol", 
     
-    "fade_scrollbar",
-    "fade_split_handle",
-    
     "vertical_rulers",
 
     # -- experimental
 
-    "use_buffer_switcher",
     "wrap_word",
     "auto_close_tags",
     "highlight_line_on_jump",
+    "tabs_over_spaces",
 
     # [models]
     
@@ -318,16 +315,13 @@ ACCEPTED_NAMES = frozenset({
     
     "background",
     "foreground",
-    "selection",
     "text_color",
-    "text_highlight",
     "cursor",
     
     "default",
     "keyword",
     "class",
     "name",
-    "parameter",
     "lambda",
     "string",
     "number",
@@ -335,12 +329,14 @@ ACCEPTED_NAMES = frozenset({
     "comment",
     "special",
     "type",
-    "conditional",
+    "boolean",
     "builtin",
 
     "error",
     "warning",
     "success",
+
+    "_selection",
 })
 
 VALID_VALUES_PER_NAME = {
@@ -351,7 +347,7 @@ VALID_VALUES_PER_NAME = {
 
     # [editor]
 
-    "font": "isalpha",
+    # "font": "isalpha",
     "font_weight": ["light", "normal", "medium", "bold"],
     "font_size": "int",
 
@@ -395,6 +391,7 @@ VALID_VALUES_PER_NAME = {
 
     # -- sidebar
 
+    "show_sidebar": "bool",
     "sidebar_position": ["left", "right"],
 
     "show_folder_tree": "bool",
@@ -425,7 +422,7 @@ VALID_VALUES_PER_NAME = {
     "window_opacity": "float",
     "ui_opacity": "float",
 
-    "ui_font": "isalpha",
+    # "ui_font": "isalpha",
     "ui_font_weight": ["light", "normal", "medium", "bold"],
     "ui_font_size": "int",
 
@@ -436,7 +433,7 @@ VALID_VALUES_PER_NAME = {
     "replace_tabs_with_spaces": "bool",
     # "file_to_open_on_startup": "isalpha",
 
-    "inline_command_in_files": "list",
+    # "inline_command_in_files": "list",
     "inline_command_symbol": 2, # max length
 
     "eol_mode": ["crlf", "cr", "lf"],
@@ -454,14 +451,14 @@ VALID_VALUES_PER_NAME = {
     "fade_scrollbar": "int",
     "fade_split_handle": "int",
 
-    "vertical_rulers": "list",
+    # "vertical_rulers": "list",
 
     # -- experimental
 
-    "use_buffer_switcher": "bool",
     "wrap_word": "bool",
     "auto_close_tags": "bool",
     "highlight_line_on_jump": "bool",
+    "tabs_over_spaces": "bool",
 
     # [models]
 
