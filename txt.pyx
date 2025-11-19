@@ -28,11 +28,13 @@ cimport cython
 
 cdef str DEFAULT = "default"
 cdef str WARNING = "warning"
-
+cdef str SPECIAL = "special"
 
 cdef class Lexer:
     cdef public object cmd_start
     cdef public object cmd_end
+
+    cdef public object chat_response
 
     cdef readonly str lexer_name
     cdef readonly str comment_char
@@ -41,6 +43,8 @@ cdef class Lexer:
     def __cinit__(self, cmd_start=None, cmd_end=None):
         self.cmd_start = cmd_start
         self.cmd_end = cmd_end
+
+        self.chat_response = "%"
         
         self.lexer_name = u"Super Text"
         self.comment_char = u""
@@ -91,6 +95,30 @@ cdef class Lexer:
                 # no newline
                 if line_buffer != "":
                     tokens.append((WARNING, start_pos, line_buffer))
+
+            # chat response (must be at start of line buffer)
+            elif current_char == self.chat_response and line_buffer.startswith(self.chat_response):
+                start_pos = current_char_index
+                current_char_index += 1 # consume start symbol
+
+                while current_char_index < text_length:
+                    current_char = text[current_char_index]
+                    
+                    if current_char == '\n': # do not consume this here
+                        tokens.append((SPECIAL, start_pos, line_buffer))
+                        
+                        # reset line buffer
+                        line_buffer = ""
+                        
+                        break
+                        
+                    else:
+                        line_buffer += current_char
+                        current_char_index += 1
+
+                # no newline
+                if line_buffer != "":
+                    tokens.append((SPECIAL, start_pos, line_buffer))
             
             # default
             else:
