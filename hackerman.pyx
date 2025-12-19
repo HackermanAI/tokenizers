@@ -31,20 +31,20 @@ cdef str DEFAULT = "default"
 cdef str KEYWORD = "keyword"
 cdef str CLASS = "class"
 cdef str NAME = "name"
-cdef str PARAMETER = "parameter"
-cdef str LAMBDA = "lambda"
+# cdef str PARAMETER = "parameter"
+# cdef str LAMBDA = "lambda"
 cdef str STRING = "string"
 cdef str NUMBER = "number"
-cdef str OPERATOR = "operator"
+# cdef str OPERATOR = "operator"
 cdef str COMMENT = "comment"
-cdef str SPECIAL = "special"
-cdef str TYPE = "type"
-cdef str CONDITIONAL = "conditional"
-cdef str BUILT_IN = "built_in"
+# cdef str SPECIAL = "special"
+# cdef str TYPE = "type"
+# cdef str CONDITIONAL = "conditional"
+# cdef str BUILT_IN = "built_in"
 # system colors
 cdef str ERROR = "error"
-cdef str WARNING = "warning"
-cdef str SUCCESS = "success"
+# cdef str WARNING = "warning"
+# cdef str SUCCESS = "success"
 
 ACCEPTED_NAMES = frozenset({
 
@@ -718,6 +718,9 @@ cdef class Lexer:
         self.lexer_name = u"Hackerman Config"
         self.comment_char = u"--"
         self.line_comment = u"--"
+
+    def colors(self):
+        return (DEFAULT, KEYWORD, CLASS, NAME, STRING, NUMBER, COMMENT)
 
     # for outline panel
 
