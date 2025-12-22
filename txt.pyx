@@ -50,6 +50,9 @@ cdef class Lexer:
         self.comment_char = u""
         self.line_comment = u""
 
+    def colors(self):
+        return (DEFAULT, WARNING, SPECIAL)
+
     def tokenize(self, str text):
         cdef int current_char_index = 0
         cdef int text_length = len(text)
