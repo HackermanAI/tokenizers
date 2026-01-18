@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Tokenizer for Hackerman DSCL (.pyx-version)
+# Tokenizer for Hackerman DSCL
 
 # cython: language_level=3
 cimport cython
@@ -31,20 +31,11 @@ cdef str DEFAULT = "default"
 cdef str KEYWORD = "keyword"
 cdef str CLASS = "class"
 cdef str NAME = "name"
-# cdef str PARAMETER = "parameter"
-# cdef str LAMBDA = "lambda"
 cdef str STRING = "string"
 cdef str NUMBER = "number"
-# cdef str OPERATOR = "operator"
 cdef str COMMENT = "comment"
-# cdef str SPECIAL = "special"
-# cdef str TYPE = "type"
-# cdef str CONDITIONAL = "conditional"
-# cdef str BUILT_IN = "built_in"
 # system colors
 cdef str ERROR = "error"
-# cdef str WARNING = "warning"
-# cdef str SUCCESS = "success"
 
 ACCEPTED_NAMES = frozenset({
 
@@ -522,36 +513,6 @@ cdef int handle_header(int current_char_index, str text, list tokens):
     return current_char_index
 
 
-# cdef int handle_string(int current_char_index, str text, list tokens):
-#     cdef int start_pos = current_char_index
-#     cdef str quote = text[current_char_index]
-#     cdef str lexeme = quote
-#     current_char_index += 1
-
-#     while current_char_index < len(text) and text[current_char_index] != quote and text[current_char_index] != '\n':
-#         lexeme += text[current_char_index]
-#         current_char_index += 1
-
-#     if current_char_index < len(text) and text[current_char_index] == quote:
-#         lexeme += text[current_char_index]
-#         current_char_index += 1
-
-#     tokens.append((STRING, start_pos, lexeme))
-#     return current_char_index
-
-
-# cdef int handle_number(int current_char_index, str text, list tokens):
-#     cdef int start_pos = current_char_index
-#     cdef str lexeme = ""
-
-#     while current_char_index < len(text) and (text[current_char_index].isdigit() or text[current_char_index] == '.'):
-#         lexeme += text[current_char_index]
-#         current_char_index += 1
-
-#     tokens.append((NUMBER, start_pos, lexeme))
-#     return current_char_index
-
-
 cdef int handle_identifier(int current_char_index, str text, list tokens):
     cdef int text_length = len(text)
     cdef int char_index = current_char_index
@@ -614,8 +575,6 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
         item_s = rhs_offset_rel
 
         # scan to comma or EOL
-        # while rhs_offset_rel < rhs_len and rhs_raw[rhs_offset_rel] != ',':
-        #     rhs_offset_rel += 1
         while rhs_offset_rel < rhs_len:
             rhs_offset_rel += 1
         
@@ -761,19 +720,6 @@ cdef class Lexer:
             # header
             elif current_char == '[':
                 current_char_index = handle_header(current_char_index, text, tokens)
-            
-            # # string
-            # elif current_char in { '\"', '\'' }:
-            #     current_char_index = handle_string(current_char_index, text, tokens)
-            
-            # # number
-            # elif '0' <= current_char <= '9':
-            #     current_char_index = handle_number(current_char_index, text, tokens)
-            
-            # # symbols
-            # elif current_char in { '(', ')', ',' }:
-            #     tokens.append((COMMENT, current_char_index, current_char))
-            #     current_char_index += 1
 
             # identifier
             elif current_char.isalpha() or current_char == '_':
