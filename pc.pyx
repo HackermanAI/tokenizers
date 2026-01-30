@@ -43,9 +43,9 @@ cdef str TYPE = "type"
 cdef str CONDITIONAL = "conditional"
 cdef str BUILT_IN = "built_in"
 # system colors
-cdef str ERROR = "error"
-cdef str WARNING = "warning"
-cdef str SUCCESS = "success"
+cdef str ERROR = "_error"
+cdef str WARNING = "_warning"
+cdef str SUCCESS = "_success"
 
 
 KEYWORDS = { "if", "else", "while", "swap", "print" }
