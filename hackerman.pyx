@@ -35,7 +35,7 @@ cdef str STRING = "string"
 cdef str NUMBER = "number"
 cdef str COMMENT = "comment"
 # system colors
-cdef str ERROR = "error"
+cdef str ERROR = "_error"
 
 ACCEPTED_NAMES = frozenset({
 
@@ -324,9 +324,9 @@ ACCEPTED_NAMES = frozenset({
     "boolean",
     "builtin",
 
-    "error",
-    "warning",
-    "success",
+    "_error",
+    "_warning",
+    "_success",
 
     "_selection",
 })
