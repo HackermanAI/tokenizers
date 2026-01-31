@@ -25,18 +25,19 @@
 
 # cython: language_level=3
 cimport cython
+import os
 
-cdef str WHITESPACE     = "whitespace"
-cdef str DEFAULT        = "default"
-cdef str KEYWORD        = "keyword"
-cdef str CLASS          = "class"
-cdef str NAME           = "name"
-cdef str STRING         = "string"
-cdef str NUMBER         = "number"
-cdef str COMMENT        = "comment"
+cdef str WHITESPACE = "whitespace"
+cdef str DEFAULT = "default"
+cdef str KEYWORD = "keyword"
+cdef str CLASS = "class"
+cdef str NAME = "name"
+cdef str STRING = "string"
+cdef str NUMBER = "number"
+cdef str COMMENT = "comment"
 
 # system colors
-cdef str ERROR          = "_error"
+cdef str ERROR = "_error"
 
 ACCEPTED_NAMES = frozenset({
 
@@ -356,18 +357,18 @@ VALID_VALUES_PER_NAME = {
     
     # [license]
 
-    "product_key": "path",
+    "path_to_license_file": "path",
 
     # [editor]
 
-    # "font": "isalpha",
+    "font": "name",
     "font_weight": ["light", "normal", "medium", "bold"],
     "font_size": "int",
 
     "line_height": ["compact", "comfortable"],
     "tab_width": "int",
 
-    # "theme": "isalpha",
+    "theme": "name",
     "adaptive_theme": "list",
 
     "auto_indent": "bool",
@@ -408,7 +409,7 @@ VALID_VALUES_PER_NAME = {
     "show_sidebar": "bool",
     "sidebar_position": ["left", "right"],
 
-    # file_explorer_root: "isalpha",
+    "file_explorer_root": "path",
     "file_types_to_exclude": "list",
 
     # -- statusbar
@@ -425,7 +426,7 @@ VALID_VALUES_PER_NAME = {
     "window_opacity": "float",
     "ui_opacity": "float",
 
-    # "ui_font": "isalpha",
+    "ui_font": "name",
     "ui_font_weight": ["light", "normal", "medium", "bold"],
     "ui_font_size": "int",
 
@@ -434,7 +435,7 @@ VALID_VALUES_PER_NAME = {
 
     "open_on_largest_screen": "bool",
     "replace_tabs_with_spaces": "bool",
-    # "file_to_open_on_startup": "isalpha",
+    "file_to_open_on_startup": "path",
 
     "inline_command_in_files": "list",
     "inline_command_symbol": 2, # max length
@@ -442,8 +443,8 @@ VALID_VALUES_PER_NAME = {
     "eol_mode": ["crlf", "cr", "lf"],
     "eol_symbols_visible": "bool",
 
-    # "terminal_to_use": "isalpha",
-    # "path_to_shell": "isalpha",
+    "terminal_to_use": "name",
+    "path_to_shell": "path",
 
     "whitespace_symbol": 1,
     "whitespace_opacity": "float",
@@ -484,12 +485,42 @@ cdef int is_bool(str text):
     text = text.lower()
     return text == "true" or text == "false"
 
-
 cdef int is_path(str text):
-    text = text.lower()
+    cdef str s
     
+    if text is None:
+        return False
     
+    s = text.strip()
     
+    if not s:
+        return False
+    
+    # guard for quoted strings
+    if len(s) >= 2 and ((s[0] == '"' and s[-1] == '"') or (s[0] == "'" and s[-1] == "'")):
+        s = s[1:-1].strip()
+
+    s = os.path.expanduser(os.path.expandvars(s))
+
+    try:
+        return os.path.exists(s)
+    except Exception:
+        return False
+
+cdef int is_name(str text):
+    cdef str s
+    
+    s = (text or "").strip()
+    if not s:
+        return False
+
+    allowed_extra = set(" -_+.'&()")
+
+    return (
+        any(ch.isalnum() for ch in s) and
+        all(ch.isalnum() or ch.isspace() or ch in allowed_extra for ch in s)
+    )
+
 
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
@@ -652,7 +683,14 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
                         else:
                             tokens.append((ERROR, abs_item_start, item_text))
                             
-                    # isalpha
+                    # name
+                    elif valid_values == "name":
+                        if is_name(item_text):
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+                            
+                    # path
                     elif valid_values == "path":
                         if is_path(item_text):
                             tokens.append((STRING, abs_item_start, item_text))
