@@ -27,8 +27,9 @@
 cimport cython
 
 cdef str DEFAULT = "default"
-cdef str WARNING = "_warning"
 cdef str SPECIAL = "special"
+
+cdef str WARNING = "_warning"
 
 cdef class Lexer:
     cdef public object cmd_start
