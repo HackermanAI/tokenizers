@@ -26,33 +26,38 @@
 # cython: language_level=3
 cimport cython
 
-cdef str WHITESPACE = "whitespace"
-cdef str DEFAULT = "default"
-cdef str KEYWORD = "keyword"
-cdef str CLASS = "class"
-cdef str NAME = "name"
-cdef str STRING = "string"
-cdef str NUMBER = "number"
-cdef str COMMENT = "comment"
+cdef str WHITESPACE     = "whitespace"
+cdef str DEFAULT        = "default"
+cdef str KEYWORD        = "keyword"
+cdef str CLASS          = "class"
+cdef str NAME           = "name"
+cdef str STRING         = "string"
+cdef str NUMBER         = "number"
+cdef str COMMENT        = "comment"
+
 # system colors
-cdef str ERROR = "_error"
+cdef str ERROR          = "_error"
 
 ACCEPTED_NAMES = frozenset({
 
     # [license]
 
-    "product_key",
+    "path_to_license_file",
 
     # [editor]
 
     "font",
     "font_weight",
     "font_size",
+    
     "line_height",
     "tab_width",
+    
     "theme",
     "adaptive_theme",
+    
     "auto_indent",
+    
     "auto_close_single_quote",
     "auto_close_double_quote",
     "auto_close_square_bracket",
@@ -62,32 +67,32 @@ ACCEPTED_NAMES = frozenset({
     # -- ui
 
     "show_line_numbers",
-    "show_fold_margin",
     "show_scrollbar",
     "show_indent_guides",
     "show_inline_hints",
     "show_auto_complete",
+    "show_minimap",
 
-    "show_fold_margin_buttons",
     "scrollbar_width",
     "indent_guides_opacity",
 
     # -- cursor
 
-    "cursor_style",
     "cursor_width",
     "cursor_extra_height",
+    
+    "cursor_as_block",
     "cursor_line_highlight",
+    
     "cursor_blink",
     "cursor_blink_period",
+    
+    "cursor_neon_effect",
     
     # -- sidebar
 
     "show_sidebar",
     "sidebar_position",
-    
-    "show_folder_tree",
-    "show_outline_panel",
 
     "file_explorer_root",
     "file_types_to_exclude",
@@ -98,13 +103,6 @@ ACCEPTED_NAMES = frozenset({
     "show_path_to_project",
     "show_active_lexer",
     "show_model_status",
-
-    # -- playlist
-
-    "show_now_playing",
-    "sort_playlist_by_date",
-    
-    "path_to_playlist",
 
     # -- misc
 
@@ -134,7 +132,6 @@ ACCEPTED_NAMES = frozenset({
     "path_to_shell",
 
     "whitespace_symbol",
-    "whitespace_visible",
     "whitespace_opacity",
 
     "unsaved_symbol", 
@@ -157,6 +154,7 @@ ACCEPTED_NAMES = frozenset({
     # [keybinds]
 
     "save_file",
+    "save_file_as",
     "new_file",
     "new_window",
     "open_file",
@@ -164,14 +162,17 @@ ACCEPTED_NAMES = frozenset({
     "fold_all",
     "code_instruction",
     "line_comment",
+    "line_comment_strict",
     "open_config_file",
     "open_scripts_file",
     "zoom_in",
     "zoom_out",
     "toggle_split_editor",
-    "open_file_explorer",
-    "open_folder_at_file",
+    "show_file_explorer",
+    "show_outline_panel",
+    "show_function_explorer",
     "open_terminal_at_file",
+    "reveal_in_finder",
     
     "select_all",
     "undo",
@@ -180,6 +181,7 @@ ACCEPTED_NAMES = frozenset({
     "uppercase",
     "cancel",
     "newline",
+    "newline_at_end_of_line",
     "tab",
     "backtab",
     "center_on_cursor",
@@ -188,7 +190,34 @@ ACCEPTED_NAMES = frozenset({
     "selection_duplicate",
     "move_line_up",
     "move_line_down",
+    
+    "open_file_in_new_window",
     "copy_path_to_file",
+    "toggle_sidebar",
+    "reset_window_pos",
+    "system_toggle_dark_mode",
+    "toggle_read_only",
+    "toggle_newspaper_scroll",
+    "select_matches",
+    "show_license_info",
+    
+    "tab_width_2_spaces",
+    "tab_width_4_spaces",
+    
+    "indent_with_spaces",
+    "indent_with_tabs",
+    
+    "find_in_file",
+    "show_search_explorer",
+    
+    "close_file",
+    "close_other_files",
+    
+    "accept_autocomplete",
+    "command_chat_complete",
+    "move_to_prev_pos",
+    
+    # -- Native MacOS keys bindings
 
     "document_start",
     "document_end",
@@ -268,26 +297,14 @@ ACCEPTED_NAMES = frozenset({
     "delete_para_left",
     "delete_para_right",
 
-    "find_in_file",
-    "find_in_project",
-    
-    "close_file",
-
-    "command_chat_complete",
-    "python_eval_line",
-    "toggle_audio_player",
-    "toggle_play",
-    "move_to_prev_pos",
-    
-    "start_command",
-    "start_chat",
-
     # -- pane navigation
     
     "focus_main_editor",
     "focus_split_editor",
     "previous_tab",
     "next_tab",
+    
+    # -- shortcuts to switch tab
 
     "switch_to_buffer_1",
     "switch_to_buffer_2",
@@ -329,13 +346,17 @@ ACCEPTED_NAMES = frozenset({
     "_success",
 
     "_selection",
+    "_highlight",
+    
+    "_title_bar",
+    "_status_bar",
 })
 
 VALID_VALUES_PER_NAME = {
     
     # [license]
 
-    "product_key": "isalpha",
+    "product_key": "path",
 
     # [editor]
 
@@ -346,7 +367,7 @@ VALID_VALUES_PER_NAME = {
     "line_height": ["compact", "comfortable"],
     "tab_width": "int",
 
-    "theme": "isalpha",
+    # "theme": "isalpha",
     "adaptive_theme": "list",
 
     "auto_indent": "bool",
@@ -360,34 +381,32 @@ VALID_VALUES_PER_NAME = {
     # -- ui
 
     "show_line_numbers": "bool",
-    "show_fold_margin": "bool",
     "show_scrollbar": "bool",
     "show_indent_guides": "bool",
     "show_inline_hints": "bool",
     "show_auto_complete": "bool",
+    "show_minimap": "bool",
 
-    "show_fold_margin_buttons": ["always", "folded_and_hover"],
     "scrollbar_width": "int",
     "indent_guides_opacity": "float",
 
     # -- cursor
 
-    "cursor_style": ["line", "block"],
     "cursor_width": "int",
     "cursor_extra_height": "int",
-
+    
+    "cursor_as_block": "bool",
     "cursor_line_highlight": "bool",
 
     "cursor_blink": "bool",
     "cursor_blink_period": "int",
+    
+    "cursor_neon_effect": "bool",
 
     # -- sidebar
 
     "show_sidebar": "bool",
     "sidebar_position": ["left", "right"],
-
-    "show_folder_tree": "bool",
-    "show_outline_panel": "bool",
 
     # file_explorer_root: "isalpha",
     "file_types_to_exclude": "list",
@@ -396,16 +415,8 @@ VALID_VALUES_PER_NAME = {
 
     "show_line_info": "bool",
     "show_path_to_project": "bool",
-    "show_path_to_pos": "bool",
     "show_active_lexer": "bool",
     "show_model_status": "bool",
-
-    # -- playlist
-
-    "show_now_playing": "bool",
-    "sort_playlist_by_date": "bool",
-
-    # "path_to_playlist": "isalpha",
 
     # -- misc
 
@@ -431,17 +442,13 @@ VALID_VALUES_PER_NAME = {
     "eol_mode": ["crlf", "cr", "lf"],
     "eol_symbols_visible": "bool",
 
-    "terminal_to_use": "isalpha",
+    # "terminal_to_use": "isalpha",
     # "path_to_shell": "isalpha",
 
     "whitespace_symbol": 1,
-    "whitespace_visible": ["always", "select"],
     "whitespace_opacity": "float",
     
-    # "unsaved_symbol": "isalpha",
-
-    "fade_scrollbar": "int",
-    "fade_split_handle": "int",
+    "unsaved_symbol": 12, # max length
 
     "vertical_rulers": "list",
 
@@ -477,6 +484,12 @@ cdef int is_bool(str text):
     text = text.lower()
     return text == "true" or text == "false"
 
+
+cdef int is_path(str text):
+    text = text.lower()
+    
+    
+    
 
 cdef int handle_whitespace(int current_char_index):
     current_char_index += 1
@@ -635,6 +648,13 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
                     # isalpha
                     elif valid_values == "isalpha":
                         if item_text.isalpha():
+                            tokens.append((STRING, abs_item_start, item_text))
+                        else:
+                            tokens.append((ERROR, abs_item_start, item_text))
+                            
+                    # isalpha
+                    elif valid_values == "path":
+                        if is_path(item_text):
                             tokens.append((STRING, abs_item_start, item_text))
                         else:
                             tokens.append((ERROR, abs_item_start, item_text))
