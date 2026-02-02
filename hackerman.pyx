@@ -50,6 +50,7 @@ ACCEPTED_NAMES = frozenset({
     "font",
     "font_weight",
     "font_size",
+    "font_ligatures",
     
     "line_height",
     "tab_width",
@@ -364,6 +365,7 @@ VALID_VALUES_PER_NAME = {
     "font": "name",
     "font_weight": ["light", "normal", "medium", "bold"],
     "font_size": "int",
+    "font_ligatures": "bool",
 
     "line_height": ["compact", "comfortable"],
     "tab_width": "int",
