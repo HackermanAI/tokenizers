@@ -27,107 +27,76 @@
 cimport cython
 
 cdef str DEFAULT = "default"
-cdef str SPECIAL = "special"
 
-cdef str WARNING = "_warning"
+cdef str INLINE_SHELL = "_inline_shell"
+cdef str INLINE_CHAT = "_inline_chat"
 
 cdef class Lexer:
-    cdef public object cmd_start
-    cdef public object cmd_end
-
+    cdef public object shell_start
     cdef public object chat_response
 
     cdef readonly str lexer_name
     cdef readonly str comment_char
     cdef readonly str line_comment
 
-    def __cinit__(self, cmd_start=None, cmd_end=None):
-        self.cmd_start = cmd_start
-        self.cmd_end = cmd_end
-
-        self.chat_response = "%"
+    def __cinit__(self, shell_start=None, chat_response=None):
+        
+        self.shell_start = shell_start or "sh:"
+        self.chat_response = chat_response or ">"
         
         self.lexer_name = u"Super Text"
         self.comment_char = u""
         self.line_comment = u""
 
     def colors(self):
-        return (DEFAULT, WARNING, SPECIAL)
+        
+        return (DEFAULT, INLINE_SHELL, INLINE_CHAT)
 
     def tokenize(self, str text):
-        cdef int current_char_index = 0
-        cdef int text_length = len(text)
-        cdef str current_char
+        
+        cdef Py_ssize_t n = len(text)
+        cdef Py_ssize_t i = 0
+        cdef Py_ssize_t j
+        cdef Py_ssize_t line_len
+        
         cdef list tokens = []
 
-        cdef str line_buffer = ""
+        cdef str shell = self.shell_start
+        cdef Py_ssize_t shell_len = len(shell)
 
-        while current_char_index < text_length:
-            current_char = text[current_char_index]
-            line_buffer += current_char
+        cdef str chat = self.chat_response
+        cdef Py_ssize_t chat_len = len(chat)
 
-            # newline
-            if current_char == '\n':
-                current_char_index += 1
-                # reset line buffer
-                line_buffer = ""
+        cdef str line
 
-            # whitespace
-            elif current_char in (' ', '\t', '\r'):
-                current_char_index += 1
+        while i < n:
             
-            # command (must be at start of line buffer)
-            elif current_char == self.cmd_start and line_buffer.startswith(self.cmd_start):
-                start_pos = current_char_index
-                current_char_index += 1 # consume command start symbol
+            # find end of current line (excluding newline)
+            j = text.find('\n', i)
+            if j == -1:
+                j = n
 
-                while current_char_index < text_length:
-                    current_char = text[current_char_index]
-                    
-                    if current_char == '\n': # do not consume this here
-                        tokens.append((WARNING, start_pos, line_buffer))
-                        
-                        # reset line buffer
-                        line_buffer = ""
-                        
-                        break
-                        
-                    else:
-                        line_buffer += current_char
-                        current_char_index += 1
+            line_len = j - i
+            line = text[i:j] # does not include newline
 
-                # no newline
-                if line_buffer != "":
-                    tokens.append((WARNING, start_pos, line_buffer))
-
-            # chat response (must be at start of line buffer)
-            elif current_char == self.chat_response and line_buffer.startswith(self.chat_response):
-                start_pos = current_char_index
-                current_char_index += 1 # consume start symbol
-
-                while current_char_index < text_length:
-                    current_char = text[current_char_index]
-                    
-                    if current_char == '\n': # do not consume this here
-                        tokens.append((SPECIAL, start_pos, line_buffer))
-                        
-                        # reset line buffer
-                        line_buffer = ""
-                        
-                        break
-                        
-                    else:
-                        line_buffer += current_char
-                        current_char_index += 1
-
-                # no newline
-                if line_buffer != "":
-                    tokens.append((SPECIAL, start_pos, line_buffer))
+            # decide style based on line prefix
+            if shell_len and line_len >= shell_len and text.startswith(shell, i):
+                tokens.append((INLINE_SHELL, i, line))
             
-            # default
+            elif line_len >= 1 and text[i] == chat:
+                # chat must be first char on the line
+                tokens.append((INLINE_CHAT, i, line))
+            
             else:
-                tokens.append((DEFAULT, current_char_index, current_char))
-                current_char_index += 1
+                tokens.append((DEFAULT, i, line))
+
+            # include newline as DEFAULT (keeps coverage exact and positions sane)
+            if j < n:
+                tokens.append((DEFAULT, j, "\n"))
+                i = j + 1
+            
+            else:
+                i = j
 
         return tokens
 
