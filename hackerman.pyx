@@ -39,320 +39,222 @@ cdef str COMMENT = "comment"
 # system colors
 cdef str ERROR = "_error"
 
-# ACCEPTED_NAMES = frozenset({
-
-#     # [license]
-
-#     "path_to_license_file",
-
-#     # [editor]
-
-#     "font",
-#     "font_weight",
-#     "font_size",
-#     "font_ligatures",
+ACCEPTED_FUNCTIONS = frozenset({
     
-#     "line_height",
-#     "tab_width",
+    "new_file",
+    "new_window",
+    "open_file",
+    "save_file",
+    "save_file_as",
+    "close_file",
+    "close_other_files",
     
-#     "theme",
-#     "adaptive_theme",
+    "fold_line",
+    "fold_all",
+    "code_completion",
+    "line_comment",
+    "zoom_in",
+    "zoom_out",
+    "toggle_split_editor",
+    "show_file_explorer",
+    "show_outline_panel",
+    "show_function_explorer",
+    "show_buffer_explorer",
+    "open_terminal_at_file",    
+    "open_config_file",
+    "open_scripts_file",
+    "reveal_in_finder",
     
-#     "auto_indent",
+    "select_all",
+    "undo",
+    "redo",
+    "lowercase",
+    "uppercase",
+    "cancel",
+    "newline",
+    "newline_at_end_of_line",
+    "tab",
+    "backtab",
+    "center_on_cursor",
+    "line_indent",
+    "line_unindent",
+    "selection_duplicate",
+    "move_line_up",
+    "move_line_down",
     
-#     "auto_close_single_quote",
-#     "auto_close_double_quote",
-#     "auto_close_square_bracket",
-#     "auto_close_curly_bracket",
-#     "auto_close_parentheses",
-
-#     # -- ui
-
-#     "show_line_numbers",
-#     "show_scrollbar",
-#     "show_indent_guides",
-#     "show_inline_hints",
-#     "show_auto_complete",
-#     "show_minimap",
-
-#     "scrollbar_width",
-#     "indent_guides_opacity",
-
-#     # -- cursor
-
-#     "cursor_width",
-#     "cursor_extra_height",
+    "open_file_in_new_window",
+    "copy_path_to_file",
+    "toggle_sidebar",
+    "reset_window_pos",
+    "toggle_read_only",
+    "toggle_newspaper_scroll",
+    "select_matches",
+    "show_license_info",
+    "show_git_diff",
+    "show_git_status",
+    "go_to_line",
+    "tear_off_buffer",
+    "reset_zoom",
+    "replace_tabs_with_spaces",
+    "toggle_indent_guides",
     
-#     "cursor_as_block",
-#     "cursor_line_highlight",
+    "plain_text_lexer",
+    "auto_detect_lexer",
     
-#     "cursor_blink",
-#     "cursor_blink_period",
+    "tab_width_2_spaces",
+    "tab_width_4_spaces",
     
-#     "cursor_neon_effect",
+    "indent_with_spaces",
+    "indent_with_tabs",
     
-#     # -- sidebar
-
-#     "show_sidebar",
-#     "sidebar_position",
-
-#     "file_explorer_root",
-#     "file_types_to_exclude",
-
-#     # -- statusbar
-
-#     "show_line_info",
-#     "show_path_to_project",
-#     "show_active_lexer",
-#     "show_model_status",
-
-#     # -- misc
-
-#     "ai_enabled",
+    "find_in_file",
+    "show_search_explorer",
     
-#     "window_opacity",
-#     "ui_opacity",
-
-#     "ui_font",
-#     "ui_font_weight",
-#     "ui_font_size",
-
-#     "copy_line_if_no_selection",
-#     "cut_line_if_no_selection",
-
-#     "open_on_largest_screen",
-#     "replace_tabs_with_spaces",
-#     "file_to_open_on_startup",
-
-#     "inline_command_in_files",
-#     "inline_command_symbol",
-
-#     "eol_mode",
-#     "eol_symbols_visible",
-
-#     "terminal_to_use",
-#     "path_to_shell",
-
-#     "whitespace_symbol",
-#     "whitespace_opacity",
-
-#     "unsaved_symbol", 
+    "accept_autocomplete",
+    "python_eval_line",
     
-#     "vertical_rulers",
+    "inline_command",
+    
+    # -- Native MacOS keys bindings
 
-#     # -- experimental
+    "document_start",
+    "document_end",
+    "document_start_extend",
+    "document_end_extend",
 
-#     "wrap_word",
-#     "auto_close_tags",
-#     "highlight_line_on_jump",
-#     "tabs_over_spaces",
+    "home",
+    "home_extend",
 
-#     # [models]
+    "char_left",
+    "char_right",
+    "char_left_extend",
+    "char_right_extend",
     
-#     "code_completion",
-#     "code_instruction",
-#     "chat",
+    "line_up",
+    "line_down",
+    "line_up_extend",
+    "line_down_extend",
+    
+    "line_start",
+    "line_end",
+    "line_start_extend",
+    "line_end_extend",
+    
+    "line_scroll_up",
+    "line_scroll_down",
+    "line_add_caret_up",
+    "line_add_caret_down",
+    "line_delete",
+    "line_duplicate",
+    "line_transpose",
+    "line_reverse",
 
-#     # [keybinds]
+    "copy",
+    "cut",
+    "paste",
 
-#     "save_file",
-#     "save_file_as",
-#     "new_file",
-#     "new_window",
-#     "open_file",
-#     "fold_line",
-#     "fold_all",
-#     "code_instruction",
-#     "line_comment",
-#     "line_comment_strict",
-#     "open_config_file",
-#     "open_scripts_file",
-#     "zoom_in",
-#     "zoom_out",
-#     "toggle_split_editor",
-#     "show_file_explorer",
-#     "show_outline_panel",
-#     "show_function_explorer",
-#     "open_terminal_at_file",
-#     "reveal_in_finder",
+    "para_up",
+    "para_down",
+    "para_up_extend",
+    "para_down_extend",
     
-#     "select_all",
-#     "undo",
-#     "redo",
-#     "lowercase",
-#     "uppercase",
-#     "cancel",
-#     "newline",
-#     "newline_at_end_of_line",
-#     "tab",
-#     "backtab",
-#     "center_on_cursor",
-#     "line_indent",
-#     "line_unindent",
-#     "selection_duplicate",
-#     "move_line_up",
-#     "move_line_down",
+    "word_left",
+    "word_right",
+    "word_left_extend",
+    "word_right_extend",
     
-#     "open_file_in_new_window",
-#     "copy_path_to_file",
-#     "toggle_sidebar",
-#     "reset_window_pos",
-#     "system_toggle_dark_mode",
-#     "toggle_read_only",
-#     "toggle_newspaper_scroll",
-#     "select_matches",
-#     "show_license_info",
+    "word_left_end",
+    "word_right_end",
+    "word_left_end_extend",
+    "word_right_end_extend",
     
-#     "tab_width_2_spaces",
-#     "tab_width_4_spaces",
+    "word_part_left",
+    "word_part_right",
+    "word_part_left_extend",
+    "word_part_right_extend",
     
-#     "indent_with_spaces",
-#     "indent_with_tabs",
+    "page_up",
+    "page_down",
+    "page_up_extend",
+    "page_down_extend",
     
-#     "find_in_file",
-#     "show_search_explorer",
-    
-#     "close_file",
-#     "close_other_files",
-    
-#     "accept_autocomplete",
-#     "command_chat_complete",
-#     "move_to_prev_pos",
-    
-#     # -- Native MacOS keys bindings
+    "stuttered_page_up",
+    "stuttered_page_down",
+    "stuttered_page_up_extend",
+    "stuttered_page_down_extend",
 
-#     "document_start",
-#     "document_end",
-#     "document_start_extend",
-#     "document_end_extend",
+    "delete",
+    "delete_not_newline",
 
-#     "home",
-#     "home_extend",
+    "delete_right",
 
-#     "char_left",
-#     "char_right",
-#     "char_left_extend",
-#     "char_right_extend",
+    "delete_word_left",
+    "delete_word_right",
+    "delete_line_left",
+    "delete_line_right",
+    "delete_para_left",
+    "delete_para_right",
+
+    # -- pane navigation
     
-#     "line_up",
-#     "line_down",
-#     "line_up_extend",
-#     "line_down_extend",
+    "focus_main_editor",
+    "focus_split_editor",
+    "previous_tab",
+    "next_tab",
     
-#     "line_start",
-#     "line_end",
-#     "line_start_extend",
-#     "line_end_extend",
+    # -- shortcuts to switch tab
+
+    "switch_to_buffer_1",
+    "switch_to_buffer_2",
+    "switch_to_buffer_3",
+    "switch_to_buffer_4",
+    "switch_to_buffer_5",
+    "switch_to_buffer_6",
+    "switch_to_buffer_7",
+    "switch_to_buffer_8",
+    "switch_to_buffer_9",
+
+    # theme colors
     
-#     "line_scroll_up",
-#     "line_scroll_down",
-#     "line_add_caret_up",
-#     "line_add_caret_down",
-#     "line_delete",
-#     "line_duplicate",
-#     "line_transpose",
-#     "line_reverse",
-
-#     "copy",
-#     "cut",
-#     "paste",
-
-#     "para_up",
-#     "para_down",
-#     "para_up_extend",
-#     "para_down_extend",
+    "background",
+    "foreground",
+    "text_color",
+    "cursor",
     
-#     "word_left",
-#     "word_right",
-#     "word_left_extend",
-#     "word_right_extend",
+    "default",
+    "keyword",
+    "class",
+    "name",
+    "lambda",
+    "string",
+    "number",
+    "operator",
+    "comment",
+    "special",
+    "type",
+    "boolean",
+    "builtin",
     
-#     "word_left_end",
-#     "word_right_end",
-#     "word_left_end_extend",
-#     "word_right_end_extend",
+    "_highlight",
+
+    "_error",
+    "_warning",
+    "_success",
+
+    "_selection",
+    "_bold",
+    "_italic",
+    "_underline",
+    "_verbatim",
+    "_strike",
+    "_code",
+    "_link",
+    "_todo",
+    "_annotation",
     
-#     "word_part_left",
-#     "word_part_right",
-#     "word_part_left_extend",
-#     "word_part_right_extend",
-    
-#     "page_up",
-#     "page_down",
-#     "page_up_extend",
-#     "page_down_extend",
-    
-#     "stuttered_page_up",
-#     "stuttered_page_down",
-#     "stuttered_page_up_extend",
-#     "stuttered_page_down_extend",
-
-#     "delete",
-#     "delete_not_newline",
-
-#     "delete_right",
-
-#     "delete_word_left",
-#     "delete_word_right",
-#     "delete_line_left",
-#     "delete_line_right",
-#     "delete_para_left",
-#     "delete_para_right",
-
-#     # -- pane navigation
-    
-#     "focus_main_editor",
-#     "focus_split_editor",
-#     "previous_tab",
-#     "next_tab",
-    
-#     # -- shortcuts to switch tab
-
-#     "switch_to_buffer_1",
-#     "switch_to_buffer_2",
-#     "switch_to_buffer_3",
-#     "switch_to_buffer_4",
-#     "switch_to_buffer_5",
-#     "switch_to_buffer_6",
-#     "switch_to_buffer_7",
-#     "switch_to_buffer_8",
-#     "switch_to_buffer_9",
-
-#     # [user]
-
-#     # this section is skipped
-
-#     # theme colors
-    
-#     "background",
-#     "foreground",
-#     "text_color",
-#     "cursor",
-    
-#     "default",
-#     "keyword",
-#     "class",
-#     "name",
-#     "lambda",
-#     "string",
-#     "number",
-#     "operator",
-#     "comment",
-#     "special",
-#     "type",
-#     "boolean",
-#     "builtin",
-
-#     "_error",
-#     "_warning",
-#     "_success",
-
-#     "_selection",
-#     "_highlight",
-    
-#     "_title_bar",
-#     "_status_bar",
-# })
+    "_title_bar",
+    "_status_bar",
+})
 
 ACCEPTED_NAMES = {
     
@@ -365,21 +267,32 @@ ACCEPTED_NAMES = {
     "font": "name",
     "font_weight": ["light", "normal", "medium", "bold"],
     "font_size": "int",
-    "font_ligatures": "bool",
 
-    "line_height": ["compact", "comfortable"],
+    "line_extra_height": "int",
     "tab_width": "int",
 
     "theme": "name",
     "adaptive_theme": "list",
 
     "auto_indent": "bool",
+    "auto_complete": "bool",
     
     "auto_close_single_quote": "bool",
     "auto_close_double_quote": "bool",
     "auto_close_square_bracket": "bool",
     "auto_close_curly_bracket": "bool",
     "auto_close_parentheses": "bool",
+    
+    "file_explorer_root": "path",
+    "file_types_to_exclude": "list",
+    
+    "files_to_open_on_startup": "list",
+    
+    "inline_command_in_files": "list",
+    "inline_shell_start_symbol": 2, # max length
+    
+    "scripts_enabled": "bool",
+    "allow_unsafe_scripts": "bool",
 
     # -- ui
 
@@ -387,86 +300,57 @@ ACCEPTED_NAMES = {
     "show_scrollbar": "bool",
     "show_indent_guides": "bool",
     "show_inline_hints": "bool",
-    "show_auto_complete": "bool",
-    "show_minimap": "bool",
-
-    "scrollbar_width": "int",
-    "indent_guides_opacity": "float",
+    "show_ui_borders": "bool",
+    # "show_minimap": "bool",
+    
+    "use_native_title_bar": "bool",    
+    "file_explorer_as_sidebar": "bool",
 
     # -- cursor
 
     "cursor_width": "int",
     "cursor_extra_height": "int",
-    
     "cursor_as_block": "bool",
     "cursor_line_highlight": "bool",
-
     "cursor_blink": "bool",
     "cursor_blink_period": "int",
-    
-    "cursor_neon_effect": "bool",
-
-    # -- sidebar
-
-    "show_sidebar": "bool",
-    "sidebar_position": ["left", "right"],
-
-    "file_explorer_root": "path",
-    "file_types_to_exclude": "list",
+    # "cursor_neon_effect": "bool",
 
     # -- statusbar
 
     "show_line_info": "bool",
-    "show_path_to_project": "bool",
+    "show_model_metrics": "bool",
     "show_active_lexer": "bool",
-    "show_model_status": "bool",
+    "show_debug_info": "bool",
 
     # -- misc
-
-    "ai_enabled": "bool",
-
-    "window_opacity": "float",
-    "ui_opacity": "float",
 
     "ui_font": "name",
     "ui_font_weight": ["light", "normal", "medium", "bold"],
     "ui_font_size": "int",
-
-    "copy_line_if_no_selection": "bool",
-    "cut_line_if_no_selection": "bool",
-
+    
+    "scrollbar_width": "int",
     "open_on_largest_screen": "bool",
-    "replace_tabs_with_spaces": "bool",
-    "file_to_open_on_startup": "path",
-
-    "inline_command_in_files": "list",
-    "inline_command_symbol": 2, # max length
 
     "eol_mode": ["crlf", "cr", "lf"],
     "eol_symbols_visible": "bool",
-
+    
     "terminal_to_use": "name",
     "path_to_shell": "path",
+    
+    "window_opacity": "float",
+    "selection_opacity": "float",
+    "indent_guides_opacity": "float",
+    "whitespace_opacity": "float",
 
     "whitespace_symbol": 1,
-    "whitespace_opacity": "float",
-    
-    "unsaved_symbol": 12, # max length
+    "unsaved_symbol": 1,
 
     "vertical_rulers": "list",
 
-    # -- experimental
-
-    "wrap_word": "list",
-    "auto_close_tags": "bool",
-    "highlight_line_on_jump": "bool",
-    "tabs_over_spaces": "bool",
-
     # [models]
 
-    "code_completion": "list",
-    "code_instruction": "list",
-    "chat": "list",
+    "ollama": "name",
 }
 
 cdef int is_int(str text):
@@ -575,7 +459,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
     if lexeme in ACCEPTED_NAMES.keys():
         tokens.append((DEFAULT, start_pos, lexeme))
     else:
-        tokens.append((ERROR, start_pos, lexeme))
+        tokens.append((DEFAULT, start_pos, lexeme))
 
     # skip whitespace between LHS and RHS
     while char_index < text_length and (text[char_index] == ' ' or text[char_index] == '\t'):
