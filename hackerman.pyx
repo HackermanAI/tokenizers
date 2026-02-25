@@ -400,7 +400,7 @@ cdef int is_name(str text):
     if not s:
         return False
 
-    allowed_extra = set(" -_+.'&()")
+    allowed_extra = set(" -_+.'&():")
 
     return (
         any(ch.isalnum() for ch in s) and
