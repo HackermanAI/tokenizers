@@ -39,322 +39,322 @@ cdef str COMMENT = "comment"
 # system colors
 cdef str ERROR = "_error"
 
-ACCEPTED_NAMES = frozenset({
+# ACCEPTED_NAMES = frozenset({
 
-    # [license]
+#     # [license]
 
-    "path_to_license_file",
+#     "path_to_license_file",
 
-    # [editor]
+#     # [editor]
 
-    "font",
-    "font_weight",
-    "font_size",
-    "font_ligatures",
+#     "font",
+#     "font_weight",
+#     "font_size",
+#     "font_ligatures",
     
-    "line_height",
-    "tab_width",
+#     "line_height",
+#     "tab_width",
     
-    "theme",
-    "adaptive_theme",
+#     "theme",
+#     "adaptive_theme",
     
-    "auto_indent",
+#     "auto_indent",
     
-    "auto_close_single_quote",
-    "auto_close_double_quote",
-    "auto_close_square_bracket",
-    "auto_close_curly_bracket",
-    "auto_close_parentheses",
+#     "auto_close_single_quote",
+#     "auto_close_double_quote",
+#     "auto_close_square_bracket",
+#     "auto_close_curly_bracket",
+#     "auto_close_parentheses",
 
-    # -- ui
+#     # -- ui
 
-    "show_line_numbers",
-    "show_scrollbar",
-    "show_indent_guides",
-    "show_inline_hints",
-    "show_auto_complete",
-    "show_minimap",
+#     "show_line_numbers",
+#     "show_scrollbar",
+#     "show_indent_guides",
+#     "show_inline_hints",
+#     "show_auto_complete",
+#     "show_minimap",
 
-    "scrollbar_width",
-    "indent_guides_opacity",
+#     "scrollbar_width",
+#     "indent_guides_opacity",
 
-    # -- cursor
+#     # -- cursor
 
-    "cursor_width",
-    "cursor_extra_height",
+#     "cursor_width",
+#     "cursor_extra_height",
     
-    "cursor_as_block",
-    "cursor_line_highlight",
+#     "cursor_as_block",
+#     "cursor_line_highlight",
     
-    "cursor_blink",
-    "cursor_blink_period",
+#     "cursor_blink",
+#     "cursor_blink_period",
     
-    "cursor_neon_effect",
+#     "cursor_neon_effect",
     
-    # -- sidebar
+#     # -- sidebar
 
-    "show_sidebar",
-    "sidebar_position",
+#     "show_sidebar",
+#     "sidebar_position",
 
-    "file_explorer_root",
-    "file_types_to_exclude",
+#     "file_explorer_root",
+#     "file_types_to_exclude",
 
-    # -- statusbar
+#     # -- statusbar
 
-    "show_line_info",
-    "show_path_to_project",
-    "show_active_lexer",
-    "show_model_status",
+#     "show_line_info",
+#     "show_path_to_project",
+#     "show_active_lexer",
+#     "show_model_status",
 
-    # -- misc
+#     # -- misc
 
-    "ai_enabled",
+#     "ai_enabled",
     
-    "window_opacity",
-    "ui_opacity",
+#     "window_opacity",
+#     "ui_opacity",
 
-    "ui_font",
-    "ui_font_weight",
-    "ui_font_size",
+#     "ui_font",
+#     "ui_font_weight",
+#     "ui_font_size",
 
-    "copy_line_if_no_selection",
-    "cut_line_if_no_selection",
+#     "copy_line_if_no_selection",
+#     "cut_line_if_no_selection",
 
-    "open_on_largest_screen",
-    "replace_tabs_with_spaces",
-    "file_to_open_on_startup",
+#     "open_on_largest_screen",
+#     "replace_tabs_with_spaces",
+#     "file_to_open_on_startup",
 
-    "inline_command_in_files",
-    "inline_command_symbol",
+#     "inline_command_in_files",
+#     "inline_command_symbol",
 
-    "eol_mode",
-    "eol_symbols_visible",
+#     "eol_mode",
+#     "eol_symbols_visible",
 
-    "terminal_to_use",
-    "path_to_shell",
+#     "terminal_to_use",
+#     "path_to_shell",
 
-    "whitespace_symbol",
-    "whitespace_opacity",
+#     "whitespace_symbol",
+#     "whitespace_opacity",
 
-    "unsaved_symbol", 
+#     "unsaved_symbol", 
     
-    "vertical_rulers",
+#     "vertical_rulers",
 
-    # -- experimental
+#     # -- experimental
 
-    "wrap_word",
-    "auto_close_tags",
-    "highlight_line_on_jump",
-    "tabs_over_spaces",
+#     "wrap_word",
+#     "auto_close_tags",
+#     "highlight_line_on_jump",
+#     "tabs_over_spaces",
 
-    # [models]
+#     # [models]
     
-    "code_completion",
-    "code_instruction",
-    "chat",
+#     "code_completion",
+#     "code_instruction",
+#     "chat",
 
-    # [keybinds]
+#     # [keybinds]
 
-    "save_file",
-    "save_file_as",
-    "new_file",
-    "new_window",
-    "open_file",
-    "fold_line",
-    "fold_all",
-    "code_instruction",
-    "line_comment",
-    "line_comment_strict",
-    "open_config_file",
-    "open_scripts_file",
-    "zoom_in",
-    "zoom_out",
-    "toggle_split_editor",
-    "show_file_explorer",
-    "show_outline_panel",
-    "show_function_explorer",
-    "open_terminal_at_file",
-    "reveal_in_finder",
+#     "save_file",
+#     "save_file_as",
+#     "new_file",
+#     "new_window",
+#     "open_file",
+#     "fold_line",
+#     "fold_all",
+#     "code_instruction",
+#     "line_comment",
+#     "line_comment_strict",
+#     "open_config_file",
+#     "open_scripts_file",
+#     "zoom_in",
+#     "zoom_out",
+#     "toggle_split_editor",
+#     "show_file_explorer",
+#     "show_outline_panel",
+#     "show_function_explorer",
+#     "open_terminal_at_file",
+#     "reveal_in_finder",
     
-    "select_all",
-    "undo",
-    "redo",
-    "lowercase",
-    "uppercase",
-    "cancel",
-    "newline",
-    "newline_at_end_of_line",
-    "tab",
-    "backtab",
-    "center_on_cursor",
-    "line_indent",
-    "line_unindent",
-    "selection_duplicate",
-    "move_line_up",
-    "move_line_down",
+#     "select_all",
+#     "undo",
+#     "redo",
+#     "lowercase",
+#     "uppercase",
+#     "cancel",
+#     "newline",
+#     "newline_at_end_of_line",
+#     "tab",
+#     "backtab",
+#     "center_on_cursor",
+#     "line_indent",
+#     "line_unindent",
+#     "selection_duplicate",
+#     "move_line_up",
+#     "move_line_down",
     
-    "open_file_in_new_window",
-    "copy_path_to_file",
-    "toggle_sidebar",
-    "reset_window_pos",
-    "system_toggle_dark_mode",
-    "toggle_read_only",
-    "toggle_newspaper_scroll",
-    "select_matches",
-    "show_license_info",
+#     "open_file_in_new_window",
+#     "copy_path_to_file",
+#     "toggle_sidebar",
+#     "reset_window_pos",
+#     "system_toggle_dark_mode",
+#     "toggle_read_only",
+#     "toggle_newspaper_scroll",
+#     "select_matches",
+#     "show_license_info",
     
-    "tab_width_2_spaces",
-    "tab_width_4_spaces",
+#     "tab_width_2_spaces",
+#     "tab_width_4_spaces",
     
-    "indent_with_spaces",
-    "indent_with_tabs",
+#     "indent_with_spaces",
+#     "indent_with_tabs",
     
-    "find_in_file",
-    "show_search_explorer",
+#     "find_in_file",
+#     "show_search_explorer",
     
-    "close_file",
-    "close_other_files",
+#     "close_file",
+#     "close_other_files",
     
-    "accept_autocomplete",
-    "command_chat_complete",
-    "move_to_prev_pos",
+#     "accept_autocomplete",
+#     "command_chat_complete",
+#     "move_to_prev_pos",
     
-    # -- Native MacOS keys bindings
+#     # -- Native MacOS keys bindings
 
-    "document_start",
-    "document_end",
-    "document_start_extend",
-    "document_end_extend",
+#     "document_start",
+#     "document_end",
+#     "document_start_extend",
+#     "document_end_extend",
 
-    "home",
-    "home_extend",
+#     "home",
+#     "home_extend",
 
-    "char_left",
-    "char_right",
-    "char_left_extend",
-    "char_right_extend",
+#     "char_left",
+#     "char_right",
+#     "char_left_extend",
+#     "char_right_extend",
     
-    "line_up",
-    "line_down",
-    "line_up_extend",
-    "line_down_extend",
+#     "line_up",
+#     "line_down",
+#     "line_up_extend",
+#     "line_down_extend",
     
-    "line_start",
-    "line_end",
-    "line_start_extend",
-    "line_end_extend",
+#     "line_start",
+#     "line_end",
+#     "line_start_extend",
+#     "line_end_extend",
     
-    "line_scroll_up",
-    "line_scroll_down",
-    "line_add_caret_up",
-    "line_add_caret_down",
-    "line_delete",
-    "line_duplicate",
-    "line_transpose",
-    "line_reverse",
+#     "line_scroll_up",
+#     "line_scroll_down",
+#     "line_add_caret_up",
+#     "line_add_caret_down",
+#     "line_delete",
+#     "line_duplicate",
+#     "line_transpose",
+#     "line_reverse",
 
-    "copy",
-    "cut",
-    "paste",
+#     "copy",
+#     "cut",
+#     "paste",
 
-    "para_up",
-    "para_down",
-    "para_up_extend",
-    "para_down_extend",
+#     "para_up",
+#     "para_down",
+#     "para_up_extend",
+#     "para_down_extend",
     
-    "word_left",
-    "word_right",
-    "word_left_extend",
-    "word_right_extend",
+#     "word_left",
+#     "word_right",
+#     "word_left_extend",
+#     "word_right_extend",
     
-    "word_left_end",
-    "word_right_end",
-    "word_left_end_extend",
-    "word_right_end_extend",
+#     "word_left_end",
+#     "word_right_end",
+#     "word_left_end_extend",
+#     "word_right_end_extend",
     
-    "word_part_left",
-    "word_part_right",
-    "word_part_left_extend",
-    "word_part_right_extend",
+#     "word_part_left",
+#     "word_part_right",
+#     "word_part_left_extend",
+#     "word_part_right_extend",
     
-    "page_up",
-    "page_down",
-    "page_up_extend",
-    "page_down_extend",
+#     "page_up",
+#     "page_down",
+#     "page_up_extend",
+#     "page_down_extend",
     
-    "stuttered_page_up",
-    "stuttered_page_down",
-    "stuttered_page_up_extend",
-    "stuttered_page_down_extend",
+#     "stuttered_page_up",
+#     "stuttered_page_down",
+#     "stuttered_page_up_extend",
+#     "stuttered_page_down_extend",
 
-    "delete",
-    "delete_not_newline",
+#     "delete",
+#     "delete_not_newline",
 
-    "delete_right",
+#     "delete_right",
 
-    "delete_word_left",
-    "delete_word_right",
-    "delete_line_left",
-    "delete_line_right",
-    "delete_para_left",
-    "delete_para_right",
+#     "delete_word_left",
+#     "delete_word_right",
+#     "delete_line_left",
+#     "delete_line_right",
+#     "delete_para_left",
+#     "delete_para_right",
 
-    # -- pane navigation
+#     # -- pane navigation
     
-    "focus_main_editor",
-    "focus_split_editor",
-    "previous_tab",
-    "next_tab",
+#     "focus_main_editor",
+#     "focus_split_editor",
+#     "previous_tab",
+#     "next_tab",
     
-    # -- shortcuts to switch tab
+#     # -- shortcuts to switch tab
 
-    "switch_to_buffer_1",
-    "switch_to_buffer_2",
-    "switch_to_buffer_3",
-    "switch_to_buffer_4",
-    "switch_to_buffer_5",
-    "switch_to_buffer_6",
-    "switch_to_buffer_7",
-    "switch_to_buffer_8",
-    "switch_to_buffer_9",
+#     "switch_to_buffer_1",
+#     "switch_to_buffer_2",
+#     "switch_to_buffer_3",
+#     "switch_to_buffer_4",
+#     "switch_to_buffer_5",
+#     "switch_to_buffer_6",
+#     "switch_to_buffer_7",
+#     "switch_to_buffer_8",
+#     "switch_to_buffer_9",
 
-    # [user]
+#     # [user]
 
-    # this section is skipped
+#     # this section is skipped
 
-    # theme colors
+#     # theme colors
     
-    "background",
-    "foreground",
-    "text_color",
-    "cursor",
+#     "background",
+#     "foreground",
+#     "text_color",
+#     "cursor",
     
-    "default",
-    "keyword",
-    "class",
-    "name",
-    "lambda",
-    "string",
-    "number",
-    "operator",
-    "comment",
-    "special",
-    "type",
-    "boolean",
-    "builtin",
+#     "default",
+#     "keyword",
+#     "class",
+#     "name",
+#     "lambda",
+#     "string",
+#     "number",
+#     "operator",
+#     "comment",
+#     "special",
+#     "type",
+#     "boolean",
+#     "builtin",
 
-    "_error",
-    "_warning",
-    "_success",
+#     "_error",
+#     "_warning",
+#     "_success",
 
-    "_selection",
-    "_highlight",
+#     "_selection",
+#     "_highlight",
     
-    "_title_bar",
-    "_status_bar",
-})
+#     "_title_bar",
+#     "_status_bar",
+# })
 
-VALID_VALUES_PER_NAME = {
+ACCEPTED_NAMES = {
     
     # [license]
 
@@ -572,7 +572,7 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
 
     lexeme = text[start_pos:char_index]
 
-    if lexeme in ACCEPTED_NAMES or lexeme in VALID_VALUES_PER_NAME.keys():
+    if lexeme in ACCEPTED_NAMES.keys():
         tokens.append((DEFAULT, start_pos, lexeme))
     else:
         tokens.append((ERROR, start_pos, lexeme))
@@ -640,8 +640,8 @@ cdef int handle_identifier(int current_char_index, str text, list tokens):
             if item_text.startswith('"'):
                 tokens.append((STRING, abs_item_start, item_text))
             else:
-                if lexeme in VALID_VALUES_PER_NAME.keys():
-                    valid_values = VALID_VALUES_PER_NAME[lexeme]
+                if lexeme in ACCEPTED_NAMES.keys():
+                    valid_values = ACCEPTED_NAMES[lexeme]
 
                     # list of strings
                     if isinstance(valid_values, list):
