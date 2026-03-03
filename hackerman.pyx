@@ -293,6 +293,8 @@ ACCEPTED_NAMES = {
     
     "scripts_enabled": "bool",
     "allow_unsafe_scripts": "bool",
+    
+    "click_on_links": "bool",
 
     # -- ui
 
