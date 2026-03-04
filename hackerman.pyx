@@ -95,7 +95,7 @@ ACCEPTED_FUNCTIONS = frozenset({
     "go_to_line",
     "tear_off_buffer",
     "reset_zoom",
-    "convert_eol",
+    "replace_all_eol",
     "replace_tabs_with_spaces",
     "toggle_indent_guides",
     
