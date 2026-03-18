@@ -57,7 +57,6 @@ ACCEPTED_FUNCTIONS = frozenset({
     "zoom_out",
     "toggle_split_editor",
     "show_file_explorer",
-    "show_outline_panel",
     "show_function_explorer",
     "show_buffer_explorer",
     "open_terminal_at_file",    
@@ -84,7 +83,6 @@ ACCEPTED_FUNCTIONS = frozenset({
     
     "open_file_in_new_window",
     "copy_path_to_file",
-    "toggle_sidebar",
     "reset_window_pos",
     "toggle_read_only",
     "toggle_newspaper_scroll",
@@ -301,10 +299,10 @@ ACCEPTED_NAMES = {
 
     "show_line_numbers": "bool",
     "show_scrollbar": "bool",
+    "show_minimap": "bool",
     "show_indent_guides": "bool",
-    "show_inline_hints": "bool",
+    "show_annotations": "bool",
     "show_ui_borders": "bool",
-    # "show_minimap": "bool",
     
     "use_native_title_bar": "bool",    
     "file_explorer_as_sidebar": "bool",
